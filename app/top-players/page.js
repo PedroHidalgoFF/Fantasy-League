@@ -50,18 +50,6 @@ export default async function TopPlayersPage({ searchParams }) {
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
-      <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
-      </nav>
 
       <h1>⭐ Top 300 jugadores</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>

@@ -1,4 +1,5 @@
 import "./globals.css";
+import Sidebar from "./components/Sidebar";
 
 export const metadata = {
   title: "Mi Liga - Fantasy Football",
@@ -17,7 +18,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        {children}
+        <div className="app-shell">
+          <Sidebar />
+          <div className="app-content">{children}</div>
+        </div>
       </body>
     </html>
   );
