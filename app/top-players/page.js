@@ -28,7 +28,7 @@ function FilterLink({ label, active, href }) {
 
 export default async function TopPlayersPage({ searchParams }) {
   const leagueId = process.env.SLEEPER_LEAGUE_ID;
-  const allTopPlayers = await getTopPlayers(leagueId, 300);
+  const { players: allTopPlayers, nextWeek } = await getTopPlayers(leagueId, 300);
 
   const position = searchParams?.position || "ALL";
   const onlyAvailable = searchParams?.available === "true";
@@ -39,7 +39,6 @@ export default async function TopPlayersPage({ searchParams }) {
     return true;
   });
 
-  // Construye la URL manteniendo el otro filtro activo
   const buildUrl = (newPosition, newAvailable) => {
     const params = new URLSearchParams();
     if (newPosition !== "ALL") params.set("position", newPosition);
@@ -49,7 +48,7 @@ export default async function TopPlayersPage({ searchParams }) {
   };
 
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto" }}>
+    <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
         <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
         <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
@@ -64,8 +63,10 @@ export default async function TopPlayersPage({ searchParams }) {
 
       <h1>⭐ Top 300 jugadores</h1>
       <p style={{ color: "#999", fontSize: "0.85rem" }}>
-        Ordenados por relevancia fantasy (ranking interno de Sleeper). Se muestra el
-        equipo de tu liga que lo tiene, o "Agente Libre" si nadie lo ha tomado.
+        Ordenados por relevancia fantasy (ranking interno de Sleeper). "Pts temporada"
+        son puntos PPR reales acumulados. "Proy. semana {nextWeek}" es la proyección
+        para el próximo partido — puede salir vacío si el jugador tiene bye esa semana
+        o no hay proyección disponible todavía.
       </p>
 
       <div style={{ marginTop: "1rem" }}>
@@ -99,6 +100,8 @@ export default async function TopPlayersPage({ searchParams }) {
             <th style={{ padding: "0.4rem" }}>Jugador</th>
             <th style={{ padding: "0.4rem" }}>Pos</th>
             <th style={{ padding: "0.4rem" }}>NFL</th>
+            <th style={{ padding: "0.4rem" }}>Pts temporada</th>
+            <th style={{ padding: "0.4rem" }}>Proy. semana {nextWeek}</th>
             <th style={{ padding: "0.4rem" }}>En tu liga</th>
           </tr>
         </thead>
@@ -109,6 +112,10 @@ export default async function TopPlayersPage({ searchParams }) {
               <td style={{ padding: "0.4rem" }}>{p.name}</td>
               <td style={{ padding: "0.4rem" }}>{p.position}</td>
               <td style={{ padding: "0.4rem" }}>{p.nflTeam}</td>
+              <td style={{ padding: "0.4rem" }}>{p.seasonPoints}</td>
+              <td style={{ padding: "0.4rem" }}>
+                {p.nextGameProjection !== null ? p.nextGameProjection : "—"}
+              </td>
               <td
                 style={{
                   padding: "0.4rem",
