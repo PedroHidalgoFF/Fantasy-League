@@ -2,9 +2,31 @@ import { getTeamProfile, getNFLState } from "../../../lib/sleeper";
 import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
 import { getPositionColor } from "../../../lib/positionBadge";
 import TeamLogo from "../../components/TeamLogo";
-import { getLeagueId } from "../../../lib/session";
+import { getLeagueId, getMyRosterId } from "../../../lib/session";
+import { Star } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+function YourTeamBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.25rem",
+        background: "var(--accent)",
+        color: "var(--accent-contrast)",
+        padding: "0.15rem 0.55rem",
+        borderRadius: "999px",
+        fontSize: "0.7rem",
+        fontWeight: 700,
+        textTransform: "uppercase",
+      }}
+    >
+      <Star size={12} fill="var(--accent-contrast)" /> Your Team
+    </span>
+  );
+}
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
@@ -17,6 +39,7 @@ function formatDate(timestamp) {
 
 export default async function TeamProfilePage({ params }) {
   const leagueId = getLeagueId();
+  const myRosterId = getMyRosterId();
   const team = await getTeamProfile(leagueId, params.rosterId);
 
   if (!team) {
@@ -47,6 +70,7 @@ export default async function TeamProfilePage({ params }) {
       <h1 style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
         <TeamLogo avatar={team.avatar} teamName={team.teamName} size={32} />
         {team.teamName}
+        {myRosterId && String(params.rosterId) === String(myRosterId) && <YourTeamBadge />}
       </h1>
       <p style={{ color: "var(--text-muted)" }}>
         Record: {team.wins}-{team.losses}

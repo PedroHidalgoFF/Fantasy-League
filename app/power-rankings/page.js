@@ -1,10 +1,10 @@
 import { getStandings } from "../../lib/sleeper";
-import { getAllTeamsForSelector, getTeamRosterSplit } from "../../lib/teamRoster";
+import { getTeamRosterSplit } from "../../lib/teamRoster";
 import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
 import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
 import TeamLogo from "../components/TeamLogo";
-import { Trophy } from "lucide-react";
-import { getLeagueId } from "../../lib/session";
+import { Trophy, Star } from "lucide-react";
+import { getLeagueId, getMyRosterId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +46,30 @@ function PlayerCard({ player }) {
   );
 }
 
-export default async function PowerRankingsPage({ searchParams }) {
+function YourTeamBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.25rem",
+        background: "var(--accent)",
+        color: "var(--accent-contrast)",
+        padding: "0.1rem 0.5rem",
+        borderRadius: "999px",
+        fontSize: "0.65rem",
+        fontWeight: 700,
+        textTransform: "uppercase",
+      }}
+    >
+      <Star size={11} fill="var(--accent-contrast)" /> You
+    </span>
+  );
+}
+
+export default async function PowerRankingsPage() {
   const leagueId = getLeagueId();
+  const myRosterId = getMyRosterId();
 
   if (!leagueId) {
     return (
@@ -58,12 +80,7 @@ export default async function PowerRankingsPage({ searchParams }) {
     );
   }
 
-  const teamOptions = await getAllTeamsForSelector(leagueId);
-  const selectedRosterId = searchParams?.team || "";
-  const selectedRoster = selectedRosterId
-    ? await getTeamRosterSplit(leagueId, selectedRosterId)
-    : null;
-
+  const myRoster = myRosterId ? await getTeamRosterSplit(leagueId, myRosterId) : null;
   const rankingsWithBreakdown = await getPowerRankingsWithBreakdown(leagueId);
   const standings = await getStandings(leagueId);
 
@@ -71,78 +88,37 @@ export default async function PowerRankingsPage({ searchParams }) {
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Trophy size={26} /> Power Rankings</h1>
 
-      {/* Selector de equipo + plantilla */}
-      <div
-        style={{
-          border: "1px solid var(--border)",
-          borderRadius: "12px",
-          padding: "1.25rem",
-          marginBottom: "2rem",
-          background: "var(--surface)",
-        }}
-      >
-        <form action="/power-rankings" method="GET" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <label htmlFor="team" style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            View roster for:
-          </label>
-          <select
-            id="team"
-            name="team"
-            defaultValue={selectedRosterId}
-            style={{
-              padding: "0.4rem 0.6rem",
-              borderRadius: "8px",
-              border: "1px solid var(--border)",
-              background: "var(--surface)",
-              color: "var(--text)",
-            }}
-          >
-            <option value="">Choose a team...</option>
-            {teamOptions.map((t) => (
-              <option key={t.rosterId} value={t.rosterId}>
-                {t.teamName}
-              </option>
+      {/* Tu plantilla, automática a partir de tu equipo elegido en /setup */}
+      {myRoster && (
+        <div
+          style={{
+            border: "1px solid var(--accent)",
+            borderRadius: "12px",
+            padding: "1.25rem",
+            marginBottom: "2rem",
+            background: "var(--surface)",
+          }}
+        >
+          <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <TeamLogo avatar={myRoster.avatar} teamName={myRoster.teamName} size={28} />
+            {myRoster.teamName} <YourTeamBadge /> · Starters
+          </h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.25rem" }}>
+            {myRoster.starters.map((p) => (
+              <PlayerCard key={p.playerId} player={p} />
             ))}
-          </select>
-          <button
-            type="submit"
-            style={{
-              padding: "0.4rem 0.9rem",
-              borderRadius: "8px",
-              border: "none",
-              background: "var(--accent)",
-              color: "var(--accent-contrast)",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Ver
-          </button>
-        </form>
-
-        {selectedRoster && (
-          <div style={{ marginTop: "1.25rem" }}>
-            <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <TeamLogo avatar={selectedRoster.avatar} teamName={selectedRoster.teamName} size={28} />
-              {selectedRoster.teamName} · Starters
-            </h3>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.25rem" }}>
-              {selectedRoster.starters.map((p) => (
-                <PlayerCard key={p.playerId} player={p} />
-              ))}
-            </div>
-
-            <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", color: "var(--text-muted)" }}>
-              Bench
-            </h3>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-              {selectedRoster.bench.map((p) => (
-                <PlayerCard key={p.playerId} player={p} />
-              ))}
-            </div>
           </div>
-        )}
-      </div>
+
+          <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", color: "var(--text-muted)" }}>
+            Bench
+          </h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+            {myRoster.bench.map((p) => (
+              <PlayerCard key={p.playerId} player={p} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Power Rankings como gráfico de barras apiladas por posición */}
       <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem", fontSize: "0.8rem" }}>
@@ -163,47 +139,60 @@ export default async function PowerRankingsPage({ searchParams }) {
       </div>
 
       <div style={{ marginBottom: "2.5rem" }}>
-        {rankingsWithBreakdown.map((team) => (
-          <div key={team.rosterId} style={{ marginBottom: "0.9rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.25rem" }}>
-              <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                {team.rank}.
-                <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
-                {team.teamName}
-              </span>
-              <span style={{ color: "var(--text-muted)" }}>Power score {team.powerScore}</span>
-            </div>
+        {rankingsWithBreakdown.map((team) => {
+          const isMine = myRosterId && String(team.rosterId) === String(myRosterId);
+          return (
             <div
+              key={team.rosterId}
               style={{
-                display: "flex",
-                width: "100%",
-                height: "22px",
-                borderRadius: "6px",
-                overflow: "hidden",
-                background: "var(--border-soft)",
+                marginBottom: "0.9rem",
+                padding: isMine ? "0.6rem 0.75rem" : "0",
+                borderRadius: "8px",
+                background: isMine ? "var(--surface-active)" : "transparent",
+                border: isMine ? "1px solid var(--accent)" : "none",
               }}
             >
-              {team.segments.map((seg) => (
-                <div
-                  key={seg.position}
-                  title={`${seg.position}: ${seg.points} pts`}
-                  style={{
-                    width: `${seg.pct}%`,
-                    background: getPositionSolidColor(seg.position),
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "0.65rem",
-                    color: "#fff",
-                    fontWeight: 700,
-                  }}
-                >
-                  {seg.pct > 8 ? seg.points : ""}
-                </div>
-              ))}
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.25rem" }}>
+                <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  {team.rank}.
+                  <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
+                  {team.teamName}
+                  {isMine && <YourTeamBadge />}
+                </span>
+                <span style={{ color: "var(--text-muted)" }}>Power score {team.powerScore}</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  height: "22px",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                  background: "var(--border-soft)",
+                }}
+              >
+                {team.segments.map((seg) => (
+                  <div
+                    key={seg.position}
+                    title={`${seg.position}: ${seg.points} pts`}
+                    style={{
+                      width: `${seg.pct}%`,
+                      background: getPositionSolidColor(seg.position),
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.65rem",
+                      color: "#fff",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {seg.pct > 8 ? seg.points : ""}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <h2>Standings</h2>
@@ -217,20 +206,24 @@ export default async function PowerRankingsPage({ searchParams }) {
           </tr>
         </thead>
         <tbody>
-          {standings.map((team) => (
-            <tr key={team.rosterId}>
-              <td style={{ padding: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <TeamLogo avatar={team.avatar} teamName={team.teamName} size={26} />
-                {team.teamName}
-              </td>
-              <td style={{ padding: "0.5rem" }}>
-                {team.wins}-{team.losses}
-                {team.ties ? `-${team.ties}` : ""}
-              </td>
-              <td style={{ padding: "0.5rem" }}>{team.pointsFor.toFixed(1)}</td>
-              <td style={{ padding: "0.5rem" }}>{team.pointsAgainst.toFixed(1)}</td>
-            </tr>
-          ))}
+          {standings.map((team) => {
+            const isMine = myRosterId && String(team.rosterId) === String(myRosterId);
+            return (
+              <tr key={team.rosterId} style={isMine ? { background: "var(--surface-active)" } : undefined}>
+                <td style={{ padding: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                  <TeamLogo avatar={team.avatar} teamName={team.teamName} size={26} />
+                  {team.teamName}
+                  {isMine && <YourTeamBadge />}
+                </td>
+                <td style={{ padding: "0.5rem" }}>
+                  {team.wins}-{team.losses}
+                  {team.ties ? `-${team.ties}` : ""}
+                </td>
+                <td style={{ padding: "0.5rem" }}>{team.pointsFor.toFixed(1)}</td>
+                <td style={{ padding: "0.5rem" }}>{team.pointsAgainst.toFixed(1)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </main>
