@@ -128,7 +128,8 @@ export default async function TeamProfilePage({ params }) {
           </div>
           {trade.byTeam.map((t, i) => (
             <div key={i} style={{ fontSize: "0.9rem" }}>
-              <strong>{t.teamName}</strong> received: {t.received.join(", ") || "—"}
+              <strong>{t.teamName}</strong> received:{" "}
+              {t.receives.map((p) => p.name).join(", ") || "—"}
             </div>
           ))}
         </div>
