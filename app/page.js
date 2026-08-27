@@ -76,9 +76,16 @@ export default async function HomePage() {
             marginBottom: "1.75rem",
             minHeight: "220px",
             textDecoration: "none",
-            background: featured.image
-              ? `linear-gradient(0deg, rgba(13,13,13,0.92) 10%, rgba(13,13,13,0.35) 60%, rgba(13,13,13,0.15) 100%), url(${featured.image}) center/cover no-repeat`
-              : "var(--sidebar-bg)",
+            background: (() => {
+              const bgImage =
+                featured.image ||
+                (featuredPlayer
+                  ? `https://sleepercdn.com/content/nfl/players/${featuredPlayer.playerId}.jpg`
+                  : null);
+              return bgImage
+                ? `linear-gradient(0deg, rgba(13,13,13,0.92) 10%, rgba(13,13,13,0.35) 60%, rgba(13,13,13,0.15) 100%), url(${bgImage}) center/cover no-repeat`
+                : "var(--sidebar-bg)";
+            })(),
           }}
         >
           <div
