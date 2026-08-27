@@ -122,6 +122,9 @@ export default async function TradesPage() {
       <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <Repeat size={26} /> Trades
       </h1>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
+        Full trade history for the season.
+      </p>
 
       {trades.length === 0 && <p>No trades yet this season.</p>}
 

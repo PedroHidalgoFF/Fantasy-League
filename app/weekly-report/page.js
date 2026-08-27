@@ -139,7 +139,10 @@ export default async function WeeklyReportPage() {
       <h1 style={{ marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <ClipboardList size={26} /> Weekly Report
       </h1>
-      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: 0, marginBottom: "1.5rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0, marginBottom: "0.25rem" }}>
+        Highest/lowest score, closest matchup and biggest blowout.
+      </p>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginTop: 0, marginBottom: "1.5rem" }}>
         {new Date().toLocaleDateString("en-US", {
           day: "2-digit",
           month: "2-digit",

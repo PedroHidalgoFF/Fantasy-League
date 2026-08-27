@@ -9,15 +9,15 @@ import { getLeagueId } from "../lib/session";
 export const dynamic = "force-dynamic";
 
 const SECTIONS = [
-  { href: "/power-rankings", icon: Trophy, title: "Power Rankings", description: "Weekly ranking calculated from record and points for." },
-  { href: "/weekly-report", icon: ClipboardList, title: "Weekly Report", description: "Highest/lowest score, closest matchup and biggest blowout." },
-  { href: "/trades", icon: Repeat, title: "Trades", description: "Full trade history for the season." },
-  { href: "/waiver-wins", icon: Target, title: "Waiver Wins", description: "The best waiver pickups, ranked by points." },
-  { href: "/bustboom", icon: Zap, title: "Bust/Boom", description: "Who overperformed and who fell short this week." },
-  { href: "/head-to-head", icon: Swords, title: "Head-to-Head", description: "Matchup history between every pair of teams." },
-  { href: "/teams", icon: Users, title: "Teams", description: "Roster, record, and trades for each team in the league." },
-  { href: "/top-players", icon: Star, title: "Top 300 Players", description: "The most relevant players, with points and availability." },
-  { href: "/news", icon: Newspaper, title: "News", description: "Latest NFL news, plus what's happening with your league's players." },
+  { href: "/power-rankings", icon: Trophy, title: "Power Rankings", color: "#6fbf1f" },
+  { href: "/weekly-report", icon: ClipboardList, title: "Weekly Report", color: "#3b82f6" },
+  { href: "/trades", icon: Repeat, title: "Trades", color: "#a855f7" },
+  { href: "/waiver-wins", icon: Target, title: "Waiver Wins", color: "#14b8a6" },
+  { href: "/bustboom", icon: Zap, title: "Bust/Boom", color: "#f97316" },
+  { href: "/head-to-head", icon: Swords, title: "Head-to-Head", color: "#ec4899" },
+  { href: "/teams", icon: Users, title: "Teams", color: "#6366f1" },
+  { href: "/top-players", icon: Star, title: "Top 300", color: "#f59e0b" },
+  { href: "/news", icon: Newspaper, title: "News", color: "#0ea5e9" },
 ];
 
 export default async function HomePage() {
@@ -135,9 +135,12 @@ export default async function HomePage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "1rem",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "1.25rem 0.5rem",
           marginBottom: "2rem",
+          maxWidth: "420px",
+          marginLeft: "auto",
+          marginRight: "auto",
         }}
       >
         {SECTIONS.map((s) => {
@@ -147,19 +150,30 @@ export default async function HomePage() {
               key={s.href}
               href={s.href}
               style={{
-                display: "block",
-                border: "1px solid var(--border)",
-                borderRadius: "12px",
-                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "0.5rem",
                 textDecoration: "none",
                 color: "var(--text)",
-                background: "var(--surface)",
-                transition: "border-color 0.15s ease",
               }}
             >
-              <Icon size={28} color="var(--accent)" style={{ marginBottom: "0.5rem" }} />
-              <div style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>{s.title}</div>
-              <div style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{s.description}</div>
+              <div
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: "50%",
+                  background: `${s.color}22`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon size={26} color={s.color} />
+              </div>
+              <span style={{ fontSize: "0.78rem", fontWeight: 500, textAlign: "center", lineHeight: 1.2 }}>
+                {s.title}
+              </span>
             </a>
           );
         })}

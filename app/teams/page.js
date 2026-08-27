@@ -46,6 +46,9 @@ export default async function TeamsPage() {
       <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <Users size={26} /> Teams
       </h1>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
+        Roster, record, and trades for each team in the league.
+      </p>
 
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {sorted.map((team) => {

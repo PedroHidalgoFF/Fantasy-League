@@ -87,6 +87,9 @@ export default async function PowerRankingsPage() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Trophy size={26} /> Power Rankings</h1>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
+        Weekly ranking calculated from record and points for.
+      </p>
 
       {/* Tu plantilla, automática a partir de tu equipo elegido en /setup */}
       {myRoster && (
