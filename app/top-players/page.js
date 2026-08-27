@@ -1,4 +1,5 @@
 import { getTopPlayers } from "../../lib/topPlayers";
+import { getInjuryBadge } from "../../lib/injuryBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -64,9 +65,9 @@ export default async function TopPlayersPage({ searchParams }) {
       <h1>⭐ Top 300 jugadores</h1>
       <p style={{ color: "#999", fontSize: "0.85rem" }}>
         Ordenados por relevancia fantasy (ranking interno de Sleeper). "Pts temporada"
-        son puntos PPR reales acumulados. "Proy. semana {nextWeek}" es la proyección
-        para el próximo partido — puede salir vacío si el jugador tiene bye esa semana
-        o no hay proyección disponible todavía.
+        son puntos PPR reales acumulados. "Pts esperados esta semana" es la proyección
+        para el próximo partido — puede salir vacío si el jugador tiene bye o no hay
+        proyección disponible todavía.
       </p>
 
       <div style={{ marginTop: "1rem" }}>
@@ -92,6 +93,10 @@ export default async function TopPlayersPage({ searchParams }) {
       <p style={{ color: "#666", fontSize: "0.8rem" }}>
         Mostrando {filtered.length} de {allTopPlayers.length} jugadores
       </p>
+      <p style={{ color: "#666", fontSize: "0.75rem" }}>
+        ⚠️ Cuestionable/No disponible · 🟠 Dudoso · ❌ Fuera esta semana · 🏥 IR/PUP ·
+        🚫 Suspendido — pasa el cursor sobre el ícono para ver el detalle.
+      </p>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
         <thead>
@@ -101,31 +106,41 @@ export default async function TopPlayersPage({ searchParams }) {
             <th style={{ padding: "0.4rem" }}>Pos</th>
             <th style={{ padding: "0.4rem" }}>NFL</th>
             <th style={{ padding: "0.4rem" }}>Pts temporada</th>
-            <th style={{ padding: "0.4rem" }}>Proy. semana {nextWeek}</th>
+            <th style={{ padding: "0.4rem" }}>Pts esperados esta semana</th>
             <th style={{ padding: "0.4rem" }}>En tu liga</th>
           </tr>
         </thead>
         <tbody>
-          {filtered.map((p, i) => (
-            <tr key={p.playerId} style={{ borderBottom: "1px solid #222" }}>
-              <td style={{ padding: "0.4rem" }}>{i + 1}</td>
-              <td style={{ padding: "0.4rem" }}>{p.name}</td>
-              <td style={{ padding: "0.4rem" }}>{p.position}</td>
-              <td style={{ padding: "0.4rem" }}>{p.nflTeam}</td>
-              <td style={{ padding: "0.4rem" }}>{p.seasonPoints}</td>
-              <td style={{ padding: "0.4rem" }}>
-                {p.nextGameProjection !== null ? p.nextGameProjection : "—"}
-              </td>
-              <td
-                style={{
-                  padding: "0.4rem",
-                  color: p.leagueOwner ? "#4ea1f3" : "#4ade80",
-                }}
-              >
-                {p.leagueOwner || "Disponible"}
-              </td>
-            </tr>
-          ))}
+          {filtered.map((p, i) => {
+            const badge = getInjuryBadge(p.injuryStatus);
+            return (
+              <tr key={p.playerId} style={{ borderBottom: "1px solid #222" }}>
+                <td style={{ padding: "0.4rem" }}>{i + 1}</td>
+                <td style={{ padding: "0.4rem" }}>
+                  {p.name}
+                  {badge && (
+                    <span title={badge.label} style={{ marginLeft: "0.4rem", cursor: "help" }}>
+                      {badge.icon}
+                    </span>
+                  )}
+                </td>
+                <td style={{ padding: "0.4rem" }}>{p.position}</td>
+                <td style={{ padding: "0.4rem" }}>{p.nflTeam}</td>
+                <td style={{ padding: "0.4rem" }}>{p.seasonPoints}</td>
+                <td style={{ padding: "0.4rem" }}>
+                  {p.nextGameProjection !== null ? p.nextGameProjection : "—"}
+                </td>
+                <td
+                  style={{
+                    padding: "0.4rem",
+                    color: p.leagueOwner ? "#4ea1f3" : "#4ade80",
+                  }}
+                >
+                  {p.leagueOwner || "Disponible"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </main>
