@@ -1,4 +1,4 @@
-import { getTeamProfile, getNFLState } from "../../../lib/sleeper";
+import { getTeamProfile, getRegularSeasonState } from "../../../lib/sleeper";
 import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
 import { getPositionColor } from "../../../lib/positionBadge";
 import TeamLogo from "../../components/TeamLogo";
@@ -51,11 +51,10 @@ export default async function TeamProfilePage({ params }) {
     );
   }
 
-  const state = await getNFLState().catch(() => ({ week: 1, season: null }));
-  const lastCompletedWeek = Math.max((state.week || 1) - 1, 0);
+  const { season, lastCompletedWeek } = await getRegularSeasonState().catch(() => ({ season: null, lastCompletedWeek: 0 }));
   const seasonPoints =
-    lastCompletedWeek > 0 && state.season
-      ? await getSeasonPointsByPlayer(state.season, lastCompletedWeek).catch(() => ({}))
+    lastCompletedWeek > 0 && season
+      ? await getSeasonPointsByPlayer(season, lastCompletedWeek).catch(() => ({}))
       : {};
 
   // Ordenamos el roster por puntos de temporada, de mayor a menor
