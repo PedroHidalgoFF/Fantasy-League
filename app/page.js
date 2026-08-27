@@ -3,7 +3,7 @@ import { getPublishedPost } from "../lib/posts";
 import { getESPNNews, buildRelevantPlayerIndex, findFeaturedPlayerForArticle } from "../lib/news";
 import { relativeTime } from "../lib/relativeTime";
 import { Trophy, ClipboardList, Repeat, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight } from "lucide-react";
-import NewsRow from "./components/NewsRow";
+import NewsList from "./components/NewsList";
 import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
@@ -184,9 +184,9 @@ export default async function HomePage() {
       {restOfNews.length > 0 && (
         <>
           <h2>Latest News</h2>
-          {restOfNews.map((item, i) => (
-            <NewsRow key={i} item={item} matchedPlayer={findFeaturedPlayerForArticle(item, playerIndex)} />
-          ))}
+          <NewsList
+            entries={restOfNews.map((item) => ({ item, matchedPlayer: findFeaturedPlayerForArticle(item, playerIndex) }))}
+          />
           <a href="/news" style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600 }}>
             See all news →
           </a>

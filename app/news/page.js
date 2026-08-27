@@ -8,7 +8,7 @@ import {
 } from "../../lib/news";
 import { getLeagueId } from "../../lib/session";
 import { Newspaper } from "lucide-react";
-import NewsRow from "../components/NewsRow";
+import NewsList from "../components/NewsList";
 
 export const dynamic = "force-dynamic";
 
@@ -56,15 +56,15 @@ export default async function NewsPage() {
           general NFL news below in the meantime.
         </p>
       ) : (
-        leagueNews.map((item, i) => (
-          <NewsRow key={i} item={item} matchedPlayer={findFeaturedPlayerForArticle(item, playerIndex)} />
-        ))
+        <NewsList
+          entries={leagueNews.map((item) => ({ item, matchedPlayer: findFeaturedPlayerForArticle(item, playerIndex) }))}
+        />
       )}
 
       <h2 style={{ marginTop: "2rem" }}>Top NFL News</h2>
-      {generalNews.map((item, i) => (
-        <NewsRow key={i} item={item} matchedPlayer={findFeaturedPlayerForArticle(item, playerIndex)} />
-      ))}
+      <NewsList
+        entries={generalNews.map((item) => ({ item, matchedPlayer: findFeaturedPlayerForArticle(item, playerIndex) }))}
+      />
     </main>
   );
 }
