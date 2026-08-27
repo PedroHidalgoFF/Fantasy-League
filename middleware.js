@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { isValidSession, ADMIN_COOKIE_NAME } from "./lib/auth";
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   const isPublicAdminPath =
@@ -15,7 +15,8 @@ export function middleware(request) {
     if (isPublicAdminPath) return NextResponse.next();
 
     const cookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
-    if (!isValidSession(cookie)) {
+    const valid = await isValidSession(cookie);
+    if (!valid) {
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }

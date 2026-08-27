@@ -1,5 +1,5 @@
-import { getStandings } from "../lib/sleeper";
-import { calculatePowerRankings } from "../lib/powerRankings";
+import { getStandings } from "../../lib/sleeper";
+import { calculatePowerRankings } from "../../lib/powerRankings";
 
 // Esto hace que la página se regenere cuando GitHub Actions dispara un
 // nuevo build (ver .github/workflows/rebuild.yml). No cachea entre builds.
