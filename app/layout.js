@@ -2,8 +2,13 @@ import "./globals.css";
 import Sidebar from "./components/Sidebar";
 
 export const metadata = {
-  title: "My Fantasy Football League",
+  title: "Fantasy Partner",
   description: "Power rankings, standings, trades, and league news",
+  appleWebApp: {
+    capable: true,
+    title: "RedZone Redemption",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export default function RootLayout({ children }) {
