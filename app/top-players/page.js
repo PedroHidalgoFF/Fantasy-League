@@ -2,9 +2,51 @@ import { getTopPlayers } from "../../lib/topPlayers";
 
 export const dynamic = "force-dynamic";
 
-export default async function TopPlayersPage() {
+const POSITIONS = ["QB", "RB", "WR", "TE", "K", "DEF"];
+
+function FilterLink({ label, active, href }) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: "inline-block",
+        padding: "0.3rem 0.75rem",
+        marginRight: "0.5rem",
+        marginBottom: "0.5rem",
+        borderRadius: "999px",
+        border: active ? "1px solid #4ea1f3" : "1px solid #333",
+        background: active ? "#1a2a3a" : "transparent",
+        color: active ? "#4ea1f3" : "#ccc",
+        textDecoration: "none",
+        fontSize: "0.85rem",
+      }}
+    >
+      {label}
+    </a>
+  );
+}
+
+export default async function TopPlayersPage({ searchParams }) {
   const leagueId = process.env.SLEEPER_LEAGUE_ID;
-  const topPlayers = await getTopPlayers(leagueId, 300);
+  const allTopPlayers = await getTopPlayers(leagueId, 300);
+
+  const position = searchParams?.position || "ALL";
+  const onlyAvailable = searchParams?.available === "true";
+
+  const filtered = allTopPlayers.filter((p) => {
+    if (position !== "ALL" && p.position !== position) return false;
+    if (onlyAvailable && p.leagueOwner) return false;
+    return true;
+  });
+
+  // Construye la URL manteniendo el otro filtro activo
+  const buildUrl = (newPosition, newAvailable) => {
+    const params = new URLSearchParams();
+    if (newPosition !== "ALL") params.set("position", newPosition);
+    if (newAvailable) params.set("available", "true");
+    const qs = params.toString();
+    return `/top-players${qs ? `?${qs}` : ""}`;
+  };
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -26,7 +68,31 @@ export default async function TopPlayersPage() {
         equipo de tu liga que lo tiene, o "Agente Libre" si nadie lo ha tomado.
       </p>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+      <div style={{ marginTop: "1rem" }}>
+        <FilterLink label="Todas" active={position === "ALL"} href={buildUrl("ALL", onlyAvailable)} />
+        {POSITIONS.map((pos) => (
+          <FilterLink
+            key={pos}
+            label={pos}
+            active={position === pos}
+            href={buildUrl(pos, onlyAvailable)}
+          />
+        ))}
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <FilterLink
+          label={onlyAvailable ? "✓ Solo disponibles (agentes libres)" : "Solo disponibles (agentes libres)"}
+          active={onlyAvailable}
+          href={buildUrl(position, !onlyAvailable)}
+        />
+      </div>
+
+      <p style={{ color: "#666", fontSize: "0.8rem" }}>
+        Mostrando {filtered.length} de {allTopPlayers.length} jugadores
+      </p>
+
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
         <thead>
           <tr style={{ textAlign: "left", borderBottom: "1px solid #333" }}>
             <th style={{ padding: "0.4rem" }}>#</th>
@@ -37,7 +103,7 @@ export default async function TopPlayersPage() {
           </tr>
         </thead>
         <tbody>
-          {topPlayers.map((p, i) => (
+          {filtered.map((p, i) => (
             <tr key={p.playerId} style={{ borderBottom: "1px solid #222" }}>
               <td style={{ padding: "0.4rem" }}>{i + 1}</td>
               <td style={{ padding: "0.4rem" }}>{p.name}</td>
@@ -46,10 +112,10 @@ export default async function TopPlayersPage() {
               <td
                 style={{
                   padding: "0.4rem",
-                  color: p.leagueOwner ? "#4ea1f3" : "#666",
+                  color: p.leagueOwner ? "#4ea1f3" : "#4ade80",
                 }}
               >
-                {p.leagueOwner || "Agente Libre"}
+                {p.leagueOwner || "Disponible"}
               </td>
             </tr>
           ))}
