@@ -1,5 +1,6 @@
 import { getLeagueRosters, getAllPlayers } from "../../lib/sleeper";
 import {
+import { getLeagueId } from "../../lib/session";
   getESPNNews,
   getLeaguePlayerLastNames,
   filterNewsForLeague,
@@ -12,7 +13,7 @@ import NewsRow from "../components/NewsRow";
 export const dynamic = "force-dynamic";
 
 export default async function NewsPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
 
   if (!leagueId) {
     return (

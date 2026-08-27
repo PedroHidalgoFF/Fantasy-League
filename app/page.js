@@ -4,6 +4,7 @@ import { getESPNNews, buildRelevantPlayerIndex, findFeaturedPlayerForArticle } f
 import { relativeTime } from "../lib/relativeTime";
 import { Trophy, ClipboardList, Repeat, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight } from "lucide-react";
 import NewsRow from "./components/NewsRow";
+import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,7 @@ const SECTIONS = [
 ];
 
 export default async function HomePage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
 
   let league = null;
   let topTeam = null;

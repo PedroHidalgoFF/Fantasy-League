@@ -1,6 +1,7 @@
 import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { getBustBoom } from "../../lib/bustboom";
 import { Zap } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ function PlayerRow({ p }) {
 }
 
 export default async function BustBoomPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
 
   const { matchups, players, rosterTeamNames, week, season } =
     await getWeeklyMatchupData(leagueId);

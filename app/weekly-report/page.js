@@ -2,6 +2,7 @@ import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { buildWeeklyReport } from "../../lib/weeklyReport";
 import { getPublishedPost } from "../../lib/posts";
 import { ClipboardList } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ function StatCard({ emoji, label, value, sub }) {
 }
 
 export default async function WeeklyReportPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const { matchups, rosterTeamNames, week } = await getWeeklyMatchupData(leagueId);
   const report = buildWeeklyReport(matchups, rosterTeamNames);
   const weekPost = await getPublishedPost("weekly-report", week).catch(() => null);

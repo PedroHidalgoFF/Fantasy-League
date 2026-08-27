@@ -16,6 +16,7 @@ import {
   Newspaper,
   Menu,
   X,
+  RefreshCw,
 } from "lucide-react";
 
 const LINKS = [
@@ -35,8 +36,13 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // El panel de admin tiene su propio look, no mostramos el sidebar ahí
-  if (pathname?.startsWith("/admin")) return null;
+  // El panel de admin y la pantalla de setup tienen su propio look
+  if (pathname?.startsWith("/admin") || pathname === "/setup") return null;
+
+  async function handleChangeLeague() {
+    await fetch("/api/setup/reset", { method: "POST" });
+    window.location.href = "/setup";
+  }
 
   return (
     <>
@@ -72,6 +78,15 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        <button
+          onClick={handleChangeLeague}
+          className="sidebar-link"
+          style={{ marginTop: "auto", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
+        >
+          <RefreshCw size={20} />
+          <span>Change League</span>
+        </button>
       </aside>
     </>
   );

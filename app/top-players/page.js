@@ -2,6 +2,7 @@ import { getTopPlayers } from "../../lib/topPlayers";
 import { getInjuryBadge } from "../../lib/injuryBadge";
 import { getPositionColor } from "../../lib/positionBadge";
 import { Star } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ function SegmentedControl({ options, active, hrefFor }) {
 }
 
 export default async function TopPlayersPage({ searchParams }) {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const { players: allTopPlayers } = await getTopPlayers(leagueId, 300);
 
   const position = searchParams?.position || "ALL";

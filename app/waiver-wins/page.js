@@ -1,10 +1,11 @@
 import { getWaiverWireWins } from "../../lib/waiverWins";
 import { Target } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function WaiverWinsPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const wins = await getWaiverWireWins(leagueId);
 
   return (

@@ -2,6 +2,7 @@ import { getAllTrades } from "../../lib/sleeper";
 import { getPositionColor } from "../../lib/positionBadge";
 import { Repeat, ArrowRight } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -104,7 +105,7 @@ function TeamTradeBlock({ team }) {
 }
 
 export default async function TradesPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
 
   if (!leagueId) {
     return (

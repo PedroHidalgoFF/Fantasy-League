@@ -4,6 +4,7 @@ import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown"
 import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
 import TeamLogo from "../components/TeamLogo";
 import { Trophy } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ function PlayerCard({ player }) {
 }
 
 export default async function PowerRankingsPage({ searchParams }) {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
 
   if (!leagueId) {
     return (

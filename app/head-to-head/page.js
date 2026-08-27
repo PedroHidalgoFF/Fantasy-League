@@ -1,10 +1,11 @@
 import { getHeadToHeadRecords } from "../../lib/headToHead";
 import { Swords } from "lucide-react";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function HeadToHeadPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const rivalries = await getHeadToHeadRecords(leagueId);
 
   return (

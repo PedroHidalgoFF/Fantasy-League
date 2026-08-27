@@ -1,11 +1,12 @@
 import { getStandings } from "../../lib/sleeper";
 import { Users } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
+import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function TeamsPage() {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const standings = await getStandings(leagueId);
 
   return (

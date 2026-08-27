@@ -2,6 +2,7 @@ import { getTeamProfile, getNFLState } from "../../../lib/sleeper";
 import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
 import { getPositionColor } from "../../../lib/positionBadge";
 import TeamLogo from "../../components/TeamLogo";
+import { getLeagueId } from "../../../lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ function formatDate(timestamp) {
 }
 
 export default async function TeamProfilePage({ params }) {
-  const leagueId = process.env.SLEEPER_LEAGUE_ID;
+  const leagueId = getLeagueId();
   const team = await getTeamProfile(leagueId, params.rosterId);
 
   if (!team) {
