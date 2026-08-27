@@ -46,27 +46,6 @@ export default function Sidebar() {
     window.location.href = "/setup";
   }
 
-  const midpoint = Math.ceil(LINKS.length / 2);
-  const firstHalf = LINKS.slice(0, midpoint);
-  const secondHalf = LINKS.slice(midpoint);
-
-  function renderLinks(links) {
-    return links.map(({ href, label, icon: Icon }) => {
-      const active = pathname === href;
-      return (
-        <a
-          key={href}
-          href={href}
-          className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
-          onClick={() => setOpen(false)}
-        >
-          <Icon size={20} />
-          <span>{label}</span>
-        </a>
-      );
-    });
-  }
-
   return (
     <>
       {/* Botón hamburguesa: solo visible en móvil */}
@@ -78,19 +57,34 @@ export default function Sidebar() {
       {open && <div className="sidebar-backdrop" onClick={() => setOpen(false)} />}
 
       <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
-        <div className="sidebar-header" style={{ justifyContent: "flex-end" }}>
-          <button className="mobile-close" onClick={() => setOpen(false)} aria-label="Close menu">
+        <div className="sidebar-header" style={{ justifyContent: "center", position: "relative" }}>
+          <Image src="/logo-mark.png" alt="League logo" width={44} height={44} className="sidebar-logo" />
+          <button
+            className="mobile-close"
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            style={{ position: "absolute", right: 0 }}
+          >
             <X size={20} />
           </button>
         </div>
 
-        <nav className="sidebar-nav">{renderLinks(firstHalf)}</nav>
-
-        <div style={{ display: "flex", justifyContent: "center", padding: "1.25rem 0" }}>
-          <Image src="/logo-mark.png" alt="League logo" width={44} height={44} className="sidebar-logo" />
-        </div>
-
-        <nav className="sidebar-nav">{renderLinks(secondHalf)}</nav>
+        <nav className="sidebar-nav">
+          {LINKS.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <a
+                key={href}
+                href={href}
+                className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
+                onClick={() => setOpen(false)}
+              >
+                <Icon size={20} />
+                <span>{label}</span>
+              </a>
+            );
+          })}
+        </nav>
 
         <button
           onClick={handleChangeLeague}
