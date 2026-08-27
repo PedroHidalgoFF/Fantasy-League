@@ -30,7 +30,8 @@ export default async function TeamProfilePage({ params }) {
         <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
         <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
         <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1" }}>Equipos</a>
+        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "#f1f1f1" }}>Bust/Boom</a>
       </nav>
 
       <a href="/teams" style={{ color: "#4ea1f3", fontSize: "0.85rem" }}>← Todos los equipos</a>

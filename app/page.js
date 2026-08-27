@@ -26,7 +26,8 @@ export default async function HomePage() {
         <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
         <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
         <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1" }}>Equipos</a>
+        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "#f1f1f1" }}>Bust/Boom</a>
       </nav>
 
       <h1>🏈 Power Rankings</h1>
