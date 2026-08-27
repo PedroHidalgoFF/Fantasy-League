@@ -1,12 +1,12 @@
 import { getLeagueRosters, getAllPlayers } from "../../lib/sleeper";
 import {
-import { getLeagueId } from "../../lib/session";
   getESPNNews,
   getLeaguePlayerLastNames,
   filterNewsForLeague,
   buildRelevantPlayerIndex,
   findFeaturedPlayerForArticle,
 } from "../../lib/news";
+import { getLeagueId } from "../../lib/session";
 import { Newspaper } from "lucide-react";
 import NewsRow from "../components/NewsRow";
 
