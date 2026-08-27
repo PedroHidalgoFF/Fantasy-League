@@ -2,13 +2,14 @@ import { getLeague, getStandings, getAllPlayers } from "../lib/sleeper";
 import { getPublishedPost } from "../lib/posts";
 import { getESPNNews, buildRelevantPlayerIndex, findFeaturedPlayerForArticle } from "../lib/news";
 import { relativeTime } from "../lib/relativeTime";
-import { Trophy, ClipboardList, Repeat, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight } from "lucide-react";
+import { Trophy, ClipboardList, Repeat, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio } from "lucide-react";
 import NewsList from "./components/NewsList";
 import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
 
 const SECTIONS = [
+  { href: "/scores", icon: Radio, title: "Live Scores", color: "#ef4444" },
   { href: "/power-rankings", icon: Trophy, title: "Power Rankings", color: "#6fbf1f" },
   { href: "/weekly-report", icon: ClipboardList, title: "Weekly Report", color: "#3b82f6" },
   { href: "/trades", icon: Repeat, title: "Trades", color: "#a855f7" },

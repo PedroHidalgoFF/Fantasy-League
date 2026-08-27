@@ -17,10 +17,12 @@ import {
   Menu,
   X,
   RefreshCw,
+  Radio,
 } from "lucide-react";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
+  { href: "/scores", label: "Live Scores", icon: Radio },
   { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
   { href: "/trades", label: "Trades", icon: Repeat },
