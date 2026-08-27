@@ -111,7 +111,7 @@ export default function AdminDashboard({ currentWeek }) {
         Escribe o pega tu texto y dale "Publicar" — aparece de inmediato en el sitio la próxima vez que se actualice.
       </p>
 
-      <Editor label={`📋 Reporte Semanal (semana ${currentWeek})`} page="weekly-report" week={currentWeek} />
+      <Editor label="📋 Reporte Semanal" page="weekly-report" week={currentWeek} />
       <Editor label="🏠 Mensaje de Inicio" page="home" week={null} />
     </main>
   );

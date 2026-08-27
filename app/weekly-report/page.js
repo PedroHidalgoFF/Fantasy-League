@@ -43,7 +43,14 @@ export default async function WeeklyReportPage() {
         <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
       </nav>
 
-      <h1>📋 Reporte Semanal · Semana {week}</h1>
+      <h1 style={{ marginBottom: "0.25rem" }}>📋 Reporte Semanal</h1>
+      <p style={{ color: "#999", fontSize: "0.9rem", marginTop: 0, marginBottom: "1.5rem" }}>
+        {new Date().toLocaleDateString("es-MX", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })}
+      </p>
 
       {weekPost && (
         <div
