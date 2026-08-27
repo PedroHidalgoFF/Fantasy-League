@@ -40,9 +40,9 @@ export default function AdminLoginPage() {
             width: "100%",
             padding: "0.6rem",
             borderRadius: "8px",
-            border: "1px solid #333",
-            background: "#161a20",
-            color: "#f1f1f1",
+            border: "1px solid var(--border)",
+            background: "var(--surface)",
+            color: "var(--text)",
             marginBottom: "1rem",
           }}
         />
@@ -54,15 +54,15 @@ export default function AdminLoginPage() {
             padding: "0.6rem",
             borderRadius: "8px",
             border: "none",
-            background: "#4ea1f3",
-            color: "#0f1115",
+            background: "var(--accent)",
+            color: "var(--bg)",
             fontWeight: "bold",
             cursor: "pointer",
           }}
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>
-        {error && <p style={{ color: "#f87171", marginTop: "0.75rem" }}>{error}</p>}
+        {error && <p style={{ color: "var(--danger)", marginTop: "0.75rem" }}>{error}</p>}
       </form>
     </main>
   );

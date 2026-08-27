@@ -8,16 +8,16 @@ function StatCard({ emoji, label, value, sub }) {
   return (
     <div
       style={{
-        border: "1px solid #333",
+        border: "1px solid var(--border)",
         borderRadius: "8px",
         padding: "1rem",
         flex: "1 1 200px",
       }}
     >
       <div style={{ fontSize: "1.5rem" }}>{emoji}</div>
-      <div style={{ color: "#999", fontSize: "0.85rem", marginTop: "0.25rem" }}>{label}</div>
+      <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "0.25rem" }}>{label}</div>
       <div style={{ fontWeight: "bold", fontSize: "1.1rem", marginTop: "0.25rem" }}>{value}</div>
-      {sub && <div style={{ color: "#999", fontSize: "0.8rem" }}>{sub}</div>}
+      {sub && <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{sub}</div>}
     </div>
   );
 }
@@ -31,20 +31,20 @@ export default async function WeeklyReportPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1 style={{ marginBottom: "0.25rem" }}>📋 Reporte Semanal</h1>
-      <p style={{ color: "#999", fontSize: "0.9rem", marginTop: 0, marginBottom: "1.5rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: 0, marginBottom: "1.5rem" }}>
         {new Date().toLocaleDateString("es-MX", {
           day: "2-digit",
           month: "2-digit",
@@ -55,11 +55,11 @@ export default async function WeeklyReportPage() {
       {weekPost && (
         <div
           style={{
-            border: "1px solid #333",
+            border: "1px solid var(--border)",
             borderRadius: "12px",
             padding: "1.25rem",
             marginBottom: "1.5rem",
-            color: "#ccc",
+            color: "var(--text-soft)",
             lineHeight: 1.6,
             whiteSpace: "pre-wrap",
           }}
@@ -106,7 +106,7 @@ export default async function WeeklyReportPage() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                border: "1px solid #222",
+                border: "1px solid var(--border-soft)",
                 borderRadius: "8px",
                 padding: "0.75rem 1rem",
                 marginBottom: "0.5rem",

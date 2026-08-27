@@ -9,20 +9,20 @@ export default async function HeadToHeadPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1>⚔️ Head-to-Head</h1>
-      <p style={{ color: "#999", fontSize: "0.85rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Historial de enfrentamientos entre cada par de equipos esta temporada.
         Como apenas empieza el año, la mayoría va a mostrar solo 1 juego —
         esto va creciendo conforme se repitan los cruces.
@@ -36,7 +36,7 @@ export default async function HeadToHeadPage() {
         <div
           key={i}
           style={{
-            border: "1px solid #333",
+            border: "1px solid var(--border)",
             borderRadius: "8px",
             padding: "1rem",
             marginBottom: "1rem",
@@ -46,13 +46,13 @@ export default async function HeadToHeadPage() {
             <strong>
               {r.teamAName} vs {r.teamBName}
             </strong>
-            <span style={{ color: "#999" }}>
+            <span style={{ color: "var(--text-muted)" }}>
               {r.teamAWins}-{r.teamBWins}
               {r.ties ? `-${r.ties}` : ""}
             </span>
           </div>
 
-          <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "#ccc" }}>
+          <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-soft)" }}>
             {r.games.map((g, j) => (
               <div key={j}>
                 Semana {g.week}: {g.aScore.toFixed(1)} - {g.bScore.toFixed(1)}

@@ -23,22 +23,22 @@ export default async function HomePage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1>🏈 Power Rankings</h1>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "3rem" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #333" }}>
+          <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
             <th style={{ padding: "0.5rem" }}>#</th>
             <th style={{ padding: "0.5rem" }}>Equipo</th>
             <th style={{ padding: "0.5rem" }}>Récord</th>
@@ -47,7 +47,7 @@ export default async function HomePage() {
         </thead>
         <tbody>
           {powerRankings.map((team) => (
-            <tr key={team.rosterId} style={{ borderBottom: "1px solid #222" }}>
+            <tr key={team.rosterId} style={{ borderBottom: "1px solid var(--border-soft)" }}>
               <td style={{ padding: "0.5rem" }}>{team.rank}</td>
               <td style={{ padding: "0.5rem" }}>{team.teamName}</td>
               <td style={{ padding: "0.5rem" }}>
@@ -63,7 +63,7 @@ export default async function HomePage() {
       <h1>📊 Standings</h1>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #333" }}>
+          <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
             <th style={{ padding: "0.5rem" }}>Equipo</th>
             <th style={{ padding: "0.5rem" }}>Récord</th>
             <th style={{ padding: "0.5rem" }}>Puntos a favor</th>
@@ -72,7 +72,7 @@ export default async function HomePage() {
         </thead>
         <tbody>
           {standings.map((team) => (
-            <tr key={team.rosterId} style={{ borderBottom: "1px solid #222" }}>
+            <tr key={team.rosterId} style={{ borderBottom: "1px solid var(--border-soft)" }}>
               <td style={{ padding: "0.5rem" }}>{team.teamName}</td>
               <td style={{ padding: "0.5rem" }}>
                 {team.wins}-{team.losses}

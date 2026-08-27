@@ -9,16 +9,16 @@ export default async function TeamsPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1>👥 Equipos</h1>
@@ -30,15 +30,15 @@ export default async function TeamsPage() {
             href={`/teams/${team.rosterId}`}
             style={{
               display: "block",
-              border: "1px solid #333",
+              border: "1px solid var(--border)",
               borderRadius: "8px",
               padding: "1rem",
-              color: "#f1f1f1",
+              color: "var(--text)",
               textDecoration: "none",
             }}
           >
             <strong>{team.teamName}</strong>
-            <div style={{ color: "#999", fontSize: "0.9rem" }}>
+            <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
               {team.wins}-{team.losses}
               {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} pts
             </div>

@@ -85,7 +85,7 @@ export default async function HomePage() {
         <h1 style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
           🏆 {league?.name || "Mi Liga de Fantasy Football"}
         </h1>
-        <p style={{ color: "#999" }}>
+        <p style={{ color: "var(--text-muted)" }}>
           {league?.season ? `Temporada ${league.season}` : ""}
           {topTeam ? ` · Al frente: ${topTeam.teamName}` : ""}
         </p>
@@ -105,18 +105,18 @@ export default async function HomePage() {
             href={s.href}
             style={{
               display: "block",
-              border: "1px solid #333",
+              border: "1px solid var(--border)",
               borderRadius: "12px",
               padding: "1.25rem",
               textDecoration: "none",
-              color: "#f1f1f1",
-              background: "#161a20",
+              color: "var(--text)",
+              background: "var(--surface)",
               transition: "border-color 0.15s ease",
             }}
           >
             <div style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>{s.emoji}</div>
             <div style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>{s.title}</div>
-            <div style={{ color: "#999", fontSize: "0.85rem" }}>{s.description}</div>
+            <div style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{s.description}</div>
           </a>
         ))}
       </div>
@@ -125,10 +125,10 @@ export default async function HomePage() {
         <div
           style={{
             marginTop: "2rem",
-            border: "1px solid #333",
+            border: "1px solid var(--border)",
             borderRadius: "12px",
             padding: "1.25rem",
-            color: "#ccc",
+            color: "var(--text-soft)",
             lineHeight: 1.6,
             whiteSpace: "pre-wrap",
           }}

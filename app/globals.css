@@ -1,0 +1,134 @@
+/* app/globals.css
+   Identidad visual: "marcador de cancha nocturna" — verde-negro de
+   césped, acentos dorados (como el poste de gol), tipografía condensada
+   de marcador para títulos, sans limpia para el cuerpo. */
+
+:root {
+  --bg: #0b1210;
+  --surface: #121b17;
+  --surface-active: #1b2a22;
+  --border: #24332c;
+  --border-soft: #1a2620;
+
+  --text: #edefe9;
+  --text-muted: #93a69a;
+  --text-faint: #6e8175;
+  --text-soft: #c7d2c9;
+
+  --accent: #e8b92e;
+  --accent-contrast: #0b1210;
+  --success: #4fa37a;
+  --danger: #c4432b;
+
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 2rem 1.25rem 4rem;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 1.9rem;
+}
+
+h1::before {
+  content: "▸";
+  color: var(--accent);
+  margin-right: 0.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  color: var(--text-soft);
+  border-left: 3px solid var(--accent);
+  padding-left: 0.6rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* Barra de navegación: la volvemos un "ticker" de cancha */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0;
+  padding-bottom: 0.6rem;
+  margin-bottom: 2rem !important;
+}
+
+nav a {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted) !important;
+  text-decoration: none !important;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+nav a:hover {
+  color: var(--accent) !important;
+  border-bottom-color: var(--accent);
+}
+
+/* Línea de "primera oportunidad" — la firma visual del sitio.
+   Se agrega sola después de cada barra de navegación, sin tener
+   que tocar cada página. */
+nav::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: 0.75rem;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0px,
+    var(--accent) 14px,
+    transparent 14px,
+    transparent 26px
+  );
+  opacity: 0.55;
+  border-radius: 3px;
+}
+
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+thead th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--accent) !important;
+}
+
+tbody tr:hover {
+  background: var(--surface);
+}

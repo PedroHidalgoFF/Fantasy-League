@@ -15,9 +15,9 @@ function FilterLink({ label, active, href }) {
         marginRight: "0.5rem",
         marginBottom: "0.5rem",
         borderRadius: "999px",
-        border: active ? "1px solid #4ea1f3" : "1px solid #333",
-        background: active ? "#1a2a3a" : "transparent",
-        color: active ? "#4ea1f3" : "#ccc",
+        border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
+        background: active ? "var(--surface-active)" : "transparent",
+        color: active ? "var(--accent)" : "var(--text-soft)",
         textDecoration: "none",
         fontSize: "0.85rem",
       }}
@@ -51,20 +51,20 @@ export default async function TopPlayersPage({ searchParams }) {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1>⭐ Top 300 jugadores</h1>
-      <p style={{ color: "#999", fontSize: "0.85rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Ordenados por relevancia fantasy (ranking interno de Sleeper). "Pts temporada"
         son puntos PPR reales acumulados. "PES" (Puntos Esperados esta Semana) es la
         proyección para el próximo partido — puede salir vacío si el jugador tiene bye
@@ -91,17 +91,17 @@ export default async function TopPlayersPage({ searchParams }) {
         />
       </div>
 
-      <p style={{ color: "#666", fontSize: "0.8rem" }}>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.8rem" }}>
         Mostrando {filtered.length} de {allTopPlayers.length} jugadores
       </p>
-      <p style={{ color: "#666", fontSize: "0.75rem" }}>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.75rem" }}>
         ⚠️ Cuestionable/No disponible · 🟠 Dudoso · ❌ Fuera esta semana · 🏥 IR/PUP ·
         🚫 Suspendido — pasa el cursor sobre el ícono para ver el detalle.
       </p>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #333" }}>
+          <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
             <th style={{ padding: "0.4rem" }}>#</th>
             <th style={{ padding: "0.4rem" }}>Jugador</th>
             <th style={{ padding: "0.4rem" }}>Pos</th>
@@ -117,7 +117,7 @@ export default async function TopPlayersPage({ searchParams }) {
           {filtered.map((p, i) => {
             const badge = getInjuryBadge(p.injuryStatus);
             return (
-              <tr key={p.playerId} style={{ borderBottom: "1px solid #222" }}>
+              <tr key={p.playerId} style={{ borderBottom: "1px solid var(--border-soft)" }}>
                 <td style={{ padding: "0.4rem" }}>{i + 1}</td>
                 <td style={{ padding: "0.4rem" }}>
                   {p.name}
@@ -136,7 +136,7 @@ export default async function TopPlayersPage({ searchParams }) {
                 <td
                   style={{
                     padding: "0.4rem",
-                    color: p.leagueOwner ? "#4ea1f3" : "#4ade80",
+                    color: p.leagueOwner ? "var(--accent)" : "var(--success)",
                   }}
                 >
                   {p.leagueOwner || "Disponible"}

@@ -4,25 +4,25 @@ import { getBustBoom } from "../../lib/bustboom";
 export const dynamic = "force-dynamic";
 
 function PlayerRow({ p }) {
-  const diffColor = p.diff >= 0 ? "#4ade80" : "#f87171";
+  const diffColor = p.diff >= 0 ? "var(--success)" : "var(--danger)";
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "space-between",
-        borderBottom: "1px solid #222",
+        borderBottom: "1px solid var(--border-soft)",
         padding: "0.5rem 0",
       }}
     >
       <div>
         <strong>{p.name}</strong>{" "}
-        <span style={{ color: "#999", fontSize: "0.85rem" }}>
+        <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
           {p.position} · {p.teamName}
         </span>
       </div>
       <div style={{ textAlign: "right" }}>
         <div>
-          {p.actual} pts <span style={{ color: "#999" }}>(proy. {p.projected})</span>
+          {p.actual} pts <span style={{ color: "var(--text-muted)" }}>(proy. {p.projected})</span>
         </div>
         <div style={{ color: diffColor, fontWeight: "bold" }}>
           {p.diff >= 0 ? "+" : ""}
@@ -51,20 +51,20 @@ export default async function BustBoomPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/power-rankings" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
-        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
-        <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
-        <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
-        <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
-        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
-        <a href="/waiver-wins" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Waiver Wins</a>
-        <a href="/top-players" style={{ color: "#f1f1f1" }}>Top 300</a>
+        <a href="/" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/power-rankings" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Power Rankings</a>
+        <a href="/trades" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Noticias</a>
+        <a href="/teams" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Equipos</a>
+        <a href="/bustboom" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Bust/Boom</a>
+        <a href="/weekly-report" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "var(--text)", marginRight: "1.5rem" }}>Waiver Wins</a>
+        <a href="/top-players" style={{ color: "var(--text)" }}>Top 300</a>
       </nav>
 
       <h1>💥 Bust/Boom · Semana {week}</h1>
-      <p style={{ color: "#999", fontSize: "0.85rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Compara puntos reales vs. proyectados de tus titulares. Formato PPR.
       </p>
 
@@ -74,7 +74,7 @@ export default async function BustBoomPage() {
 
       {booms.length > 0 && (
         <>
-          <h2 style={{ marginTop: "2rem", color: "#4ade80" }}>🚀 Booms</h2>
+          <h2 style={{ marginTop: "2rem", color: "var(--success)" }}>🚀 Booms</h2>
           {booms.map((p) => (
             <PlayerRow key={p.playerId} p={p} />
           ))}
@@ -83,7 +83,7 @@ export default async function BustBoomPage() {
 
       {busts.length > 0 && (
         <>
-          <h2 style={{ marginTop: "2rem", color: "#f87171" }}>📉 Busts</h2>
+          <h2 style={{ marginTop: "2rem", color: "var(--danger)" }}>📉 Busts</h2>
           {busts.map((p) => (
             <PlayerRow key={p.playerId} p={p} />
           ))}

@@ -39,11 +39,11 @@ function Editor({ label, page, week }) {
   }
 
   return (
-    <div style={{ border: "1px solid #333", borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
+    <div style={{ border: "1px solid var(--border)", borderRadius: "12px", padding: "1.25rem", marginBottom: "1.5rem" }}>
       <h2 style={{ marginTop: 0 }}>{label}</h2>
 
       {!loaded && (
-        <button onClick={loadExisting} style={btnStyle("#333")}>
+        <button onClick={loadExisting} style={btnStyle("var(--border)")}>
           Cargar lo que ya está guardado
         </button>
       )}
@@ -58,29 +58,29 @@ function Editor({ label, page, week }) {
           marginTop: "1rem",
           padding: "0.75rem",
           borderRadius: "8px",
-          border: "1px solid #333",
-          background: "#0f1115",
-          color: "#f1f1f1",
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: "var(--text)",
           fontFamily: "inherit",
           fontSize: "0.95rem",
         }}
       />
 
       <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-        <button onClick={() => handleSave(false)} disabled={loading || !content} style={btnStyle("#333")}>
+        <button onClick={() => handleSave(false)} disabled={loading || !content} style={btnStyle("var(--border)")}>
           Guardar borrador
         </button>
-        <button onClick={() => handleSave(true)} disabled={loading || !content} style={btnStyle("#4ade80", "#0f1115")}>
+        <button onClick={() => handleSave(true)} disabled={loading || !content} style={btnStyle("var(--success)", "var(--bg)")}>
           Publicar
         </button>
       </div>
 
-      {status && <p style={{ marginTop: "0.75rem", color: "#999", fontSize: "0.9rem" }}>{status}</p>}
+      {status && <p style={{ marginTop: "0.75rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>{status}</p>}
     </div>
   );
 }
 
-function btnStyle(bg, color = "#f1f1f1") {
+function btnStyle(bg, color = "var(--text)") {
   return {
     padding: "0.5rem 1rem",
     borderRadius: "8px",
@@ -102,12 +102,12 @@ export default function AdminDashboard({ currentWeek }) {
     <main style={{ maxWidth: 700, margin: "2rem auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <h1>✍️ Panel de editor</h1>
-        <button onClick={handleLogout} style={btnStyle("#333")}>
+        <button onClick={handleLogout} style={btnStyle("var(--border)")}>
           Cerrar sesión
         </button>
       </div>
 
-      <p style={{ color: "#999", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
         Escribe o pega tu texto y dale "Publicar" — aparece de inmediato en el sitio la próxima vez que se actualice.
       </p>
 
