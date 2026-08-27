@@ -24,7 +24,8 @@ export default async function HomePage() {
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
         <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
-        <a href="/trades" style={{ color: "#f1f1f1" }}>Trades</a>
+        <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
+        <a href="/news" style={{ color: "#f1f1f1" }}>Noticias</a>
       </nav>
 
       <h1>🏈 Power Rankings</h1>
