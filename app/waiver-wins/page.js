@@ -1,21 +1,75 @@
 import { getWaiverWireWins } from "../../lib/waiverWins";
-import { Target } from "lucide-react";
+import { getPositionColor } from "../../lib/positionBadge";
+import { Target, Plus, Minus } from "lucide-react";
+import TeamLogo from "../components/TeamLogo";
 import { getLeagueId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
+
+function PlayerLine({ player, sign }) {
+  const posColor = getPositionColor(player.position);
+  const isAdd = sign === "+";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.4rem 0" }}>
+      <div
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          background: isAdd ? "var(--success-bg)" : "var(--danger-bg)",
+          color: isAdd ? "#15803d" : "#b91c1c",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        {isAdd ? <Plus size={14} /> : <Minus size={14} />}
+      </div>
+      <img
+        src={`https://sleepercdn.com/content/nfl/players/${player.playerId}.jpg`}
+        alt=""
+        width={40}
+        height={40}
+        loading="lazy"
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          objectFit: "cover",
+          background: "var(--border-soft)",
+          flexShrink: 0,
+        }}
+      />
+      <div>
+        <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{player.name}</div>
+        <span
+          style={{
+            background: posColor.bg,
+            color: posColor.color,
+            padding: "0.05rem 0.4rem",
+            borderRadius: "5px",
+            fontSize: "0.65rem",
+            fontWeight: 700,
+          }}
+        >
+          {player.position} · {player.nflTeam}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default async function WaiverWinsPage() {
   const leagueId = getLeagueId();
   const wins = await getWaiverWireWins(leagueId);
 
   return (
-    <main style={{ maxWidth: 800, margin: "0 auto" }}>
-
+    <main style={{ maxWidth: 700, margin: "0 auto" }}>
       <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Target size={26} /> Waiver Wire Wins</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Players added via waiver or free agent, ranked by total points
-        accumulated since they were added. Early in the season, so this
-        list will keep growing.
+        accumulated since they were added.
       </p>
 
       {wins.length === 0 && (
@@ -26,25 +80,28 @@ export default async function WaiverWinsPage() {
 
       {wins.map((w, i) => (
         <div
-          key={w.playerId}
+          key={`${w.addedPlayer.playerId}-${i}`}
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
             border: "1px solid var(--border)",
-            borderRadius: "8px",
-            padding: "0.75rem 1rem",
-            marginBottom: "0.5rem",
+            borderRadius: "10px",
+            padding: "1rem",
+            marginBottom: "0.85rem",
+            background: "var(--surface)",
           }}
         >
-          <div>
-            <span style={{ color: "var(--text-muted)", marginRight: "0.5rem" }}>#{i + 1}</span>
-            <strong>{w.name}</strong>{" "}
-            <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-              {w.position} · {w.teamName} · added week {w.weekAdded}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ color: "var(--text-faint)", fontSize: "0.8rem" }}>#{i + 1}</span>
+              <TeamLogo avatar={w.avatar} teamName={w.teamName} size={22} />
+              <strong style={{ fontSize: "0.85rem" }}>{w.teamName}</strong>
+            </div>
+            <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: "0.9rem" }}>
+              {w.totalPoints} pts
             </span>
           </div>
-          <div style={{ fontWeight: "bold" }}>{w.totalPoints} pts</div>
+
+          <PlayerLine player={w.addedPlayer} sign="+" />
+          {w.droppedPlayer && <PlayerLine player={w.droppedPlayer} sign="-" />}
         </div>
       ))}
     </main>
