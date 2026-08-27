@@ -1,5 +1,6 @@
 import { getWaiverWireWins } from "../../lib/waiverWins";
 import { getPositionColor } from "../../lib/positionBadge";
+import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Target, Plus, Minus } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import { getLeagueId } from "../../lib/session";
@@ -27,7 +28,7 @@ function PlayerLine({ player, sign }) {
         {isAdd ? <Plus size={14} /> : <Minus size={14} />}
       </div>
       <img
-        src={`https://sleepercdn.com/content/nfl/players/${player.playerId}.jpg`}
+        src={getPlayerImageUrl(player.playerId, player.position, player.nflTeam)}
         alt=""
         width={40}
         height={40}

@@ -1,6 +1,7 @@
 import { getTeamProfile, getRegularSeasonState } from "../../../lib/sleeper";
 import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
 import { getPositionColor } from "../../../lib/positionBadge";
+import { getPlayerImageUrl } from "../../../lib/teamLogo";
 import TeamLogo from "../../components/TeamLogo";
 import { getLeagueId, getMyRosterId } from "../../../lib/session";
 import { Star } from "lucide-react";
@@ -95,7 +96,7 @@ export default async function TeamProfilePage({ params }) {
               <tr key={p.id}>
                 <td style={{ padding: "0.5rem" }}>
                   <img
-                    src={`https://sleepercdn.com/content/nfl/players/${p.id}.jpg`}
+                    src={getPlayerImageUrl(p.id, p.position, p.team)}
                     alt=""
                     width={36}
                     height={36}

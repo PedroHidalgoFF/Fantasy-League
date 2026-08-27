@@ -2,6 +2,7 @@ import { getStandings } from "../../lib/sleeper";
 import { getTeamRosterSplit } from "../../lib/teamRoster";
 import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
 import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
+import { getPlayerImageUrl } from "../../lib/teamLogo";
 import TeamLogo from "../components/TeamLogo";
 import { Trophy, Star } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
@@ -13,7 +14,7 @@ function PlayerCard({ player }) {
   return (
     <div style={{ textAlign: "center", width: "88px" }}>
       <img
-        src={`https://sleepercdn.com/content/nfl/players/${player.playerId}.jpg`}
+        src={getPlayerImageUrl(player.playerId, player.position, player.nflTeam)}
         alt=""
         width={64}
         height={64}

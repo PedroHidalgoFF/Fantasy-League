@@ -1,6 +1,7 @@
 import { getTopPlayers } from "../../lib/topPlayers";
 import { getInjuryBadge } from "../../lib/injuryBadge";
 import { getPositionColor } from "../../lib/positionBadge";
+import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Star } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
 
@@ -154,7 +155,7 @@ export default async function TopPlayersPage({ searchParams }) {
                 <td style={{ padding: "0.5rem", color: "var(--text-faint)" }}>{i + 1}</td>
                 <td style={{ padding: "0.5rem" }}>
                   <img
-                    src={`https://sleepercdn.com/content/nfl/players/${p.playerId}.jpg`}
+                    src={getPlayerImageUrl(p.playerId, p.position, p.nflTeam)}
                     alt=""
                     width={32}
                     height={32}

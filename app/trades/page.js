@@ -1,5 +1,6 @@
 import { getAllTrades } from "../../lib/sleeper";
 import { getPositionColor } from "../../lib/positionBadge";
+import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Repeat, ArrowRight } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import { getLeagueId } from "../../lib/session";
@@ -30,7 +31,7 @@ function PlayerChip({ player }) {
       }}
     >
       <img
-        src={`https://sleepercdn.com/content/nfl/players/${player.playerId}.jpg`}
+        src={getPlayerImageUrl(player.playerId, player.position, player.nflTeam)}
         alt=""
         width={36}
         height={36}
