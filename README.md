@@ -43,3 +43,40 @@ Con esto, el workflow en `.github/workflows/rebuild.yml` va a disparar un rebuil
 ## Probarlo tú mismo (opcional, si quieres ver cambios antes de subir)
 
 Si en algún momento quieres correrlo en tu compu antes de publicar cambios, necesitarías tener Node.js instalado y correr `npm install` y luego `npm run dev` — pero para el flujo normal de "solo actualizar datos", no lo necesitas: todo pasa automático en GitHub + Vercel.
+
+## Panel de editor (tú escribes, tú publicas)
+
+En `/admin` hay un panel protegido por contraseña donde puedes escribir o
+pegar un texto para el Reporte Semanal o el mensaje de Inicio, y publicarlo
+con un clic. Es 100% gratis — no usa ningún servicio de pago.
+
+### 1. Crear la tabla en Supabase
+
+1. Entra a tu proyecto en supabase.com (la cuenta que ya creaste)
+2. Ve a "SQL Editor" → "New query"
+3. Pega el contenido completo de `supabase-setup.sql` (está en esta carpeta) y dale "Run"
+
+### 2. Conseguir tus llaves de Supabase
+
+1. En Supabase, ve a Settings → API
+2. Copia:
+   - **Project URL** (algo como `https://xxxxx.supabase.co`)
+   - **service_role key** (NO la "anon" key — necesitas la "service_role", que tiene permiso de escritura). Guárdala bien, nunca la compartas ni la subas a GitHub directamente — solo va como variable de entorno en Vercel.
+
+### 3. Agregar las variables de entorno en Vercel
+
+En tu proyecto de Vercel → Settings → Environment Variables, agrega:
+
+| Variable | Valor |
+|---|---|
+| `SUPABASE_URL` | tu Project URL de Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | tu service_role key de Supabase |
+| `ADMIN_PASSWORD` | una contraseña que tú inventes, solo para ti |
+
+Después de agregarlas, ve a Deployments → dale "Redeploy" al último deployment para que tomen efecto.
+
+### 4. Usarlo
+
+Entra a `tu-sitio.vercel.app/admin`, mete tu contraseña, escribe o pega tu texto en la sección que quieras (Reporte Semanal o Inicio), y dale "Publicar". Aparece de inmediato en el sitio la próxima vez que se actualice.
+
+

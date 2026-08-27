@@ -1,5 +1,6 @@
 import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { buildWeeklyReport } from "../../lib/weeklyReport";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function WeeklyReportPage() {
   const leagueId = process.env.SLEEPER_LEAGUE_ID;
   const { matchups, rosterTeamNames, week } = await getWeeklyMatchupData(leagueId);
   const report = buildWeeklyReport(matchups, rosterTeamNames);
+  const weekPost = await getPublishedPost("weekly-report", week).catch(() => null);
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -42,6 +44,22 @@ export default async function WeeklyReportPage() {
       </nav>
 
       <h1>📋 Reporte Semanal · Semana {week}</h1>
+
+      {weekPost && (
+        <div
+          style={{
+            border: "1px solid #333",
+            borderRadius: "12px",
+            padding: "1.25rem",
+            marginBottom: "1.5rem",
+            color: "#ccc",
+            lineHeight: 1.6,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {weekPost.content}
+        </div>
+      )}
 
       {report.pairs.length === 0 ? (
         <p>Todavía no hay resultados para esta semana.</p>

@@ -1,4 +1,5 @@
 import { getLeague, getStandings } from "../lib/sleeper";
+import { getPublishedPost } from "../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -64,13 +65,16 @@ export default async function HomePage() {
 
   let league = null;
   let topTeam = null;
+  let homePost = null;
   try {
-    const [leagueData, standings] = await Promise.all([
+    const [leagueData, standings, post] = await Promise.all([
       getLeague(leagueId),
       getStandings(leagueId),
+      getPublishedPost("home"),
     ]);
     league = leagueData;
     topTeam = standings[0] || null;
+    homePost = post;
   } catch {
     // Si falla, seguimos mostrando el menú igual
   }
@@ -116,6 +120,22 @@ export default async function HomePage() {
           </a>
         ))}
       </div>
+
+      {homePost && (
+        <div
+          style={{
+            marginTop: "2rem",
+            border: "1px solid #333",
+            borderRadius: "12px",
+            padding: "1.25rem",
+            color: "#ccc",
+            lineHeight: 1.6,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {homePost.content}
+        </div>
+      )}
     </main>
   );
 }
