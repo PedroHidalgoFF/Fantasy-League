@@ -2,6 +2,7 @@ import { getStandings } from "../../lib/sleeper";
 import { getAllTeamsForSelector, getTeamRosterSplit } from "../../lib/teamRoster";
 import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
 import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
+import TeamLogo from "../components/TeamLogo";
 import { Trophy } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -40,47 +41,6 @@ function PlayerCard({ player }) {
         {player.position}
       </span>
       <div style={{ fontSize: "0.75rem", marginTop: "0.3rem", lineHeight: 1.2 }}>{player.name}</div>
-    </div>
-  );
-}
-
-function TeamLogo({ avatar, teamName, size = 24 }) {
-  if (avatar) {
-    return (
-      <img
-        src={`https://sleepercdn.com/avatars/thumbs/${avatar}`}
-        alt=""
-        width={size}
-        height={size}
-        loading="lazy"
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          objectFit: "cover",
-          display: "block",
-          flexShrink: 0,
-        }}
-      />
-    );
-  }
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: "var(--surface-active)",
-        color: "var(--text-muted)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: size * 0.4,
-        fontWeight: 700,
-        flexShrink: 0,
-      }}
-    >
-      {teamName?.[0]?.toUpperCase() || "?"}
     </div>
   );
 }

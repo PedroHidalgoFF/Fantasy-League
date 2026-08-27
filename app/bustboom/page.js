@@ -52,7 +52,7 @@ export default async function BustBoomPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Zap size={26} /> Bust/Boom · Week {week}</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Zap size={26} /> Bust/Boom</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Compares actual vs. projected points for your starters. PPR format.
       </p>

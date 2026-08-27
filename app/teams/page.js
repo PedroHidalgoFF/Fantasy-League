@@ -1,5 +1,6 @@
 import { getStandings } from "../../lib/sleeper";
 import { Users } from "lucide-react";
+import TeamLogo from "../components/TeamLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,9 @@ export default async function TeamsPage() {
             key={team.rosterId}
             href={`/teams/${team.rosterId}`}
             style={{
-              display: "block",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.9rem",
               border: "1px solid var(--border)",
               borderRadius: "8px",
               padding: "1rem",
@@ -27,10 +30,13 @@ export default async function TeamsPage() {
               textDecoration: "none",
             }}
           >
-            <strong>{team.teamName}</strong>
-            <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-              {team.wins}-{team.losses}
-              {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} pts
+            <TeamLogo avatar={team.avatar} teamName={team.teamName} size={40} />
+            <div>
+              <strong>{team.teamName}</strong>
+              <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                {team.wins}-{team.losses}
+                {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} pts
+              </div>
             </div>
           </a>
         ))}

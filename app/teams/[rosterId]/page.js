@@ -1,6 +1,7 @@
 import { getTeamProfile, getNFLState } from "../../../lib/sleeper";
 import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
 import { getPositionColor } from "../../../lib/positionBadge";
+import TeamLogo from "../../components/TeamLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,10 @@ export default async function TeamProfilePage({ params }) {
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <a href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← All Teams</a>
 
-      <h1 style={{ marginTop: "0.5rem" }}>{team.teamName}</h1>
+      <h1 style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+        <TeamLogo avatar={team.avatar} teamName={team.teamName} size={32} />
+        {team.teamName}
+      </h1>
       <p style={{ color: "var(--text-muted)" }}>
         Record: {team.wins}-{team.losses}
         {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} points for ·{" "}
