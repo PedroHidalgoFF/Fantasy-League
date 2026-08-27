@@ -65,9 +65,9 @@ export default async function TopPlayersPage({ searchParams }) {
       <h1>⭐ Top 300 jugadores</h1>
       <p style={{ color: "#999", fontSize: "0.85rem" }}>
         Ordenados por relevancia fantasy (ranking interno de Sleeper). "Pts temporada"
-        son puntos PPR reales acumulados. "Pts esperados esta semana" es la proyección
-        para el próximo partido — puede salir vacío si el jugador tiene bye o no hay
-        proyección disponible todavía.
+        son puntos PPR reales acumulados. "PES" (Puntos Esperados esta Semana) es la
+        proyección para el próximo partido — puede salir vacío si el jugador tiene bye
+        o no hay proyección disponible todavía.
       </p>
 
       <div style={{ marginTop: "1rem" }}>
@@ -106,7 +106,9 @@ export default async function TopPlayersPage({ searchParams }) {
             <th style={{ padding: "0.4rem" }}>Pos</th>
             <th style={{ padding: "0.4rem" }}>NFL</th>
             <th style={{ padding: "0.4rem" }}>Pts temporada</th>
-            <th style={{ padding: "0.4rem" }}>Pts esperados esta semana</th>
+            <th style={{ padding: "0.4rem", cursor: "help" }} title="Puntos Esperados esta Semana">
+              PES
+            </th>
             <th style={{ padding: "0.4rem" }}>En tu liga</th>
           </tr>
         </thead>
