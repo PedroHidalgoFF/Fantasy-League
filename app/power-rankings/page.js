@@ -44,6 +44,47 @@ function PlayerCard({ player }) {
   );
 }
 
+function TeamLogo({ avatar, teamName, size = 24 }) {
+  if (avatar) {
+    return (
+      <img
+        src={`https://sleepercdn.com/avatars/thumbs/${avatar}`}
+        alt=""
+        width={size}
+        height={size}
+        loading="lazy"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+          display: "block",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "var(--surface-active)",
+        color: "var(--text-muted)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: size * 0.4,
+        fontWeight: 700,
+        flexShrink: 0,
+      }}
+    >
+      {teamName?.[0]?.toUpperCase() || "?"}
+    </div>
+  );
+}
+
 export default async function PowerRankingsPage({ searchParams }) {
   const leagueId = process.env.SLEEPER_LEAGUE_ID;
 
@@ -120,7 +161,8 @@ export default async function PowerRankingsPage({ searchParams }) {
 
         {selectedRoster && (
           <div style={{ marginTop: "1.25rem" }}>
-            <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem" }}>
+            <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <TeamLogo avatar={selectedRoster.avatar} teamName={selectedRoster.teamName} size={28} />
               {selectedRoster.teamName} · Starters
             </h3>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.25rem" }}>
@@ -163,8 +205,10 @@ export default async function PowerRankingsPage({ searchParams }) {
         {rankingsWithBreakdown.map((team) => (
           <div key={team.rosterId} style={{ marginBottom: "0.9rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.25rem" }}>
-              <span style={{ fontWeight: 600 }}>
-                {team.rank}. {team.teamName}
+              <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                {team.rank}.
+                <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
+                {team.teamName}
               </span>
               <span style={{ color: "var(--text-muted)" }}>Power score {team.powerScore}</span>
             </div>
@@ -214,7 +258,10 @@ export default async function PowerRankingsPage({ searchParams }) {
         <tbody>
           {standings.map((team) => (
             <tr key={team.rosterId}>
-              <td style={{ padding: "0.5rem" }}>{team.teamName}</td>
+              <td style={{ padding: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <TeamLogo avatar={team.avatar} teamName={team.teamName} size={26} />
+                {team.teamName}
+              </td>
               <td style={{ padding: "0.5rem" }}>
                 {team.wins}-{team.losses}
                 {team.ties ? `-${team.ties}` : ""}
