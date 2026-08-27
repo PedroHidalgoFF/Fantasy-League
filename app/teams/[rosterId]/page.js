@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
-  return new Date(timestamp).toLocaleDateString("es-MX", {
+  return new Date(timestamp).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -20,8 +20,8 @@ export default async function TeamProfilePage({ params }) {
   if (!team) {
     return (
       <main style={{ maxWidth: 800, margin: "0 auto" }}>
-        <p>No se encontró ese equipo.</p>
-        <a href="/teams" style={{ color: "var(--accent)" }}>Volver a Equipos</a>
+        <p>Team not found.</p>
+        <a href="/teams" style={{ color: "var(--accent)" }}>Back to Teams</a>
       </main>
     );
   }
@@ -40,24 +40,24 @@ export default async function TeamProfilePage({ params }) {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-      <a href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← Todos los equipos</a>
+      <a href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← All Teams</a>
 
       <h1 style={{ marginTop: "0.5rem" }}>{team.teamName}</h1>
       <p style={{ color: "var(--text-muted)" }}>
-        Récord: {team.wins}-{team.losses}
-        {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} pts a favor ·{" "}
-        {team.pointsAgainst.toFixed(1)} pts en contra
+        Record: {team.wins}-{team.losses}
+        {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} points for ·{" "}
+        {team.pointsAgainst.toFixed(1)} points against
       </p>
 
-      <h2 style={{ marginTop: "2rem" }}>Roster actual</h2>
+      <h2 style={{ marginTop: "2rem" }}>Current Roster</h2>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th style={{ padding: "0.5rem" }}></th>
-            <th style={{ padding: "0.5rem" }}>Jugador</th>
+            <th style={{ padding: "0.5rem" }}>Player</th>
             <th style={{ padding: "0.5rem" }}>Pos</th>
-            <th style={{ padding: "0.5rem" }}>Equipo NFL</th>
-            <th style={{ padding: "0.5rem" }}>Pts temporada</th>
+            <th style={{ padding: "0.5rem" }}>NFL Team</th>
+            <th style={{ padding: "0.5rem" }}>Season Pts</th>
           </tr>
         </thead>
         <tbody>
@@ -107,8 +107,8 @@ export default async function TeamProfilePage({ params }) {
         </tbody>
       </table>
 
-      <h2 style={{ marginTop: "2rem" }}>Historial de trades</h2>
-      {team.trades.length === 0 && <p>Este equipo no ha hecho trades esta temporada.</p>}
+      <h2 style={{ marginTop: "2rem" }}>Trade History</h2>
+      {team.trades.length === 0 && <p>This team hasn't made any trades this season.</p>}
       {team.trades.map((trade) => (
         <div
           key={trade.id}
@@ -120,11 +120,11 @@ export default async function TeamProfilePage({ params }) {
           }}
         >
           <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
-            Semana {trade.week} · {formatDate(trade.timestamp)}
+            Week {trade.week} · {formatDate(trade.timestamp)}
           </div>
           {trade.byTeam.map((t, i) => (
             <div key={i} style={{ fontSize: "0.9rem" }}>
-              <strong>{t.teamName}</strong> recibió: {t.received.join(", ") || "—"}
+              <strong>{t.teamName}</strong> received: {t.received.join(", ") || "—"}
             </div>
           ))}
         </div>

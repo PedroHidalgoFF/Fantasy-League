@@ -1,5 +1,6 @@
 import { getLeagueRosters, getAllPlayers } from "../../lib/sleeper";
 import { getESPNNews, getLeaguePlayerLastNames, filterNewsForLeague } from "../../lib/news";
+import { Newspaper } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,7 @@ function formatDate(pubDate) {
   if (!pubDate) return "";
   const d = new Date(pubDate);
   if (isNaN(d)) return pubDate;
-  return d.toLocaleDateString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleDateString("en-US", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 export default async function NewsPage() {
@@ -16,7 +17,7 @@ export default async function NewsPage() {
   if (!leagueId) {
     return (
       <main>
-        <h1>Falta configurar SLEEPER_LEAGUE_ID</h1>
+        <h1>Missing SLEEPER_LEAGUE_ID configuration</h1>
       </main>
     );
   }
@@ -32,15 +33,16 @@ export default async function NewsPage() {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-
-      <h1>📰 Noticias de tu liga</h1>
+      <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <Newspaper size={26} /> League News
+      </h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        Filtradas de las últimas noticias de ESPN NFL para mostrar solo lo que involucra
-        a jugadores en los rosters de tu liga.
+        Filtered from the latest ESPN NFL news to show only what involves
+        players on your league's rosters.
       </p>
 
       {leagueNews.length === 0 && (
-        <p>No hay noticias recientes que mencionen a jugadores de tu liga ahorita.</p>
+        <p>No recent news mentioning players from your league right now.</p>
       )}
 
       {leagueNews.map((item, i) => (
@@ -66,7 +68,7 @@ export default async function NewsPage() {
           </a>
           <p style={{ marginTop: "0.5rem", color: "var(--text-soft)" }}>{item.description}</p>
           <div style={{ fontSize: "0.75rem", color: "var(--text-faint)", marginTop: "0.5rem" }}>
-            Fuente: ESPN
+            Source: ESPN
           </div>
         </div>
       ))}

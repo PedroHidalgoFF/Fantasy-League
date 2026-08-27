@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ClipboardList, Home, PenSquare } from "lucide-react";
 
 function Editor({ label, page, week }) {
   const [content, setContent] = useState("");
@@ -17,7 +18,7 @@ function Editor({ label, page, week }) {
     const data = await res.json();
     if (data.post) {
       setContent(data.post.content || "");
-      setStatus(data.post.published ? "Publicado" : "Borrador sin publicar");
+      setStatus(data.post.published ? "Published" : "Unpublished draft");
     }
     setLoaded(true);
   }
@@ -32,9 +33,9 @@ function Editor({ label, page, week }) {
     setLoading(false);
 
     if (res.ok) {
-      setStatus(published ? "✓ Publicado" : "✓ Guardado como borrador");
+      setStatus(published ? "✓ Published" : "✓ Saved as draft");
     } else {
-      setStatus("Error al guardar");
+      setStatus("Error saving");
     }
   }
 
@@ -44,7 +45,7 @@ function Editor({ label, page, week }) {
 
       {!loaded && (
         <button onClick={loadExisting} style={btnStyle("var(--border)")}>
-          Cargar lo que ya está guardado
+          Load what's already saved
         </button>
       )}
 
@@ -52,7 +53,7 @@ function Editor({ label, page, week }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={8}
-        placeholder="Escribe o pega aquí el texto que quieres publicar."
+        placeholder="Write or paste the text you want to publish."
         style={{
           width: "100%",
           marginTop: "1rem",
@@ -68,10 +69,10 @@ function Editor({ label, page, week }) {
 
       <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         <button onClick={() => handleSave(false)} disabled={loading || !content} style={btnStyle("var(--border)")}>
-          Guardar borrador
+          Save draft
         </button>
         <button onClick={() => handleSave(true)} disabled={loading || !content} style={btnStyle("var(--success)", "var(--bg)")}>
-          Publicar
+          Publish
         </button>
       </div>
 
@@ -101,18 +102,18 @@ export default function AdminDashboard({ currentWeek }) {
   return (
     <main style={{ maxWidth: 700, margin: "2rem auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1>✍️ Panel de editor</h1>
+        <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><PenSquare size={26} /> Editor Panel</h1>
         <button onClick={handleLogout} style={btnStyle("var(--border)")}>
-          Cerrar sesión
+          Log out
         </button>
       </div>
 
       <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-        Escribe o pega tu texto y dale "Publicar" — aparece de inmediato en el sitio la próxima vez que se actualice.
+        Write or paste your text and hit "Publish" — it shows up on the site the next time it updates.
       </p>
 
-      <Editor label="📋 Reporte Semanal" page="weekly-report" week={currentWeek} />
-      <Editor label="🏠 Mensaje de Inicio" page="home" week={null} />
+      <Editor label={<span style={{display:"flex",alignItems:"center",gap:"0.4rem"}}><ClipboardList size={20}/> Weekly Report</span>} page="weekly-report" week={currentWeek} />
+      <Editor label={<span style={{display:"flex",alignItems:"center",gap:"0.4rem"}}><Home size={20}/> Home Message</span>} page="home" week={null} />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import { getWaiverWireWins } from "../../lib/waiverWins";
+import { Target } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -9,16 +10,16 @@ export default async function WaiverWinsPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <h1>🎯 Waiver Wire Wins</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Target size={26} /> Waiver Wire Wins</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        Jugadores agregados por waiver o free agent, ordenados por puntos totales
-        acumulados desde que fueron agregados. Apenas empezando temporada, así que
-        esta lista va a crecer con el tiempo.
+        Players added via waiver or free agent, ranked by total points
+        accumulated since they were added. Early in the season, so this
+        list will keep growing.
       </p>
 
       {wins.length === 0 && (
         <p style={{ marginTop: "1.5rem" }}>
-          Todavía no hay suficientes semanas para calcular esto. Vuelve pronto.
+          Not enough weeks yet to calculate this. Check back soon.
         </p>
       )}
 
@@ -39,7 +40,7 @@ export default async function WaiverWinsPage() {
             <span style={{ color: "var(--text-muted)", marginRight: "0.5rem" }}>#{i + 1}</span>
             <strong>{w.name}</strong>{" "}
             <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-              {w.position} · {w.teamName} · agregado semana {w.weekAdded}
+              {w.position} · {w.teamName} · added week {w.weekAdded}
             </span>
           </div>
           <div style={{ fontWeight: "bold" }}>{w.totalPoints} pts</div>

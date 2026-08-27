@@ -2,13 +2,13 @@ import "./globals.css";
 import Sidebar from "./components/Sidebar";
 
 export const metadata = {
-  title: "Mi Liga - Fantasy Football",
-  description: "Power rankings, standings, trades y noticias de la liga",
+  title: "My Fantasy Football League",
+  description: "Power rankings, standings, trades, and league news",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />

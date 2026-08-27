@@ -1,62 +1,63 @@
 import { getLeague, getStandings } from "../lib/sleeper";
 import { getPublishedPost } from "../lib/posts";
+import { Trophy, ClipboardList, Repeat, Target, Zap, Swords, Users, Star, Newspaper } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 const SECTIONS = [
   {
     href: "/power-rankings",
-    emoji: "🏈",
+    icon: Trophy,
     title: "Power Rankings",
-    description: "Ranking semanal calculado con récord y puntos a favor.",
+    description: "Weekly ranking calculated from record and points for.",
   },
   {
     href: "/weekly-report",
-    emoji: "📋",
-    title: "Reporte Semanal",
-    description: "Puntuación más alta/baja, enfrentamiento más cerrado y mayor paliza.",
+    icon: ClipboardList,
+    title: "Weekly Report",
+    description: "Highest/lowest score, closest matchup and biggest blowout.",
   },
   {
     href: "/trades",
-    emoji: "🔁",
+    icon: Repeat,
     title: "Trades",
-    description: "Historial completo de intercambios de la temporada.",
+    description: "Full trade history for the season.",
   },
   {
     href: "/waiver-wins",
-    emoji: "🎯",
+    icon: Target,
     title: "Waiver Wins",
-    description: "Los mejores pickups de waiver, rankeados por puntos.",
+    description: "The best waiver pickups, ranked by points.",
   },
   {
     href: "/bustboom",
-    emoji: "💥",
+    icon: Zap,
     title: "Bust/Boom",
-    description: "Quién sobre-rindió y quién se quedó corto esta semana.",
+    description: "Who overperformed and who fell short this week.",
   },
   {
     href: "/head-to-head",
-    emoji: "⚔️",
+    icon: Swords,
     title: "Head-to-Head",
-    description: "Historial de enfrentamientos entre cada par de equipos.",
+    description: "Matchup history between every pair of teams.",
   },
   {
     href: "/teams",
-    emoji: "👥",
-    title: "Equipos",
-    description: "Roster, récord y trades de cada equipo de la liga.",
+    icon: Users,
+    title: "Teams",
+    description: "Roster, record, and trades for each team in the league.",
   },
   {
     href: "/top-players",
-    emoji: "⭐",
-    title: "Top 300 Jugadores",
-    description: "Los jugadores más relevantes, con puntos y disponibilidad.",
+    icon: Star,
+    title: "Top 300 Players",
+    description: "The most relevant players, with points and availability.",
   },
   {
     href: "/news",
-    emoji: "📰",
-    title: "Noticias",
-    description: "Últimas noticias de ESPN filtradas a jugadores de tu liga.",
+    icon: Newspaper,
+    title: "News",
+    description: "Latest ESPN news filtered to your league's players.",
   },
 ];
 
@@ -76,18 +77,18 @@ export default async function HomePage() {
     topTeam = standings[0] || null;
     homePost = post;
   } catch {
-    // Si falla, seguimos mostrando el menú igual
+    // If it fails, we still show the menu
   }
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ textAlign: "center", padding: "2rem 0 1rem" }}>
         <h1 style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
-          🏆 {league?.name || "Mi Liga de Fantasy Football"}
+          {league?.name || "My Fantasy Football League"}
         </h1>
         <p style={{ color: "var(--text-muted)" }}>
-          {league?.season ? `Temporada ${league.season}` : ""}
-          {topTeam ? ` · Al frente: ${topTeam.teamName}` : ""}
+          {league?.season ? `Season ${league.season}` : ""}
+          {topTeam ? ` · Leading: ${topTeam.teamName}` : ""}
         </p>
       </div>
 
@@ -99,26 +100,29 @@ export default async function HomePage() {
           marginTop: "1.5rem",
         }}
       >
-        {SECTIONS.map((s) => (
-          <a
-            key={s.href}
-            href={s.href}
-            style={{
-              display: "block",
-              border: "1px solid var(--border)",
-              borderRadius: "12px",
-              padding: "1.25rem",
-              textDecoration: "none",
-              color: "var(--text)",
-              background: "var(--surface)",
-              transition: "border-color 0.15s ease",
-            }}
-          >
-            <div style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>{s.emoji}</div>
-            <div style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>{s.title}</div>
-            <div style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{s.description}</div>
-          </a>
-        ))}
+        {SECTIONS.map((s) => {
+          const Icon = s.icon;
+          return (
+            <a
+              key={s.href}
+              href={s.href}
+              style={{
+                display: "block",
+                border: "1px solid var(--border)",
+                borderRadius: "12px",
+                padding: "1.25rem",
+                textDecoration: "none",
+                color: "var(--text)",
+                background: "var(--surface)",
+                transition: "border-color 0.15s ease",
+              }}
+            >
+              <Icon size={28} color="var(--accent)" style={{ marginBottom: "0.5rem" }} />
+              <div style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>{s.title}</div>
+              <div style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{s.description}</div>
+            </a>
+          );
+        })}
       </div>
 
       {homePost && (

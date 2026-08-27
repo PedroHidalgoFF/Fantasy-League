@@ -1,4 +1,5 @@
 import { getHeadToHeadRecords } from "../../lib/headToHead";
+import { Swords } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -9,15 +10,15 @@ export default async function HeadToHeadPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <h1>⚔️ Head-to-Head</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Swords size={26} /> Head-to-Head</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        Historial de enfrentamientos entre cada par de equipos esta temporada.
-        Como apenas empieza el año, la mayoría va a mostrar solo 1 juego —
-        esto va creciendo conforme se repitan los cruces.
+        Matchup history between every pair of teams this season. Since it's
+        early in the year, most will show just 1 game — this grows as
+        rematches happen.
       </p>
 
       {rivalries.length === 0 && (
-        <p style={{ marginTop: "1.5rem" }}>Todavía no hay enfrentamientos registrados.</p>
+        <p style={{ marginTop: "1.5rem" }}>No matchups recorded yet.</p>
       )}
 
       {rivalries.map((r, i) => (
@@ -43,7 +44,7 @@ export default async function HeadToHeadPage() {
           <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--text-soft)" }}>
             {r.games.map((g, j) => (
               <div key={j}>
-                Semana {g.week}: {g.aScore.toFixed(1)} - {g.bScore.toFixed(1)}
+                Week {g.week}: {g.aScore.toFixed(1)} - {g.bScore.toFixed(1)}
               </div>
             ))}
           </div>

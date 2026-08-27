@@ -1,4 +1,5 @@
 import { getStandings } from "../../lib/sleeper";
+import { Users } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +9,9 @@ export default async function TeamsPage() {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-
-      <h1>👥 Equipos</h1>
+      <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <Users size={26} /> Teams
+      </h1>
 
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {standings.map((team) => (

@@ -1,6 +1,7 @@
 import { getTopPlayers } from "../../lib/topPlayers";
 import { getInjuryBadge } from "../../lib/injuryBadge";
 import { getPositionColor } from "../../lib/positionBadge";
+import { Star } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -68,10 +69,10 @@ export default async function TopPlayersPage({ searchParams }) {
 
   return (
     <main style={{ maxWidth: 1000, margin: "0 auto" }}>
-      <h1>⭐ Top 300 jugadores</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Star size={26} /> Top 300 Players</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        Ordenados por relevancia fantasy. "Pts temporada" son puntos PPR reales
-        acumulados. "PES" es la proyección para el próximo partido.
+        Ranked by fantasy relevance. "Season Pts" are accumulated real PPR
+        points. "EPW" is the projection for the next game.
       </p>
 
       <div
@@ -86,15 +87,15 @@ export default async function TopPlayersPage({ searchParams }) {
       >
         <SegmentedControl
           active={position}
-          options={[{ value: "ALL", label: "Todas" }, ...POSITIONS.map((p) => ({ value: p, label: p }))]}
+          options={[{ value: "ALL", label: "All" }, ...POSITIONS.map((p) => ({ value: p, label: p }))]}
           hrefFor={(value) => buildUrl(value, onlyAvailable, query)}
         />
 
         <SegmentedControl
           active={onlyAvailable ? "AVAILABLE" : "ALL_TEAMS"}
           options={[
-            { value: "ALL_TEAMS", label: "Todos" },
-            { value: "AVAILABLE", label: "Solo disponibles" },
+            { value: "ALL_TEAMS", label: "All" },
+            { value: "AVAILABLE", label: "Available only" },
           ]}
           hrefFor={(value) => buildUrl(position, value === "AVAILABLE", query)}
         />
@@ -106,7 +107,7 @@ export default async function TopPlayersPage({ searchParams }) {
             type="text"
             name="q"
             defaultValue={query}
-            placeholder="Buscar jugador..."
+            placeholder="Search player..."
             style={{
               width: "100%",
               padding: "0.5rem 0.85rem",
@@ -121,11 +122,11 @@ export default async function TopPlayersPage({ searchParams }) {
       </div>
 
       <p style={{ color: "var(--text-faint)", fontSize: "0.8rem" }}>
-        Mostrando {filtered.length} de {allTopPlayers.length} jugadores
+        Showing {filtered.length} of {allTopPlayers.length} players
       </p>
       <p style={{ color: "var(--text-faint)", fontSize: "0.75rem" }}>
-        ⚠️ Cuestionable/No disponible · 🟠 Dudoso · ❌ Fuera esta semana · 🏥 IR/PUP ·
-        🚫 Suspendido — pasa el cursor sobre el ícono para ver el detalle.
+        ⚠️ Questionable/Not available · 🟠 Doubtful · ❌ Out this week · 🏥 IR/PUP ·
+        🚫 Suspended — hover over the icon for details.
       </p>
 
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.75rem" }}>
@@ -133,14 +134,14 @@ export default async function TopPlayersPage({ searchParams }) {
           <tr>
             <th style={{ padding: "0.5rem" }}>#</th>
             <th style={{ padding: "0.5rem" }}></th>
-            <th style={{ padding: "0.5rem" }}>Jugador</th>
+            <th style={{ padding: "0.5rem" }}>Player</th>
             <th style={{ padding: "0.5rem" }}>Pos</th>
             <th style={{ padding: "0.5rem" }}>NFL</th>
-            <th style={{ padding: "0.5rem" }}>Pts temporada</th>
-            <th style={{ padding: "0.5rem", cursor: "help" }} title="Puntos Esperados esta Semana">
-              PES
+            <th style={{ padding: "0.5rem" }}>Season Pts</th>
+            <th style={{ padding: "0.5rem", cursor: "help" }} title="Expected Points this Week">
+              EPW
             </th>
-            <th style={{ padding: "0.5rem" }}>En tu liga</th>
+            <th style={{ padding: "0.5rem" }}>On your league</th>
           </tr>
         </thead>
         <tbody>
@@ -201,7 +202,7 @@ export default async function TopPlayersPage({ searchParams }) {
                     fontWeight: 500,
                   }}
                 >
-                  {p.leagueOwner || "Disponible"}
+                  {p.leagueOwner || "Available"}
                 </td>
               </tr>
             );

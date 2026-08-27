@@ -1,5 +1,6 @@
 import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { getBustBoom } from "../../lib/bustboom";
+import { Zap } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ function PlayerRow({ p }) {
       </div>
       <div style={{ textAlign: "right" }}>
         <div>
-          {p.actual} pts <span style={{ color: "var(--text-muted)" }}>(proy. {p.projected})</span>
+          {p.actual} pts <span style={{ color: "var(--text-muted)" }}>(proj. {p.projected})</span>
         </div>
         <div style={{ color: diffColor, fontWeight: "bold" }}>
           {p.diff >= 0 ? "+" : ""}
@@ -51,13 +52,13 @@ export default async function BustBoomPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
 
-      <h1>💥 Bust/Boom · Semana {week}</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Zap size={26} /> Bust/Boom · Week {week}</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        Compara puntos reales vs. proyectados de tus titulares. Formato PPR.
+        Compares actual vs. projected points for your starters. PPR format.
       </p>
 
       {booms.length === 0 && busts.length === 0 && (
-        <p>Todavía no hay suficientes datos de esta semana. Vuelve más tarde.</p>
+        <p>Not enough data for this week yet. Check back later.</p>
       )}
 
       {booms.length > 0 && (

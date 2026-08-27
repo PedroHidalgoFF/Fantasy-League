@@ -2,6 +2,7 @@ import { getStandings } from "../../lib/sleeper";
 import { getAllTeamsForSelector, getTeamRosterSplit } from "../../lib/teamRoster";
 import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
 import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
+import { Trophy } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -49,8 +50,8 @@ export default async function PowerRankingsPage({ searchParams }) {
   if (!leagueId) {
     return (
       <main>
-        <h1>Falta configurar SLEEPER_LEAGUE_ID</h1>
-        <p>Agrega la variable de entorno SLEEPER_LEAGUE_ID en Vercel con el ID de tu liga.</p>
+        <h1>Missing SLEEPER_LEAGUE_ID configuration</h1>
+        <p>Add the SLEEPER_LEAGUE_ID environment variable in Vercel with your league ID.</p>
       </main>
     );
   }
@@ -66,7 +67,7 @@ export default async function PowerRankingsPage({ searchParams }) {
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
-      <h1>🏈 Power Rankings</h1>
+      <h1 style={{display:"flex",alignItems:"center",gap:"0.5rem"}}><Trophy size={26} /> Power Rankings</h1>
 
       {/* Selector de equipo + plantilla */}
       <div
@@ -80,7 +81,7 @@ export default async function PowerRankingsPage({ searchParams }) {
       >
         <form action="/power-rankings" method="GET" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <label htmlFor="team" style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            Ver plantilla de:
+            View roster for:
           </label>
           <select
             id="team"
@@ -94,7 +95,7 @@ export default async function PowerRankingsPage({ searchParams }) {
               color: "var(--text)",
             }}
           >
-            <option value="">Elige un equipo...</option>
+            <option value="">Choose a team...</option>
             {teamOptions.map((t) => (
               <option key={t.rosterId} value={t.rosterId}>
                 {t.teamName}
@@ -120,7 +121,7 @@ export default async function PowerRankingsPage({ searchParams }) {
         {selectedRoster && (
           <div style={{ marginTop: "1.25rem" }}>
             <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem" }}>
-              {selectedRoster.teamName} · Titulares
+              {selectedRoster.teamName} · Starters
             </h3>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.25rem" }}>
               {selectedRoster.starters.map((p) => (
@@ -129,7 +130,7 @@ export default async function PowerRankingsPage({ searchParams }) {
             </div>
 
             <h3 style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontSize: "0.95rem", color: "var(--text-muted)" }}>
-              Banca
+              Bench
             </h3>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
               {selectedRoster.bench.map((p) => (
@@ -204,10 +205,10 @@ export default async function PowerRankingsPage({ searchParams }) {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th style={{ padding: "0.5rem" }}>Equipo</th>
-            <th style={{ padding: "0.5rem" }}>Récord</th>
-            <th style={{ padding: "0.5rem" }}>Puntos a favor</th>
-            <th style={{ padding: "0.5rem" }}>Puntos en contra</th>
+            <th style={{ padding: "0.5rem" }}>Team</th>
+            <th style={{ padding: "0.5rem" }}>Record</th>
+            <th style={{ padding: "0.5rem" }}>Points For</th>
+            <th style={{ padding: "0.5rem" }}>Points Against</th>
           </tr>
         </thead>
         <tbody>

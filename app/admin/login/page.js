@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Lock } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
@@ -23,19 +24,19 @@ export default function AdminLoginPage() {
     if (res.ok) {
       window.location.href = "/admin";
     } else {
-      setError("Contraseña incorrecta");
+      setError("Incorrect password");
     }
   }
 
   return (
     <main style={{ maxWidth: 360, margin: "4rem auto", textAlign: "center" }}>
-      <h1>🔒 Acceso de editor</h1>
+      <h1 style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem"}}><Lock size={22} /> Editor Access</h1>
       <form onSubmit={handleSubmit} style={{ marginTop: "1.5rem" }}>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Contraseña"
+          placeholder="Password"
           style={{
             width: "100%",
             padding: "0.6rem",
@@ -60,7 +61,7 @@ export default function AdminLoginPage() {
             cursor: "pointer",
           }}
         >
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Signing in..." : "Sign in"}
         </button>
         {error && <p style={{ color: "var(--danger)", marginTop: "0.75rem" }}>{error}</p>}
       </form>

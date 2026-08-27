@@ -1,10 +1,11 @@
 import { getAllTrades } from "../../lib/sleeper";
+import { Repeat } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
-  return new Date(timestamp).toLocaleDateString("es-MX", {
+  return new Date(timestamp).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -17,7 +18,7 @@ export default async function TradesPage() {
   if (!leagueId) {
     return (
       <main>
-        <h1>Falta configurar SLEEPER_LEAGUE_ID</h1>
+        <h1>Missing SLEEPER_LEAGUE_ID configuration</h1>
       </main>
     );
   }
@@ -26,10 +27,11 @@ export default async function TradesPage() {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
+      <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <Repeat size={26} /> Trades
+      </h1>
 
-      <h1>🔁 Trades</h1>
-
-      {trades.length === 0 && <p>Todavía no hay trades esta temporada.</p>}
+      {trades.length === 0 && <p>No trades yet this season.</p>}
 
       {trades.map((trade) => (
         <div
@@ -42,13 +44,13 @@ export default async function TradesPage() {
           }}
         >
           <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
-            Semana {trade.week} · {formatDate(trade.timestamp)}
+            Week {trade.week} · {formatDate(trade.timestamp)}
           </div>
 
           <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
             {trade.byTeam.map((team, i) => (
               <div key={i}>
-                <strong>{team.teamName}</strong> recibió:
+                <strong>{team.teamName}</strong> received:
                 <ul style={{ margin: "0.25rem 0" }}>
                   {team.received.length > 0 ? (
                     team.received.map((name, j) => <li key={j}>{name}</li>)
@@ -62,11 +64,11 @@ export default async function TradesPage() {
 
           {trade.draftPicksTraded.length > 0 && (
             <div style={{ marginTop: "0.5rem", fontSize: "0.9rem", color: "var(--text-soft)" }}>
-              Picks intercambiados:{" "}
+              Picks traded:{" "}
               {trade.draftPicksTraded
                 .map(
                   (p) =>
-                    `Ronda ${p.round} ${p.season} (${p.fromTeam} → ${p.toTeam})`
+                    `Round ${p.round} ${p.season} (${p.fromTeam} → ${p.toTeam})`
                 )
                 .join(", ")}
             </div>

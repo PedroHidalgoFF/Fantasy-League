@@ -1,6 +1,7 @@
 import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { buildWeeklyReport } from "../../lib/weeklyReport";
 import { getPublishedPost } from "../../lib/posts";
+import { ClipboardList } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +31,11 @@ export default async function WeeklyReportPage() {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-
-      <h1 style={{ marginBottom: "0.25rem" }}>📋 Reporte Semanal</h1>
+      <h1 style={{ marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <ClipboardList size={26} /> Weekly Report
+      </h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: 0, marginBottom: "1.5rem" }}>
-        {new Date().toLocaleDateString("es-MX", {
+        {new Date().toLocaleDateString("en-US", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -57,37 +59,37 @@ export default async function WeeklyReportPage() {
       )}
 
       {report.pairs.length === 0 ? (
-        <p>Todavía no hay resultados para esta semana.</p>
+        <p>No results for this week yet.</p>
       ) : (
         <>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "2rem" }}>
             <StatCard
               emoji="🔥"
-              label="Puntuación más alta"
+              label="Highest score"
               value={`${report.highScore.name}`}
               sub={`${report.highScore.points.toFixed(1)} pts`}
             />
             <StatCard
               emoji="🥶"
-              label="Puntuación más baja"
+              label="Lowest score"
               value={`${report.lowScore.name}`}
               sub={`${report.lowScore.points.toFixed(1)} pts`}
             />
             <StatCard
               emoji="🤏"
-              label="Enfrentamiento más cerrado"
+              label="Closest matchup"
               value={`${report.closest.teamA.name} vs ${report.closest.teamB.name}`}
-              sub={`Diferencia de ${report.closest.margin} pts`}
+              sub={`${report.closest.margin} pt difference`}
             />
             <StatCard
               emoji="💣"
-              label="Mayor paliza"
+              label="Biggest blowout"
               value={`${report.blowout.winner}`}
-              sub={`Ganó por ${report.blowout.margin} pts`}
+              sub={`Won by ${report.blowout.margin} pts`}
             />
           </div>
 
-          <h2>Todos los enfrentamientos</h2>
+          <h2>All Matchups</h2>
           {report.pairs.map((p, i) => (
             <div
               key={i}
