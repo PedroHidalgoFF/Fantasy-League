@@ -56,7 +56,9 @@ export default async function BustBoomPage() {
         <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
         <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
         <a href="/bustboom" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Bust/Boom</a>
-        <a href="/weekly-report" style={{ color: "#f1f1f1" }}>Reporte Semanal</a>
+        <a href="/weekly-report" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Reporte Semanal</a>
+        <a href="/head-to-head" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Head-to-Head</a>
+        <a href="/waiver-wins" style={{ color: "#f1f1f1" }}>Waiver Wins</a>
       </nav>
 
       <h1>💥 Bust/Boom · Semana {week}</h1>
