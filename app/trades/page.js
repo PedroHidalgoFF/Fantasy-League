@@ -27,7 +27,7 @@ export default async function TradesPage() {
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <nav style={{ marginBottom: "2rem" }}>
-        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Inicio</a>
+        <a href="/" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Power Rankings</a>
         <a href="/trades" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Trades</a>
         <a href="/news" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Noticias</a>
         <a href="/teams" style={{ color: "#f1f1f1", marginRight: "1.5rem" }}>Equipos</a>
