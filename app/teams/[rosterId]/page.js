@@ -1,4 +1,6 @@
-import { getTeamProfile } from "../../../lib/sleeper";
+import { getTeamProfile, getNFLState } from "../../../lib/sleeper";
+import { getSeasonPointsByPlayer } from "../../../lib/seasonStats";
+import { getPositionColor } from "../../../lib/positionBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +26,20 @@ export default async function TeamProfilePage({ params }) {
     );
   }
 
+  const state = await getNFLState().catch(() => ({ week: 1, season: null }));
+  const lastCompletedWeek = Math.max((state.week || 1) - 1, 0);
+  const seasonPoints =
+    lastCompletedWeek > 0 && state.season
+      ? await getSeasonPointsByPlayer(state.season, lastCompletedWeek).catch(() => ({}))
+      : {};
+
+  // Ordenamos el roster por puntos de temporada, de mayor a menor
+  const sortedPlayers = [...team.players].sort(
+    (a, b) => (seasonPoints[b.id] || 0) - (seasonPoints[a.id] || 0)
+  );
+
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-
       <a href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← Todos los equipos</a>
 
       <h1 style={{ marginTop: "0.5rem" }}>{team.teamName}</h1>
@@ -39,20 +52,58 @@ export default async function TeamProfilePage({ params }) {
       <h2 style={{ marginTop: "2rem" }}>Roster actual</h2>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
+          <tr>
+            <th style={{ padding: "0.5rem" }}></th>
             <th style={{ padding: "0.5rem" }}>Jugador</th>
             <th style={{ padding: "0.5rem" }}>Pos</th>
             <th style={{ padding: "0.5rem" }}>Equipo NFL</th>
+            <th style={{ padding: "0.5rem" }}>Pts temporada</th>
           </tr>
         </thead>
         <tbody>
-          {team.players.map((p) => (
-            <tr key={p.id} style={{ borderBottom: "1px solid var(--border-soft)" }}>
-              <td style={{ padding: "0.5rem" }}>{p.name}</td>
-              <td style={{ padding: "0.5rem" }}>{p.position}</td>
-              <td style={{ padding: "0.5rem" }}>{p.team}</td>
-            </tr>
-          ))}
+          {sortedPlayers.map((p) => {
+            const posColor = getPositionColor(p.position);
+            return (
+              <tr key={p.id}>
+                <td style={{ padding: "0.5rem" }}>
+                  <img
+                    src={`https://sleepercdn.com/content/nfl/players/${p.id}.jpg`}
+                    alt=""
+                    width={36}
+                    height={36}
+                    loading="lazy"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      background: "var(--border-soft)",
+                      display: "block",
+                    }}
+                  />
+                </td>
+                <td style={{ padding: "0.5rem" }}>{p.name}</td>
+                <td style={{ padding: "0.5rem" }}>
+                  <span
+                    style={{
+                      background: posColor.bg,
+                      color: posColor.color,
+                      padding: "0.15rem 0.5rem",
+                      borderRadius: "6px",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {p.position}
+                  </span>
+                </td>
+                <td style={{ padding: "0.5rem", color: "var(--text-muted)" }}>{p.team}</td>
+                <td style={{ padding: "0.5rem", fontWeight: 600 }}>
+                  {Math.round((seasonPoints[p.id] || 0) * 10) / 10}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
