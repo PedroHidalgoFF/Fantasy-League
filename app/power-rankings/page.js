@@ -1,74 +1,16 @@
 import { getStandings } from "../../lib/sleeper";
 import { getTeamRosterSplit } from "../../lib/teamRoster";
 import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
-import { getPositionColor, getPositionSolidColor } from "../../lib/positionBadge";
-import { getPlayerImageUrl } from "../../lib/teamLogo";
+import { getPositionSolidColor } from "../../lib/positionBadge";
 import TeamLogo from "../components/TeamLogo";
-import { Trophy, Star } from "lucide-react";
+import PlayerCard from "../components/PlayerCard";
+import YourTeamBadge from "../components/YourTeamBadge";
+import { Trophy } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 import CommishPost from "../components/CommishPost";
 import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
-
-function PlayerCard({ player }) {
-  const posColor = getPositionColor(player.position);
-  return (
-    <div style={{ textAlign: "center", width: "88px" }}>
-      <img
-        src={getPlayerImageUrl(player.playerId, player.position, player.nflTeam)}
-        alt=""
-        width={64}
-        height={64}
-        loading="lazy"
-        style={{
-          width: 64,
-          height: 64,
-          borderRadius: "50%",
-          objectFit: "cover",
-          background: "var(--border-soft)",
-          border: `2px solid ${posColor.color}`,
-          display: "block",
-          margin: "0 auto 0.35rem",
-        }}
-      />
-      <span
-        style={{
-          background: posColor.bg,
-          color: posColor.color,
-          padding: "0.1rem 0.4rem",
-          borderRadius: "5px",
-          fontSize: "0.65rem",
-          fontWeight: 700,
-        }}
-      >
-        {player.position}
-      </span>
-      <div style={{ fontSize: "0.75rem", marginTop: "0.3rem", lineHeight: 1.2 }}>{player.name}</div>
-    </div>
-  );
-}
-
-function YourTeamBadge() {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "0.25rem",
-        background: "var(--accent)",
-        color: "var(--accent-contrast)",
-        padding: "0.1rem 0.5rem",
-        borderRadius: "999px",
-        fontSize: "0.65rem",
-        fontWeight: 700,
-        textTransform: "uppercase",
-      }}
-    >
-      <Star size={11} fill="var(--accent-contrast)" /> You
-    </span>
-  );
-}
 
 export default async function PowerRankingsPage() {
   const leagueId = getLeagueId();

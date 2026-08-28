@@ -18,12 +18,14 @@ import {
   RotateCw,
   Radio,
   MoreHorizontal,
+  IdCard,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/scores", label: "Live Scores", icon: Radio },
+  { href: "/my-team", label: "My Team", icon: IdCard },
   { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
   { href: "/trades", label: "Trades", icon: Repeat },
@@ -36,7 +38,7 @@ const LINKS = [
 ];
 
 // Los 4 accesos más usados van fijos abajo en móvil; el resto vive en "More"
-const MOBILE_PRIMARY = ["/", "/power-rankings", "/weekly-report", "/scores"];
+const MOBILE_PRIMARY = ["/", "/my-team", "/weekly-report", "/scores"];
 
 export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
   const pathname = usePathname();
