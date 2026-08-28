@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   RefreshCw,
+  RotateCw,
   Radio,
 } from "lucide-react";
 
@@ -93,9 +94,18 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
         </nav>
 
         <button
-          onClick={handleChangeLeague}
+          onClick={() => window.location.reload()}
           className="sidebar-link"
           style={{ marginTop: "auto", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
+        >
+          <RotateCw size={20} />
+          <span>Refresh</span>
+        </button>
+
+        <button
+          onClick={handleChangeLeague}
+          className="sidebar-link"
+          style={{ background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
         >
           <RefreshCw size={20} />
           <span>Change League</span>
