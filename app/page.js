@@ -2,7 +2,7 @@ import { getLeague, getStandings, getAllPlayers } from "../lib/sleeper";
 import { getPublishedPost } from "../lib/posts";
 import { getESPNNews, buildRelevantPlayerIndex, findFeaturedPlayerForArticle } from "../lib/news";
 import { relativeTime } from "../lib/relativeTime";
-import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio, Medal } from "lucide-react";
+import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio, Medal, Rows3 } from "lucide-react";
 import NewsList from "./components/NewsList";
 import TeamLogo from "./components/TeamLogo";
 import CommishPost from "./components/CommishPost";
@@ -20,6 +20,7 @@ const SECTIONS = [
   { href: "/head-to-head", icon: Swords, title: "Head-to-Head", color: "#ec4899" },
   { href: "/teams", icon: Users, title: "Teams", color: "#6366f1" },
   { href: "/top-players", icon: Star, title: "Top 300", color: "#f59e0b" },
+  { href: "/players", icon: Rows3, title: "Player Stats", color: "#a855f7" },
   { href: "/news", icon: Newspaper, title: "News", color: "#0ea5e9" },
 ];
 

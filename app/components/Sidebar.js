@@ -19,6 +19,7 @@ import {
   Radio,
   MoreHorizontal,
   UserCircle,
+  Rows3,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
 import DarkModeToggle from "./DarkModeToggle";
@@ -35,6 +36,7 @@ const LINKS = [
   { href: "/head-to-head", label: "Head-to-Head", icon: Swords },
   { href: "/teams", label: "Teams", icon: Users },
   { href: "/top-players", label: "Top 300", icon: Star },
+  { href: "/players", label: "Player Stats", icon: Rows3 },
   { href: "/news", label: "News", icon: Newspaper },
 ];
 
