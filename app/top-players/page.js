@@ -4,6 +4,8 @@ import { getPositionColor } from "../../lib/positionBadge";
 import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Star } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,7 @@ function SegmentedControl({ options, active, hrefFor }) {
 export default async function TopPlayersPage({ searchParams }) {
   const leagueId = getLeagueId();
   const { players: allTopPlayers } = await getTopPlayers(leagueId, 300);
+  const post = await getPublishedPost("top-players").catch(() => null);
 
   const position = searchParams?.position || "ALL";
   const onlyAvailable = searchParams?.available === "true";
@@ -76,6 +79,8 @@ export default async function TopPlayersPage({ searchParams }) {
         Ranked by fantasy relevance. "Season Pts" are accumulated real PPR
         points. "EPW" is the projection for the next game.
       </p>
+
+      <CommishPost post={post} />
 
       <div
         style={{

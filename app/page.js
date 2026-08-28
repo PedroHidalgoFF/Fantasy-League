@@ -5,6 +5,7 @@ import { relativeTime } from "../lib/relativeTime";
 import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio, Medal } from "lucide-react";
 import NewsList from "./components/NewsList";
 import TeamLogo from "./components/TeamLogo";
+import CommishPost from "./components/CommishPost";
 import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
@@ -207,21 +208,7 @@ export default async function HomePage() {
         })}
       </div>
 
-      {homePost && (
-        <div
-          style={{
-            marginBottom: "2rem",
-            border: "1px solid var(--border)",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            color: "var(--text-soft)",
-            lineHeight: 1.6,
-            whiteSpace: "pre-wrap",
-          }}
-        >
-          {homePost.content}
-        </div>
-      )}
+      <CommishPost post={homePost} />
 
       {restOfNews.length > 0 && (
         <>

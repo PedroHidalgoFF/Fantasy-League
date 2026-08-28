@@ -1,12 +1,15 @@
 import { getHeadToHeadRecords } from "../../lib/headToHead";
 import { Swords } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
 export default async function HeadToHeadPage() {
   const leagueId = getLeagueId();
   const rivalries = await getHeadToHeadRecords(leagueId);
+  const post = await getPublishedPost("head-to-head").catch(() => null);
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -17,6 +20,8 @@ export default async function HeadToHeadPage() {
         early in the year, most will show just 1 game — this grows as
         rematches happen.
       </p>
+
+      <CommishPost post={post} />
 
       {rivalries.length === 0 && (
         <p style={{ marginTop: "1.5rem" }}>No matchups recorded yet.</p>

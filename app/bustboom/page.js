@@ -2,6 +2,8 @@ import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { getBustBoom } from "../../lib/bustboom";
 import { Zap } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +51,7 @@ export default async function BustBoomPage() {
     players,
     rosterTeamNames,
   });
+  const post = await getPublishedPost("bustboom").catch(() => null);
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -57,6 +60,8 @@ export default async function BustBoomPage() {
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
         Compares actual vs. projected points for your starters. PPR format.
       </p>
+
+      <CommishPost post={post} />
 
       {booms.length === 0 && busts.length === 0 && (
         <p>Not enough data for this week yet. Check back later.</p>

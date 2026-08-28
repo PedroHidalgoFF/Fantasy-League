@@ -4,6 +4,7 @@ import { getPublishedPost } from "../../lib/posts";
 import { getUpcomingMatchupForecasts } from "../../lib/matchupForecast";
 import { ClipboardList } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
 
 export const dynamic = "force-dynamic";
 
@@ -150,21 +151,7 @@ export default async function WeeklyReportPage() {
         })}
       </p>
 
-      {weekPost && (
-        <div
-          style={{
-            border: "1px solid var(--border)",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            marginBottom: "1.5rem",
-            color: "var(--text-soft)",
-            lineHeight: 1.6,
-            whiteSpace: "pre-wrap",
-          }}
-        >
-          {weekPost.content}
-        </div>
-      )}
+      <CommishPost post={weekPost} />
 
       {forecasts.length > 0 && (
         <>

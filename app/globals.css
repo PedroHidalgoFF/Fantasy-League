@@ -101,6 +101,40 @@ tbody tr:hover {
   background: var(--surface-active);
 }
 
+.commish-post-content {
+  color: var(--text-soft);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.commish-post-content h1,
+.commish-post-content h2,
+.commish-post-content h3 {
+  text-transform: none;
+  border: none;
+  padding: 0;
+  margin: 0.75rem 0 0.4rem;
+  color: var(--text);
+}
+
+.commish-post-content h1::before {
+  content: none;
+}
+
+.commish-post-content p {
+  margin: 0 0 0.6rem;
+}
+
+.commish-post-content ul,
+.commish-post-content ol {
+  margin: 0 0 0.6rem;
+  padding-left: 1.25rem;
+}
+
+.commish-post-content strong {
+  color: var(--text);
+}
+
 /* ---------- Layout de sidebar ---------- */
 
 .app-shell {

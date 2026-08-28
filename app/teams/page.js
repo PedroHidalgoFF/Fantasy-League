@@ -2,6 +2,8 @@ import { getStandings } from "../../lib/sleeper";
 import { Users, Star } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +43,8 @@ export default async function TeamsPage() {
     return 0;
   });
 
+  const post = await getPublishedPost("teams").catch(() => null);
+
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
       <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -49,6 +53,8 @@ export default async function TeamsPage() {
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
         Roster, record, and trades for each team in the league.
       </p>
+
+      <CommishPost post={post} />
 
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {sorted.map((team) => {

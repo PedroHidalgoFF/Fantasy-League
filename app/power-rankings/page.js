@@ -6,6 +6,8 @@ import { getPlayerImageUrl } from "../../lib/teamLogo";
 import TeamLogo from "../components/TeamLogo";
 import { Trophy, Star } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +86,7 @@ export default async function PowerRankingsPage() {
   const myRoster = myRosterId ? await getTeamRosterSplit(leagueId, myRosterId) : null;
   const rankingsWithBreakdown = await getPowerRankingsWithBreakdown(leagueId);
   const standings = await getStandings(leagueId);
+  const post = await getPublishedPost("power-rankings").catch(() => null);
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
@@ -91,6 +94,8 @@ export default async function PowerRankingsPage() {
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
         Weekly ranking calculated from record and points for.
       </p>
+
+      <CommishPost post={post} />
 
       {/* Tu plantilla, automática a partir de tu equipo elegido en /setup */}
       {myRoster && (

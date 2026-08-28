@@ -4,6 +4,8 @@ import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Repeat, ArrowRight } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +119,7 @@ export default async function TradesPage() {
   }
 
   const trades = await getAllTrades(leagueId);
+  const post = await getPublishedPost("trades").catch(() => null);
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
@@ -126,6 +129,8 @@ export default async function TradesPage() {
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
         Full trade history for the season.
       </p>
+
+      <CommishPost post={post} />
 
       {trades.length === 0 && <p>No trades yet this season.</p>}
 

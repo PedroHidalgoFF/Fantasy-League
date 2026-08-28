@@ -4,6 +4,8 @@ import { getPlayerImageUrl } from "../../lib/teamLogo";
 import { Target, Plus, Minus } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import { getLeagueId } from "../../lib/session";
+import CommishPost from "../components/CommishPost";
+import { getPublishedPost } from "../../lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +66,7 @@ function PlayerLine({ player, sign }) {
 export default async function WaiverWinsPage() {
   const leagueId = getLeagueId();
   const wins = await getWaiverWireWins(leagueId);
+  const post = await getPublishedPost("waiver-wins").catch(() => null);
 
   return (
     <main style={{ maxWidth: 700, margin: "0 auto" }}>
@@ -72,6 +75,8 @@ export default async function WaiverWinsPage() {
         Players added via waiver or free agent, ranked by total points
         accumulated since they were added.
       </p>
+
+      <CommishPost post={post} />
 
       {wins.length === 0 && (
         <p style={{ marginTop: "1.5rem" }}>
