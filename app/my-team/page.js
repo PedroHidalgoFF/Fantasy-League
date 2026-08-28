@@ -6,7 +6,7 @@ import TeamLogo from "../components/TeamLogo";
 import PlayerCard from "../components/PlayerCard";
 import YourTeamBadge from "../components/YourTeamBadge";
 import TeamTradeBlock from "../components/TeamTradeBlock";
-import { IdCard, Trophy, ListChecks, Repeat } from "lucide-react";
+import { UserCircle, Trophy, ListChecks, Repeat } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +60,7 @@ export default async function MyTeamPage({ searchParams }) {
     return (
       <main style={{ maxWidth: 700, margin: "0 auto" }}>
         <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <IdCard size={26} /> My Team
+          <UserCircle size={26} /> My Team
         </h1>
         <p style={{ color: "var(--text-muted)" }}>
           No team selected yet. Use "Change League" in the menu to pick your team.
@@ -82,7 +82,7 @@ export default async function MyTeamPage({ searchParams }) {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <IdCard size={26} /> My Team
+        <UserCircle size={26} /> My Team
       </h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <TeamLogo avatar={myRoster.avatar} teamName={myRoster.teamName} size={20} />

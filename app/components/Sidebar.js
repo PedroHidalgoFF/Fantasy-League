@@ -18,14 +18,14 @@ import {
   RotateCw,
   Radio,
   MoreHorizontal,
-  IdCard,
+  UserCircle,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/scores", label: "Live Scores", icon: Radio },
-  { href: "/my-team", label: "My Team", icon: IdCard },
+  { href: "/my-team", label: "My Team", icon: UserCircle },
   { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
   { href: "/trades", label: "Trades", icon: Repeat },
