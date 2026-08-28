@@ -21,6 +21,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
+import DarkModeToggle from "./DarkModeToggle";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
@@ -120,6 +121,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
         </nav>
 
         <NotificationsToggle />
+        <DarkModeToggle />
 
         <button
           onClick={() => window.location.reload()}
