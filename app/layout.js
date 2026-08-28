@@ -1,5 +1,6 @@
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
+import SplashScreen from "./components/SplashScreen";
 import { getLeagueId } from "../lib/session";
 import { getLeague } from "../lib/sleeper";
 
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body>
+        <SplashScreen />
         <div className="app-shell">
           <Sidebar logoUrl={logoUrl} />
           <div className="app-content">{children}</div>
