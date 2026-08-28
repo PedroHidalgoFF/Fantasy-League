@@ -13,11 +13,11 @@ import {
   Users,
   Star,
   Newspaper,
-  Menu,
   X,
   RefreshCw,
   RotateCw,
   Radio,
+  MoreHorizontal,
 } from "lucide-react";
 
 const LINKS = [
@@ -34,6 +34,9 @@ const LINKS = [
   { href: "/news", label: "News", icon: Newspaper },
 ];
 
+// Los 4 accesos más usados van fijos abajo en móvil; el resto vive en "More"
+const MOBILE_PRIMARY = ["/", "/power-rankings", "/weekly-report", "/scores"];
+
 export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -48,10 +51,30 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
 
   return (
     <>
-      {/* Botón hamburguesa: solo visible en móvil */}
-      <button className="mobile-toggle" onClick={() => setOpen(true)} aria-label="Open menu">
-        <Menu size={22} />
-      </button>
+      {/* Barra fija abajo: solo visible en móvil */}
+      <nav className="mobile-bottom-nav">
+        {LINKS.filter((l) => MOBILE_PRIMARY.includes(l.href)).map(({ href, label, icon: Icon }) => {
+          const active = pathname === href;
+          return (
+            <a
+              key={href}
+              href={href}
+              className={`bottom-nav-item ${active ? "bottom-nav-item-active" : ""}`}
+            >
+              <span className="bottom-nav-icon">
+                <Icon size={22} />
+              </span>
+              <span>{label}</span>
+            </a>
+          );
+        })}
+        <button className="bottom-nav-item" onClick={() => setOpen(true)}>
+          <span className="bottom-nav-icon">
+            <MoreHorizontal size={22} />
+          </span>
+          <span>More</span>
+        </button>
+      </nav>
 
       {/* Fondo oscuro detrás del drawer en móvil */}
       {open && <div className="sidebar-backdrop" onClick={() => setOpen(false)} />}
