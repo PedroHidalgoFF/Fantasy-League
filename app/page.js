@@ -6,6 +6,7 @@ import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, Arr
 import NewsList from "./components/NewsList";
 import TeamLogo from "./components/TeamLogo";
 import CommishPost from "./components/CommishPost";
+import WidgetBanner from "./components/WidgetBanner";
 import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
@@ -90,6 +91,8 @@ export default async function HomePage() {
           </div>
         )}
       </div>
+
+      <WidgetBanner />
 
       {/* Banner destacado con la noticia más reciente */}
       {featured && (
