@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import TeamLogo from "../components/TeamLogo";
 
 export default function SetupPage() {
   const [step, setStep] = useState(1);
@@ -135,6 +136,7 @@ export default function SetupPage() {
                   checked={selectedRoster === String(t.rosterId)}
                   onChange={(e) => setSelectedRoster(e.target.value)}
                 />
+                <TeamLogo avatar={t.avatar} teamName={t.teamName} size={30} />
                 {t.teamName}
               </label>
             ))}

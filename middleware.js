@@ -1,8 +1,12 @@
 // middleware.js
 // Dos cosas:
 // 1. Protege /admin (contraseña de editor).
-// 2. Si el visitante no ha configurado su liga todavía (sin cookie
-//    ff_league_id y sin SLEEPER_LEAGUE_ID de respaldo), lo manda a /setup.
+// 2. Si el visitante no ha elegido SU liga todavía (sin cookie
+//    ff_league_id propia), lo manda a /setup — esto es lo primero que ve
+//    cualquier persona nueva, sin importar si el proyecto todavía tiene
+//    configurada la variable de entorno SLEEPER_LEAGUE_ID (esa solo se usa
+//    como respaldo interno si algo falla después del setup, nunca para
+//    saltarse la pantalla de bienvenida).
 
 import { NextResponse } from "next/server";
 import { isValidSession, ADMIN_COOKIE_NAME } from "./lib/auth";
@@ -31,9 +35,9 @@ export async function middleware(request) {
   // --- La propia página de setup siempre es accesible ---
   if (PUBLIC_PATHS.includes(pathname)) return NextResponse.next();
 
-  // --- Si no hay liga configurada (ni por cookie ni por env var), a /setup ---
-  const hasLeague = request.cookies.get(LEAGUE_COOKIE)?.value || process.env.SLEEPER_LEAGUE_ID;
-  if (!hasLeague) {
+  // --- Si este visitante no ha elegido su liga (cookie propia), a /setup ---
+  const hasOwnLeague = Boolean(request.cookies.get(LEAGUE_COOKIE)?.value);
+  if (!hasOwnLeague) {
     return NextResponse.redirect(new URL("/setup", request.url));
   }
 
