@@ -180,7 +180,7 @@ tbody tr:hover {
 .mobile-toggle {
   display: none;
   position: fixed;
-  top: 1rem;
+  bottom: 1rem;
   left: 1rem;
   z-index: 50;
   background: var(--sidebar-bg);
@@ -199,7 +199,7 @@ tbody tr:hover {
 @media (max-width: 820px) {
   .app-content {
     margin-left: 0;
-    padding-top: 4.5rem;
+    padding-bottom: 5rem;
   }
 
   .mobile-toggle {
