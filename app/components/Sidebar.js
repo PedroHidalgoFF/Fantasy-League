@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -20,25 +20,54 @@ import {
   MoreHorizontal,
   UserCircle,
   Rows3,
+  Rss,
+  BarChart3,
+  BookOpen,
+  ChevronDown,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
 import DarkModeToggle from "./DarkModeToggle";
 
-const LINKS = [
+// Home y My Team siempre visibles arriba (son las más usadas). El resto
+// vive agrupado, para que el menú no se sienta como una lista interminable.
+const TOP_LINKS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/scores", label: "Scores", icon: Radio },
   { href: "/my-team", label: "My Team", icon: UserCircle },
-  { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
-  { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
-  { href: "/trades", label: "Trades", icon: Repeat },
-  { href: "/waiver-wins", label: "Waiver Wins", icon: Target },
-  { href: "/bustboom", label: "Bust/Boom", icon: Zap },
-  { href: "/head-to-head", label: "Head-to-Head", icon: Swords },
-  { href: "/teams", label: "Teams", icon: Users },
-  { href: "/top-players", label: "Top 300", icon: Star },
-  { href: "/players", label: "Player Stats", icon: Rows3 },
-  { href: "/news", label: "News", icon: Newspaper },
 ];
+
+const GROUPS = [
+  {
+    label: "Feed",
+    icon: Rss,
+    links: [
+      { href: "/news", label: "News", icon: Newspaper },
+      { href: "/scores", label: "Scores", icon: Radio },
+      { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "Rankings",
+    icon: BarChart3,
+    links: [
+      { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
+      { href: "/top-players", label: "Top 300", icon: Star },
+      { href: "/players", label: "Player Stats", icon: Rows3 },
+      { href: "/head-to-head", label: "Head-to-Head", icon: Swords },
+    ],
+  },
+  {
+    label: "Playbook",
+    icon: BookOpen,
+    links: [
+      { href: "/trades", label: "Trades", icon: Repeat },
+      { href: "/waiver-wins", label: "Waiver Wins", icon: Target },
+      { href: "/bustboom", label: "Bust/Boom", icon: Zap },
+      { href: "/teams", label: "Teams", icon: Users },
+    ],
+  },
+];
+
+const ALL_LINKS = [...TOP_LINKS, ...GROUPS.flatMap((g) => g.links)];
 
 // Los 4 accesos más usados van fijos abajo en móvil; el resto vive en "More"
 const MOBILE_PRIMARY = ["/", "/my-team", "/weekly-report", "/scores"];
@@ -46,6 +75,21 @@ const MOBILE_PRIMARY = ["/", "/my-team", "/weekly-report", "/scores"];
 export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState([]);
+
+  // Al cargar (o cambiar de página), abre automáticamente el grupo que
+  // contiene la página activa, para que no tengas que buscarla.
+  useEffect(() => {
+    const activeGroup = GROUPS.find((g) => g.links.some((l) => l.href === pathname));
+    if (activeGroup && !openGroups.includes(activeGroup.label)) {
+      setOpenGroups((prev) => [...prev, activeGroup.label]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  function toggleGroup(label) {
+    setOpenGroups((prev) => (prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]));
+  }
 
   // El panel de admin y la pantalla de setup tienen su propio look
   if (pathname?.startsWith("/admin") || pathname === "/setup") return null;
@@ -59,7 +103,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
     <>
       {/* Barra fija abajo: solo visible en móvil */}
       <nav className="mobile-bottom-nav">
-        {LINKS.filter((l) => MOBILE_PRIMARY.includes(l.href)).map(({ href, label, icon: Icon }) => {
+        {ALL_LINKS.filter((l) => MOBILE_PRIMARY.includes(l.href)).map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
             <a
@@ -106,7 +150,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
         </div>
 
         <nav className="sidebar-nav">
-          {LINKS.map(({ href, label, icon: Icon }) => {
+          {TOP_LINKS.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
               <a
@@ -118,6 +162,57 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
                 <Icon size={20} />
                 <span>{label}</span>
               </a>
+            );
+          })}
+
+          {GROUPS.map((group) => {
+            const GroupIcon = group.icon;
+            const isOpen = openGroups.includes(group.label);
+            const hasActiveChild = group.links.some((l) => l.href === pathname);
+
+            return (
+              <div key={group.label}>
+                <button
+                  onClick={() => toggleGroup(group.label)}
+                  className={`sidebar-link ${hasActiveChild ? "sidebar-link-active" : ""}`}
+                  style={{
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}>
+                    <GroupIcon size={20} />
+                    <span>{group.label}</span>
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.15s ease" }}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div style={{ paddingLeft: "1.1rem", borderLeft: "1px solid rgba(255,255,255,0.08)", marginLeft: "1.1rem" }}>
+                    {group.links.map(({ href, label, icon: Icon }) => {
+                      const active = pathname === href;
+                      return (
+                        <a
+                          key={href}
+                          href={href}
+                          className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
+                          onClick={() => setOpen(false)}
+                          style={{ fontSize: "0.8rem" }}
+                        >
+                          <Icon size={16} />
+                          <span>{label}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
