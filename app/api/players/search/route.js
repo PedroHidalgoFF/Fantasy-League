@@ -6,14 +6,13 @@ export async function GET(request) {
   const q = (searchParams.get("q") || "").trim().toLowerCase();
   const position = searchParams.get("position") || null;
 
-  if (q.length < 2) return NextResponse.json({ results: [] });
-
   const players = await getAllPlayers();
 
   const results = Object.entries(players)
     .filter(([, p]) => {
       if (typeof p.search_rank !== "number") return false;
       if (position && p.position !== position) return false;
+      if (q.length < 2) return true; // modo "explorar": sin texto, se filtra solo por posición
       const fullName = `${p.first_name || ""} ${p.last_name || ""}`.toLowerCase();
       return fullName.includes(q);
     })
@@ -25,7 +24,7 @@ export async function GET(request) {
       searchRank: p.search_rank,
     }))
     .sort((a, b) => a.searchRank - b.searchRank)
-    .slice(0, 12);
+    .slice(0, 24);
 
   return NextResponse.json({ results });
 }
