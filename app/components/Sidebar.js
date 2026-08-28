@@ -19,6 +19,7 @@ import {
   Radio,
   MoreHorizontal,
 } from "lucide-react";
+import NotificationsToggle from "./NotificationsToggle";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
@@ -115,6 +116,8 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
             );
           })}
         </nav>
+
+        <NotificationsToggle />
 
         <button
           onClick={() => window.location.reload()}

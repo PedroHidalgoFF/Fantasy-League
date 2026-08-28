@@ -79,4 +79,55 @@ Después de agregarlas, ve a Deployments → dale "Redeploy" al último deployme
 
 Entra a `tu-sitio.vercel.app/admin`, mete tu contraseña, escribe o pega tu texto en la sección que quieras (Reporte Semanal o Inicio), y dale "Publicar". Aparece de inmediato en el sitio la próxima vez que se actualice.
 
+## Notificaciones push (avisos en el celular)
+
+Cuando publicas un post desde `/admin`, o cada martes en la mañana con el
+resumen semanal, el sitio puede mandar una notificación push a quien haya
+dado permiso — funciona en Android normal y en iPhone (solo si la persona
+ya agregó el sitio a su pantalla de inicio, requiere iOS 16.4+).
+
+### 1. Crear la tabla de suscripciones en Supabase
+
+1. Ve a "SQL Editor" → "New query" en Supabase
+2. Pega el contenido completo de `supabase-push-setup.sql` y dale "Run"
+
+### 2. Generar las llaves VAPID (ya vienen generadas, no hace falta que hagas nada aquí)
+
+Ya vienen incluidas más abajo, en el paso 3. Si en algún momento las quieres
+regenerar tú mismo, se hace con un comando de Node — pero no es necesario
+para que esto funcione.
+
+### 3. Agregar las variables de entorno en Vercel
+
+Agrega estas 3, junto a las que ya tenías:
+
+| Variable | Valor |
+|---|---|
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | `BP-YOrhO91r90WXqwf4ctQrY6d9GIc8OnlYDtE4xMMu8ntMLTHjRuaSPMHjpHWD2fnqE9gu1LDcKZ-oDR_9lNEk` |
+| `VAPID_PRIVATE_KEY` | `RjrL-XyTbx8ilAEfuY5LARyICdvG78s8Y1F8PnaYv7s` |
+| `CRON_SECRET` | inventa una clave larga y aleatoria, solo la vas a copiar-pegar |
+
+**Importante:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY` es pública (viaja al navegador de cada visitante, está bien que se vea) — pero `VAPID_PRIVATE_KEY` y `CRON_SECRET` son secretas, no las compartas.
+
+Después de agregarlas, ve a Deployments → "Redeploy".
+
+### 4. Agregar 2 secretos en GitHub (para el resumen semanal del martes)
+
+En tu repositorio de GitHub → Settings → Secrets and variables → Actions → "New repository secret":
+
+| Secret | Valor |
+|---|---|
+| `SITE_URL` | la URL de tu sitio, ej. `https://tu-sitio.vercel.app` (sin `/` al final) |
+| `CRON_SECRET` | la MISMA clave que pusiste en Vercel en el paso 3 |
+
+### 5. Usarlo
+
+En el menú lateral del sitio va a aparecer un botón "Enable Notifications" —
+cualquier visitante que le dé clic y acepte el permiso va a recibir avisos
+cuando publiques un post o llegue el resumen del martes. No hace falta que
+tú hagas nada más una vez configurado: el aviso de "nuevo post" se manda
+solo cada vez que publicas desde `/admin`, y el resumen semanal se manda
+solo cada martes 9am (hora de San Luis Potosí) vía GitHub Actions.
+
+
 
