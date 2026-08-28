@@ -51,11 +51,19 @@ export default async function RootLayout({ children }) {
               if (localStorage.getItem('ff-theme') === 'dark') {
                 document.documentElement.classList.add('dark-mode');
               }
+              if (sessionStorage.getItem('ff-splash-shown')) {
+                document.documentElement.classList.add('ff-no-splash');
+              } else {
+                sessionStorage.setItem('ff-splash-shown', '1');
+              }
             } catch (e) {}`,
           }}
         />
       </head>
       <body>
+        <div id="ff-splash" style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div id="ff-splash-anim" style={{ width: "60vw", maxWidth: 320 }} />
+        </div>
         <SplashScreen />
         <div className="app-shell">
           <Sidebar logoUrl={logoUrl} />

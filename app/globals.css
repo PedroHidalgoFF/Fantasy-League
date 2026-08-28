@@ -57,6 +57,13 @@ html.dark-mode body {
   background: var(--bg);
 }
 
+/* Si ya se mostró la pantalla de carga en esta sesión, la escondemos
+   ANTES de pintar nada (el script en <head> agrega esta clase de forma
+   síncrona, antes del primer render) */
+html.ff-no-splash #ff-splash {
+  display: none !important;
+}
+
 * {
   box-sizing: border-box;
 }
