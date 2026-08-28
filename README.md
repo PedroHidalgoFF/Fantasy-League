@@ -164,5 +164,41 @@ Vercel → tu proyecto → Logs, y busca líneas que empiecen con
 directo, o si ves un error, es que ESPN cambió algo en su endpoint — avísame
 y lo ajustamos.
 
+## Caché del diccionario de jugadores (importante — evita que Sleeper te bloquee)
+
+El diccionario completo de jugadores de Sleeper (~5MB) se usa en varias
+secciones (Top 300, Waiver Wins, perfiles de equipo, etc.). Sleeper pide
+explícitamente no pedirlo más de 1 vez al día — ahora se guarda en
+Supabase y se refresca solo, en vez de pedirse fresco en cada visita.
+
+### 1. Crear la tabla en Supabase
+
+1. Ve a "SQL Editor" → "New query" en Supabase
+2. Pega el contenido completo de `supabase-players-cache-setup.sql` y dale "Run"
+
+### 2. No hace falta nada más
+
+Reutiliza `CRON_SECRET` y `SITE_URL`, que ya configuraste antes — no hay
+que agregar ninguna variable nueva. El workflow
+`players-cache-refresh.yml` corre 1 vez al día (5am hora de San Luis
+Potosí) y llena la tabla solo.
+
+### 3. La primera vez
+
+Antes de que el cron corra por primera vez, la tabla está vacía — el
+sitio sigue funcionando igual (cae de respaldo a pedirlo directo a
+Sleeper esa primera vez), pero para no depender de eso, puedes forzar el
+primer refresh manual: en GitHub → pestaña "Actions" → "Players cache
+refresh" → "Run workflow".
+
+## Scores (ya no "en vivo")
+
+`/scores` ahora se actualiza solo cuando alguien visita o recarga la
+página — no cada 30 segundos desde el navegador como antes. Sigue trayendo
+datos frescos de ESPN cada vez que se abre (la página ya está configurada
+como "siempre en vivo al cargar", igual que el resto del sitio), solo que
+ya no hace polling constante en segundo plano. Esto evita golpear el
+endpoint de ESPN sin necesidad y reduce el consumo de tu cuenta de Vercel.
+
 
 

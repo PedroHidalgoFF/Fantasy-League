@@ -1,7 +1,8 @@
-"use client";
+import { getEspnScores } from "../../lib/espnScores";
+import { getRegularSeasonState } from "../../lib/sleeper";
+import { Radio } from "lucide-react";
 
-import { useEffect, useState, useCallback } from "react";
-import { Radio, RefreshCw } from "lucide-react";
+export const dynamic = "force-dynamic";
 
 const PRESEASON_WEEKS = [1, 2, 3];
 const REGULAR_WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
@@ -61,10 +62,7 @@ function GameRow({ game }) {
 
       <div style={{ textAlign: "right", paddingLeft: "0.75rem", minWidth: "92px" }}>
         {isLive && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "0.3rem" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--danger)", animation: "pulse 1.5s infinite" }} />
-            <span style={{ color: "var(--danger)", fontWeight: 700, fontSize: "0.75rem" }}>{game.statusText}</span>
-          </div>
+          <div style={{ color: "var(--danger)", fontWeight: 700, fontSize: "0.75rem" }}>{game.statusText}</div>
         )}
         {isLive && game.downDistance && (
           <div style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "0.2rem" }}>{game.downDistance}</div>
@@ -86,10 +84,10 @@ function GameRow({ game }) {
   );
 }
 
-function WeekTab({ label, active, current, onClick }) {
+function WeekTab({ label, active, href }) {
   return (
-    <button
-      onClick={onClick}
+    <a
+      href={href}
       style={{
         flexShrink: 0,
         padding: "0.4rem 0.85rem",
@@ -99,68 +97,39 @@ function WeekTab({ label, active, current, onClick }) {
         color: active ? "var(--accent)" : "var(--text-muted)",
         fontSize: "0.8rem",
         fontWeight: active ? 700 : 500,
-        cursor: "pointer",
-        position: "relative",
+        textDecoration: "none",
         whiteSpace: "nowrap",
       }}
     >
-      {current && (
-        <span
-          style={{
-            position: "absolute",
-            top: -14,
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: "0.6rem",
-            color: "var(--accent)",
-            fontWeight: 700,
-          }}
-        >
-          CURRENT
-        </span>
-      )}
       {label}
-    </button>
+    </a>
   );
 }
 
-export default function ScoresPage() {
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
-  const [selected, setSelected] = useState(null); // { seasontype, week } | null = auto/current
-  const [current, setCurrent] = useState(null); // detected current week from ESPN
+export default async function ScoresPage({ searchParams }) {
+  const seasonType = searchParams?.st ? Number(searchParams.st) : null;
+  const week = searchParams?.wk ? Number(searchParams.wk) : null;
 
-  const loadScores = useCallback(async (weekOverride) => {
-    try {
-      const params = weekOverride
-        ? `?year=${new Date().getFullYear()}&seasontype=${weekOverride.seasonType}&week=${weekOverride.week}`
-        : "";
-      const res = await fetch(`/api/scores${params}`, { cache: "no-store" });
-      const data = await res.json();
-      if (data.games) {
-        setGames(data.games);
-        setLastUpdated(new Date());
-        if (!weekOverride && data.meta?.week) {
-          setCurrent({ seasonType: data.meta.seasonType, week: data.meta.week });
-        }
-      }
-    } catch {
-      // silently keep last known scores
-    }
-    setLoading(false);
-  }, []);
+  let year = null;
+  if (!seasonType || !week) {
+    // Sin selección explícita: dejamos que ESPN nos diga cuál es la semana
+    // actual, usando nuestro propio año de temporada regular como referencia.
+    const { season } = await getRegularSeasonState().catch(() => ({ season: null }));
+    year = season;
+  } else {
+    const { season } = await getRegularSeasonState().catch(() => ({ season: null }));
+    year = season;
+  }
 
-  useEffect(() => {
-    loadScores(selected);
-  }, [selected, loadScores]);
+  const { games, meta } = await getEspnScores(
+    seasonType && week ? { year, seasontype: seasonType, week } : {}
+  ).catch(() => ({ games: [], meta: {} }));
 
-  useEffect(() => {
-    const interval = setInterval(() => loadScores(selected), 30000);
-    return () => clearInterval(interval);
-  }, [selected, loadScores]);
+  const activeSeasonType = seasonType || meta.seasonType;
+  const activeWeek = week || meta.week;
 
-  // Agrupa los juegos por día
+  const buildHref = (st, wk) => `/scores?st=${st}&wk=${wk}`;
+
   const byDay = {};
   for (const g of games) {
     const key = new Date(g.date).toDateString();
@@ -170,43 +139,23 @@ export default function ScoresPage() {
 
   return (
     <main style={{ maxWidth: 700, margin: "0 auto" }}>
-      <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
-
       <h1 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <Radio size={26} /> Live Scores
+        <Radio size={26} /> Scores
       </h1>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
-        NFL scores, updating automatically every 30 seconds.
+        NFL results, updated whenever the site refreshes.
       </p>
 
-      <div style={{ display: "flex", gap: "0.4rem", overflowX: "auto", paddingTop: "1rem", paddingBottom: "0.75rem", marginBottom: "0.5rem" }}>
+      <div style={{ display: "flex", gap: "0.4rem", overflowX: "auto", paddingTop: "1rem", paddingBottom: "1rem" }}>
         {PRESEASON_WEEKS.map((w) => (
-          <WeekTab
-            key={`pre-${w}`}
-            label={`Pre Wk ${w}`}
-            active={selected?.seasonType === 1 && selected?.week === w}
-            current={current?.seasonType === 1 && current?.week === w && !selected}
-            onClick={() => setSelected({ seasonType: 1, week: w })}
-          />
+          <WeekTab key={`pre-${w}`} label={`Pre Wk ${w}`} active={activeSeasonType === 1 && activeWeek === w} href={buildHref(1, w)} />
         ))}
         {REGULAR_WEEKS.map((w) => (
-          <WeekTab
-            key={`reg-${w}`}
-            label={`Week ${w}`}
-            active={selected?.seasonType === 2 && selected?.week === w}
-            current={current?.seasonType === 2 && current?.week === w && !selected}
-            onClick={() => setSelected({ seasonType: 2, week: w })}
-          />
+          <WeekTab key={`reg-${w}`} label={`Week ${w}`} active={activeSeasonType === 2 && activeWeek === w} href={buildHref(2, w)} />
         ))}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--text-faint)", fontSize: "0.78rem", marginBottom: "1.25rem" }}>
-        <RefreshCw size={13} />
-        {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString("en-US")}` : "Loading..."}
-      </div>
-
-      {loading && games.length === 0 && <p>Loading scores...</p>}
-      {!loading && games.length === 0 && <p>No games found for this week.</p>}
+      {games.length === 0 && <p>No games found for this week.</p>}
 
       {Object.entries(byDay).map(([dateKey, dayGames]) => (
         <div key={dateKey} style={{ marginBottom: "1.25rem" }}>

@@ -11,7 +11,7 @@ import { getLeagueId } from "../lib/session";
 export const dynamic = "force-dynamic";
 
 const SECTIONS = [
-  { href: "/scores", icon: Radio, title: "Live Scores", color: "#ef4444" },
+  { href: "/scores", icon: Radio, title: "Scores", color: "#ef4444" },
   { href: "/power-rankings", icon: Trophy, title: "Power Rankings", color: "#6fbf1f" },
   { href: "/weekly-report", icon: ClipboardList, title: "Weekly Report", color: "#3b82f6" },
   { href: "/waiver-wins", icon: Target, title: "Waiver Wins", color: "#14b8a6" },

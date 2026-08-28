@@ -25,7 +25,7 @@ import DarkModeToggle from "./DarkModeToggle";
 
 const LINKS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/scores", label: "Live Scores", icon: Radio },
+  { href: "/scores", label: "Scores", icon: Radio },
   { href: "/my-team", label: "My Team", icon: UserCircle },
   { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
   { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
