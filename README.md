@@ -129,5 +129,40 @@ tú hagas nada más una vez configurado: el aviso de "nuevo post" se manda
 solo cada vez que publicas desde `/admin`, y el resumen semanal se manda
 solo cada martes 9am (hora de San Luis Potosí) vía GitHub Actions.
 
+## Power Rankings v2 (calidad de roster, no récord)
+
+Un power ranking distinto al de siempre: en vez de récord + puntos, compara
+qué tan buenos son tus titulares comparados con el resto de la NFL (usando
+el ranking de temporada de ESPN por posición). Se calcula 2 veces al día
+(no hace falta más seguido, ESPN no cambia sus rankings cada hora) y se
+guarda en Supabase — así no se recalcula en cada visita.
+
+**Importante:** esta sección, igual que el panel de admin y las
+notificaciones push, está pensada para TU liga (la de la variable de
+entorno `SLEEPER_LEAGUE_ID`) — no aparece para otros visitantes que
+configuraron una liga distinta en `/setup`, ya que el cálculo se hace una
+sola vez al día para una sola liga, no por cada visitante.
+
+### 1. Crear la tabla en Supabase
+
+1. Ve a "SQL Editor" → "New query" en Supabase
+2. Pega el contenido completo de `supabase-power-rankings-v2-setup.sql` y dale "Run"
+
+### 2. No hace falta nada más
+
+Reutiliza las mismas variables que ya configuraste para las notificaciones
+push (`CRON_SECRET` en Vercel, y `SITE_URL` + `CRON_SECRET` en GitHub) —
+no hay que agregar nada nuevo. El workflow `power-rankings-v2-refresh.yml`
+ya está listo para correr solo, 2 veces al día.
+
+### 3. Revisa los logs la primera vez
+
+El endpoint de ESPN que usa esta sección no es oficial — la primera vez que
+corra (o si le das "Run workflow" manual desde GitHub Actions), entra a
+Vercel → tu proyecto → Logs, y busca líneas que empiecen con
+`[powerRankingsV2]`. Si dice que usó "ADP como respaldo" en vez del ranking
+directo, o si ves un error, es que ESPN cambió algo en su endpoint — avísame
+y lo ajustamos.
+
 
 

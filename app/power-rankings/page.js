@@ -9,6 +9,8 @@ import { Trophy } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 import CommishPost from "../components/CommishPost";
 import { getPublishedPost } from "../../lib/posts";
+import { getCachedPowerRankingsV2 } from "../../lib/powerRankingsV2Cache";
+import { Sparkles } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,7 @@ export default async function PowerRankingsPage() {
   const rankingsWithBreakdown = await getPowerRankingsWithBreakdown(leagueId);
   const standings = await getStandings(leagueId);
   const post = await getPublishedPost("power-rankings").catch(() => null);
+  const cachedV2 = await getCachedPowerRankingsV2(leagueId).catch(() => null);
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
@@ -72,6 +75,44 @@ export default async function PowerRankingsPage() {
       )}
 
       {/* Power Rankings como gráfico de barras apiladas por posición */}
+      {cachedV2 && (
+        <div style={{ marginBottom: "2.5rem" }}>
+          <h2 style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <Sparkles size={18} /> Roster Quality Rankings
+          </h2>
+          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
+            Based on ESPN's season-long positional rankings for your starters + bench depth — not
+            wins/losses. Updated {new Date(cachedV2.computed_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
+          </p>
+          {cachedV2.data.rankings.map((team) => {
+            const isMine = myRosterId && String(team.rosterId) === String(myRosterId);
+            return (
+              <div
+                key={team.rosterId}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "0.6rem 0.75rem",
+                  borderRadius: "8px",
+                  marginBottom: "0.4rem",
+                  background: isMine ? "var(--surface-active)" : "var(--surface)",
+                  border: isMine ? "1px solid var(--accent)" : "1px solid var(--border)",
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 600, fontSize: "0.88rem" }}>
+                  {team.rank}.
+                  <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
+                  {team.teamName}
+                  {isMine && <YourTeamBadge />}
+                </span>
+                <span style={{ color: "var(--accent)", fontWeight: 700 }}>{Math.round(team.powerScore * 100)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem", fontSize: "0.8rem" }}>
         {["QB", "RB", "WR", "TE"].map((pos) => (
           <div key={pos} style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
