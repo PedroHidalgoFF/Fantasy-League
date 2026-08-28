@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -34,7 +33,7 @@ const LINKS = [
   { href: "/news", label: "News", icon: Newspaper },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -58,7 +57,14 @@ export default function Sidebar() {
 
       <aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
         <div className="sidebar-header" style={{ justifyContent: "center", position: "relative" }}>
-          <Image src="/logo-mark.png" alt="League logo" width={44} height={44} className="sidebar-logo" />
+          <img
+            src={logoUrl}
+            alt="League logo"
+            width={44}
+            height={44}
+            className="sidebar-logo"
+            style={{ width: 44, height: 44, objectFit: "cover" }}
+          />
           <button
             className="mobile-close"
             onClick={() => setOpen(false)}

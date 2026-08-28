@@ -2,8 +2,9 @@ import { getLeague, getStandings, getAllPlayers } from "../lib/sleeper";
 import { getPublishedPost } from "../lib/posts";
 import { getESPNNews, buildRelevantPlayerIndex, findFeaturedPlayerForArticle } from "../lib/news";
 import { relativeTime } from "../lib/relativeTime";
-import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio } from "lucide-react";
+import { Trophy, ClipboardList, Target, Zap, Swords, Users, Star, Newspaper, ArrowUpRight, Radio, Medal } from "lucide-react";
 import NewsList from "./components/NewsList";
+import TeamLogo from "./components/TeamLogo";
 import { getLeagueId } from "../lib/session";
 
 export const dynamic = "force-dynamic";
@@ -52,14 +53,41 @@ export default async function HomePage() {
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", padding: "1.5rem 0 1rem" }}>
-        <h1 style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
-          {league?.name || "My Fantasy Football League"}
-        </h1>
-        <p style={{ color: "var(--text-muted)" }}>
-          {league?.season ? `Season ${league.season}` : ""}
-          {topTeam ? ` · Leading: ${topTeam.teamName}` : ""}
-        </p>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "0.75rem",
+          padding: "1.25rem 0 1.25rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+          <img
+            src={league?.avatar ? `https://sleepercdn.com/avatars/thumbs/${league.avatar}` : "/logo-mark.png"}
+            alt=""
+            width={40}
+            height={40}
+            style={{ width: 40, height: 40, borderRadius: "10px", objectFit: "cover" }}
+          />
+          <div>
+            <div style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.1 }}>
+              {league?.name || "My Fantasy Football League"}
+            </div>
+            <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+              {league?.season ? `Season ${league.season}` : ""}
+            </div>
+          </div>
+        </div>
+
+        {topTeam && (
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Medal size={20} color="var(--accent)" />
+            <TeamLogo avatar={topTeam.avatar} teamName={topTeam.teamName} size={28} />
+            <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{topTeam.teamName}</span>
+          </div>
+        )}
       </div>
 
       {/* Banner destacado con la noticia más reciente */}

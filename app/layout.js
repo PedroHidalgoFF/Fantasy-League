@@ -1,5 +1,7 @@
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
+import { getLeagueId } from "../lib/session";
+import { getLeague } from "../lib/sleeper";
 
 export const metadata = {
   title: "Fantasy Partner",
@@ -11,7 +13,23 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const leagueId = getLeagueId();
+
+  // Intentamos usar el logo real de la liga en Sleeper. Si no hay liga
+  // configurada todavía, o Sleeper falla, usamos el logo por default.
+  let logoUrl = "/logo-mark.png";
+  if (leagueId) {
+    try {
+      const league = await getLeague(leagueId);
+      if (league?.avatar) {
+        logoUrl = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
+      }
+    } catch {
+      // se queda con el logo por default
+    }
+  }
+
   return (
     <html lang="en">
       <head>
@@ -24,7 +42,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <div className="app-shell">
-          <Sidebar />
+          <Sidebar logoUrl={logoUrl} />
           <div className="app-content">{children}</div>
         </div>
       </body>
