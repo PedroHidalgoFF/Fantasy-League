@@ -169,22 +169,36 @@ function PlayerStandoutRow({ p, tone }) {
 
 function StandoutGroup({ title, icon: Icon, tone, data }) {
   const entries = Object.entries(data || {});
-  if (entries.length === 0) return null;
   return (
     <div style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", marginBottom: "0.85rem", background: "var(--surface)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 700, fontSize: "0.85rem", marginBottom: "0.25rem", color: tone === "good" ? "var(--success)" : "var(--danger)" }}>
         <Icon size={16} /> {title}
       </div>
-      {entries.map(([pos, p]) => (
-        <PlayerStandoutRow key={pos} p={p} tone={tone} />
-      ))}
+      {entries.length === 0 ? (
+        <p style={{ color: "var(--text-faint)", fontSize: "0.82rem", margin: "0.4rem 0 0" }}>
+          Not enough data yet — check back once this week's games are underway.
+        </p>
+      ) : (
+        entries.map(([pos, p]) => <PlayerStandoutRow key={pos} p={p} tone={tone} />)
+      )}
     </div>
   );
 }
 
-function CoachCard({ coach, tone }) {
-  if (!coach) return null;
+function CoachCard({ coach, tone, emptyLabel }) {
   const color = tone === "good" ? "var(--success)" : "var(--danger)";
+
+  if (!coach) {
+    return (
+      <div style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", flex: "1 1 260px", background: "var(--surface)" }}>
+        <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--text-faint)", marginBottom: "0.3rem" }}>{emptyLabel}</div>
+        <p style={{ color: "var(--text-faint)", fontSize: "0.82rem", margin: 0 }}>
+          Not enough data yet — needs at least 2 weeks of lineups to compare.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", flex: "1 1 260px", background: "var(--surface)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
@@ -240,16 +254,14 @@ export default async function WeeklyReportPage() {
 
       <CommishPost post={weekPost} />
 
-      {forecasts.length > 0 && (
-        <>
-          <h2>This Week's Matchups</h2>
-          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
-            Win % is our own estimate from Sleeper's player projections, not Sleeper's own forecast.
-          </p>
-          {forecasts.map((f, i) => (
-            <MatchupForecastCard key={i} teamA={f.teamA} teamB={f.teamB} />
-          ))}
-        </>
+      <h2>This Week's Matchups</h2>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
+        Win % is our own estimate from Sleeper's player projections, not Sleeper's own forecast.
+      </p>
+      {forecasts.length > 0 ? (
+        forecasts.map((f, i) => <MatchupForecastCard key={i} teamA={f.teamA} teamB={f.teamB} />)
+      ) : (
+        <p style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>No matchups scheduled yet.</p>
       )}
 
       {report.pairs.length === 0 ? (
@@ -306,45 +318,29 @@ export default async function WeeklyReportPage() {
         </>
       )}
 
-      {(extras.bestCoach || extras.worstCoach) && (
-        <>
-          <h2 style={{ marginTop: "2rem" }}>
-            <ArrowRightLeft size={18} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} />
-            Best / Worst Coach
-          </h2>
-          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
-            Whose lineup swaps from last week paid off the most — and least.
-          </p>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-            <CoachCard coach={extras.bestCoach} tone="good" />
-            <CoachCard coach={extras.worstCoach} tone="bad" />
-          </div>
-        </>
-      )}
+      <h2 style={{ marginTop: "2rem" }}>
+        <ArrowRightLeft size={18} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} />
+        Best / Worst Coach
+      </h2>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
+        Whose lineup swaps from last week paid off the most — and least.
+      </p>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+        <CoachCard coach={extras.bestCoach} tone="good" emptyLabel="Best Coach" />
+        <CoachCard coach={extras.worstCoach} tone="bad" emptyLabel="Worst Coach" />
+      </div>
 
-      {Object.keys(extras.primePlayers).length > 0 && (
-        <>
-          <h2>Prime Players</h2>
-          <StandoutGroup title="Best per position" icon={TrendingUp} tone="good" data={extras.primePlayers} />
-        </>
-      )}
+      <h2>Prime Players</h2>
+      <StandoutGroup title="Best per position" icon={TrendingUp} tone="good" data={extras.primePlayers} />
 
-      {Object.keys(extras.shitPlayers).length > 0 && (
-        <>
-          <h2>Shit Players</h2>
-          <StandoutGroup title="Worst per position" icon={TrendingDown} tone="bad" data={extras.shitPlayers} />
-        </>
-      )}
+      <h2>Shit Players</h2>
+      <StandoutGroup title="Worst per position" icon={TrendingDown} tone="bad" data={extras.shitPlayers} />
 
-      {Object.keys(extras.wireTargets).length > 0 && (
-        <>
-          <h2>Wire Targets</h2>
-          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
-            Free agents who outscored their projection by the most this week.
-          </p>
-          <StandoutGroup title="Available now" icon={TrendingUp} tone="good" data={extras.wireTargets} />
-        </>
-      )}
+      <h2>Wire Targets</h2>
+      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
+        Free agents who outscored their projection by the most this week.
+      </p>
+      <StandoutGroup title="Available now" icon={TrendingUp} tone="good" data={extras.wireTargets} />
     </main>
   );
 }
