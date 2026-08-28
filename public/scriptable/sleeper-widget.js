@@ -3,8 +3,17 @@
 //         para elegir tu liga y equipo.
 //      2) Luego agrega el widget a tu pantalla de inicio y selecciona este script.
 //
+// ⚠️ Si ya tenías este widget configurado ANTES de esta versión, necesitas
+// volver a correr el script UNA VEZ dentro de la app (no como widget) para
+// que se guarde la posición (QB/RB/WR/TE) de tus jugadores — la versión
+// anterior no guardaba eso.
+//
 // Datos: usa la API pública de Sleeper (no requiere login ni API key).
 // Colores: alineados a los design tokens de la web app (fantasy-partner).
+//
+// Sugerencia de tamaño: con la fila de 4 jugadores agregada, el widget
+// "Mediano" puede sentirse apretado — si se ve muy comprimido, prueba con
+// el tamaño "Grande" al agregarlo a tu pantalla de inicio.
 
 const CONFIG_KEY = "sleeperWidgetConfig"
 const SEASON = "2026" // temporada NFL actual
@@ -13,9 +22,15 @@ const SEASON = "2026" // temporada NFL actual
 const COLOR_BG = "#0d0d0d"        // --sidebar-bg
 const COLOR_ACCENT = "#6fbf1f"    // --accent
 const COLOR_MUTED = "#9ca3af"     // --sidebar-text
-const COLOR_TRACK = "#2a2c2a"     // --border-soft (dark mode) — fondo de la barra sin llenar
+const COLOR_TRACK = "#2a2c2a"     // --border-soft (dark mode)
 const COLOR_FAINT = "#4a4f47"     // tono extra-tenue, sin token directo en el sitio
 const COLOR_WHITE = "#f1f1f1"     // --text (dark mode)
+const COLOR_BELOW = "#ef4444"     // --danger — por debajo de lo proyectado
+const COLOR_MET = "#22c55e"       // --success — ya alcanzó lo proyectado
+const COLOR_OVER = "#3b82f6"      // azul — superó lo proyectado (el sitio no tiene un token azul propio)
+
+// Posiciones que mostramos en la fila de 4 jugadores, en este orden
+const FEATURED_POSITIONS = ["QB", "RB", "WR", "TE"]
 
 // ---------- Utilidades de almacenamiento ----------
 function loadConfig() {
@@ -76,11 +91,11 @@ async function getProjections(season, week) {
   return byId
 }
 
-// Descarga una imagen y la cachea localmente (el avatar no cambia seguido,
-// así que no hace falta bajarlo de nuevo en cada refresco del widget).
+// Descarga una imagen y la cachea localmente (no hace falta bajarla de
+// nuevo en cada refresco del widget).
 async function getImage(url) {
   const fm = FileManager.local()
-  const fileName = "sleeper_avatar_" + Data.fromString(url).toBase64String().replace(/[\/+=]/g, "") + ".img"
+  const fileName = "sleeper_img_" + Data.fromString(url).toBase64String().replace(/[\/+=]/g, "") + ".img"
   const path = fm.joinPath(fm.documentsDirectory(), fileName)
 
   if (fm.fileExists(path)) {
@@ -92,22 +107,23 @@ async function getImage(url) {
   return img
 }
 
-// Mapa de nombres SOLO para los jugadores de tu roster (se construye una vez
-// durante la configuración, dentro de la app con memoria de sobra — el
-// widget nunca descarga el catálogo completo de jugadores de la NFL).
-async function buildNameMapForIds(ids) {
+// Info (nombre + posición) SOLO para los jugadores de tu roster (se
+// construye una vez durante la configuración, dentro de la app — el widget
+// nunca descarga el catálogo completo de jugadores de la NFL).
+async function buildPlayerInfoForIds(ids) {
   const allPlayers = await getJSON("https://api.sleeper.app/v1/players/nfl")
-  const nameMap = {}
+  const info = {}
   for (const id of ids) {
     const p = allPlayers[id]
-    if (!p) { nameMap[id] = id; continue }
-    nameMap[id] = p.position === "DEF" ? `${p.team} DEF` : `${p.first_name} ${p.last_name}`.trim()
+    if (!p) { info[id] = { name: id, position: null }; continue }
+    const name = p.position === "DEF" ? `${p.team} DEF` : `${p.first_name} ${p.last_name}`.trim()
+    info[id] = { name, position: p.position || null }
   }
-  return nameMap
+  return info
 }
 
-function playerName(nameMap, id) {
-  return (nameMap && nameMap[id]) ? nameMap[id] : id
+function playerName(playerInfoMap, id) {
+  return (playerInfoMap && playerInfoMap[id]) ? playerInfoMap[id].name : id
 }
 
 function formatUpdated(date) {
@@ -187,7 +203,7 @@ async function runSetup() {
     avatarUrl = `https://sleepercdn.com/avatars/thumbs/${myUserInfo.avatar}`
   }
 
-  const nameMap = await buildNameMapForIds(myRoster.players || [])
+  const playerInfoMap = await buildPlayerInfoForIds(myRoster.players || [])
 
   const config = {
     username,
@@ -197,7 +213,7 @@ async function runSetup() {
     rosterId: myRoster.roster_id,
     teamName,
     avatarUrl,
-    nameMap
+    playerInfoMap
   }
   saveConfig(config)
 
@@ -207,10 +223,48 @@ async function runSetup() {
   await done.present()
 }
 
+// Anillo de color sólido alrededor de una foto circular (más confiable que
+// dibujar un arco de progreso a mano, que no pude probar en vivo desde este
+// entorno). El color indica el estado, no el % exacto de avance.
+function addRingedPhoto(parentStack, photoImg, ringColor, ringSize, photoSize) {
+  const ringStack = parentStack.addStack()
+  ringStack.size = new Size(ringSize, ringSize)
+  ringStack.backgroundColor = new Color(ringColor)
+  ringStack.cornerRadius = ringSize / 2
+  ringStack.centerAlignContent()
+
+  if (photoImg) {
+    const inner = ringStack.addImage(photoImg)
+    inner.imageSize = new Size(photoSize, photoSize)
+    inner.cornerRadius = photoSize / 2
+  }
+}
+
+function ringColorFor(actual, projected) {
+  if (!projected || projected <= 0) return COLOR_TRACK
+  const ratio = actual / projected
+  if (ratio < 0.999) return COLOR_BELOW   // rojo: todavía por debajo
+  if (ratio <= 1.15) return COLOR_MET     // verde: ya lo alcanzó
+  return COLOR_OVER                        // azul: lo superó
+}
+
+// Encuentra, dentro de los titulares, el primer jugador de la posición dada
+// (ej. "QB" -> tu QB1 titular).
+function findStarterByPosition(starterIds, playerInfoMap, position) {
+  return starterIds.find(id => playerInfoMap && playerInfoMap[id] && playerInfoMap[id].position === position) || null
+}
+
 async function buildWidget(config) {
   const widget = new ListWidget()
   widget.backgroundColor = new Color(COLOR_BG)
   widget.url = "scriptable:///run/" + encodeURIComponent(Script.name())
+
+  if (!config.playerInfoMap) {
+    const t = widget.addText("Vuelve a correr el script dentro de la app Scriptable para actualizar tu configuración.")
+    t.font = Font.systemFont(12)
+    t.textColor = new Color(COLOR_WHITE)
+    return widget
+  }
 
   try {
     const state = await getState()
@@ -235,15 +289,9 @@ async function buildWidget(config) {
     const ties = (myRoster && myRoster.settings && myRoster.settings.ties) || 0
     const recordStr = ties > 0 ? `${wins}-${losses}-${ties}` : `${wins}-${losses}`
 
-    const myPoints = myMatchup.points || 0
-    const oppPoints = oppMatchup ? (oppMatchup.points || 0) : 0
-
-    // Probabilidad de ganar, versión precisa: para cada titular, si YA tiene
-    // puntos reales anotados los usamos; si todavía no juega, usamos su
-    // proyección de Sleeper. Sumando eso por equipo obtenemos un "total
-    // esperado al final de la semana" que es preciso desde el jueves (es
-    // básicamente el pronóstico pre-partido) y se va afinando solo conforme
-    // la gente juega — sin necesitar amortiguar artificialmente por la hora.
+    // Probabilidad de ganar: para cada titular, puntos reales si ya jugó,
+    // proyección si no — sumado por equipo da un "total esperado" preciso
+    // desde el jueves, que se afina solo conforme la gente juega.
     function expectedTeamTotal(matchup) {
       const starters = matchup.starters || []
       const actualByPlayer = matchup.players_points || {}
@@ -260,10 +308,10 @@ async function buildWidget(config) {
     const myExpected = expectedTeamTotal(myMatchup)
     const oppExpected = oppMatchup ? expectedTeamTotal(oppMatchup) : 0
     const expectedTotal = myExpected + oppExpected
-
     const prob = expectedTotal > 0 ? myExpected / expectedTotal : 0.5
     const probPctStr = (prob * 100).toFixed(1)
 
+    // ---------- Fila 1: avatar + nombre del equipo + récord (esquina) ----------
     const topRow = widget.addStack()
     topRow.layoutHorizontally()
     topRow.centerAlignContent()
@@ -281,8 +329,6 @@ async function buildWidget(config) {
       }
     }
 
-    // heavySystemFont es lo más cercano en iOS al peso de Oswald (fuente de
-    // títulos de la web app, no disponible en Scriptable).
     const nameText = topRow.addText(config.teamName)
     nameText.font = Font.heavySystemFont(16)
     nameText.textColor = new Color(COLOR_WHITE)
@@ -290,23 +336,13 @@ async function buildWidget(config) {
 
     topRow.addSpacer()
 
-    const totalText = topRow.addText(myPoints.toFixed(2))
-    totalText.font = Font.mediumSystemFont(15)
-    totalText.textColor = new Color(COLOR_ACCENT)
-
-    widget.addSpacer(4)
-
-    const recordText = widget.addText(recordStr)
-    recordText.font = Font.mediumSystemFont(12)
+    const recordText = topRow.addText(recordStr)
+    recordText.font = Font.boldSystemFont(15)
     recordText.textColor = new Color(COLOR_ACCENT)
 
-    const leagueText = widget.addText(config.leagueName)
-    leagueText.font = Font.systemFont(10)
-    leagueText.textColor = new Color(COLOR_MUTED)
-    leagueText.lineLimit = 1
+    widget.addSpacer(8)
 
-    widget.addSpacer(6)
-
+    // ---------- Fila 2: % de ganar + barra ----------
     const probRow = widget.addStack()
     probRow.layoutHorizontally()
     probRow.centerAlignContent()
@@ -328,37 +364,72 @@ async function buildWidget(config) {
     barStack.layoutHorizontally()
     barStack.cornerRadius = 4
 
-    const redWidth = Math.round(barWidth * prob)
-    const blueWidth = barWidth - redWidth
+    const filledWidth = Math.round(barWidth * prob)
+    const emptyWidth = barWidth - filledWidth
 
-    if (redWidth > 0) {
-      const redPart = barStack.addStack()
-      redPart.size = new Size(redWidth, barHeight)
-      redPart.backgroundColor = new Color(COLOR_ACCENT)
+    if (filledWidth > 0) {
+      const filledPart = barStack.addStack()
+      filledPart.size = new Size(filledWidth, barHeight)
+      filledPart.backgroundColor = new Color(COLOR_ACCENT)
     }
-    if (blueWidth > 0) {
-      const bluePart = barStack.addStack()
-      bluePart.size = new Size(blueWidth, barHeight)
-      bluePart.backgroundColor = new Color(COLOR_TRACK)
+    if (emptyWidth > 0) {
+      const emptyPart = barStack.addStack()
+      emptyPart.size = new Size(emptyWidth, barHeight)
+      emptyPart.backgroundColor = new Color(COLOR_TRACK)
     }
 
+    widget.addSpacer(10)
+
+    // ---------- Fila 3: QB1 / RB1 / WR1 / TE1 con anillo de estado ----------
     const starters = myMatchup.starters || []
-    const starterPoints = myMatchup.starters_points || []
-    if (starters.length > 0) {
-      let topIdx = 0
-      for (let i = 1; i < starters.length; i++) {
-        if ((starterPoints[i] || 0) > (starterPoints[topIdx] || 0)) topIdx = i
-      }
-      const topName = playerName(config.nameMap, starters[topIdx])
-      const topPts = (starterPoints[topIdx] || 0).toFixed(1)
+    const actualByPlayer = myMatchup.players_points || {}
 
-      widget.addSpacer(6)
-      const topScorerText = widget.addText(`⭐ ${topName} — ${topPts} pts`)
-      topScorerText.font = Font.mediumSystemFont(11)
-      topScorerText.textColor = new Color(COLOR_ACCENT)
-      topScorerText.lineLimit = 1
+    const playersRow = widget.addStack()
+    playersRow.layoutHorizontally()
+
+    for (let i = 0; i < FEATURED_POSITIONS.length; i++) {
+      const position = FEATURED_POSITIONS[i]
+      const playerId = findStarterByPosition(starters, config.playerInfoMap, position)
+
+      const col = playersRow.addStack()
+      col.layoutVertically()
+      col.centerAlignContent()
+
+      if (!playerId) {
+        // No hay titular en esa posición esta semana (raro, pero posible)
+        const placeholder = col.addStack()
+        placeholder.size = new Size(46, 46)
+        placeholder.backgroundColor = new Color(COLOR_TRACK)
+        placeholder.cornerRadius = 23
+        const posLabel = col.addText(position)
+        posLabel.font = Font.systemFont(8)
+        posLabel.textColor = new Color(COLOR_FAINT)
+      } else {
+        const actual = actualByPlayer[playerId] || 0
+        const projected = projections[playerId] || 0
+        const ringColor = ringColorFor(actual, projected)
+
+        let photoImg = null
+        try {
+          photoImg = await getImage(`https://sleepercdn.com/content/nfl/players/${playerId}.jpg`)
+        } catch (e) { /* si falla, se muestra el anillo vacío */ }
+
+        addRingedPhoto(col, photoImg, ringColor, 50, 42)
+
+        col.addSpacer(3)
+        const posLabel = col.addText(position)
+        posLabel.font = Font.boldSystemFont(9)
+        posLabel.textColor = new Color(COLOR_MUTED)
+
+        const ptsLabel = col.addText(`${actual.toFixed(1)}/${projected.toFixed(1)}`)
+        ptsLabel.font = Font.systemFont(8)
+        ptsLabel.textColor = new Color(COLOR_FAINT)
+      }
+
+      if (i < FEATURED_POSITIONS.length - 1) playersRow.addSpacer()
     }
 
+    // ---------- Fila 4: hora de última actualización ----------
     widget.addSpacer(8)
     const updatedRow = widget.addStack()
     updatedRow.layoutHorizontally()
