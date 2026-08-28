@@ -13,6 +13,11 @@ export const metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#0b1210",
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({ children }) {
   const leagueId = getLeagueId();
 
