@@ -61,6 +61,21 @@ async function getState() {
   return await getJSON(`https://api.sleeper.app/v1/state/nfl`)
 }
 
+// Proyecciones de TODOS los jugadores para una semana (una sola llamada,
+// todas las posiciones juntas) — mismo endpoint que usa la web app.
+async function getProjections(season, week) {
+  const positions = ["QB", "RB", "WR", "TE", "K", "DEF"]
+  const posQuery = positions.map(p => `position[]=${p}`).join("&")
+  const url = `https://api.sleeper.app/projections/nfl/${season}/${week}?season_type=regular&${posQuery}`
+  const list = await getJSON(url)
+  const byId = {}
+  for (const entry of list) {
+    const pts = entry.stats && entry.stats.pts_ppr
+    if (entry.player_id && typeof pts === "number") byId[entry.player_id] = pts
+  }
+  return byId
+}
+
 // Descarga una imagen y la cachea localmente (el avatar no cambia seguido,
 // así que no hace falta bajarlo de nuevo en cada refresco del widget).
 async function getImage(url) {
@@ -93,34 +108,6 @@ async function buildNameMapForIds(ids) {
 
 function playerName(nameMap, id) {
   return (nameMap && nameMap[id]) ? nameMap[id] : id
-}
-
-function getWeekProgress() {
-  try {
-    const now = new Date()
-    const etString = now.toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      weekday: "short",
-      hour: "numeric",
-      hour12: false
-    })
-    const parts = etString.split(" ")
-    const weekday = parts[0]
-    const hour = parseInt(parts[1], 10)
-
-    if (weekday === "Thu") return hour < 20 ? 0.05 : 0.15
-    if (weekday === "Fri" || weekday === "Sat") return 0.15
-    if (weekday === "Sun") {
-      if (hour < 13) return 0.2
-      if (hour < 16) return 0.45
-      if (hour < 20) return 0.68
-      return 0.82
-    }
-    if (weekday === "Mon") return hour < 20 ? 0.88 : 0.97
-    return 1
-  } catch (e) {
-    return 1
-  }
 }
 
 function formatUpdated(date) {
@@ -229,9 +216,10 @@ async function buildWidget(config) {
     const state = await getState()
     const week = Math.max(1, state.week || 1)
 
-    const [matchups, rosters] = await Promise.all([
+    const [matchups, rosters, projections] = await Promise.all([
       getMatchups(config.leagueId, week),
-      getRosters(config.leagueId)
+      getRosters(config.leagueId),
+      getProjections(state.season || SEASON, week).catch(() => ({}))
     ])
 
     const myRoster = rosters.find(r => r.roster_id === config.rosterId)
@@ -249,13 +237,31 @@ async function buildWidget(config) {
 
     const myPoints = myMatchup.points || 0
     const oppPoints = oppMatchup ? (oppMatchup.points || 0) : 0
-    const diff = myPoints - oppPoints
 
-    const weekProgress = getWeekProgress()
-    const baseScale = 5
-    const earlyWeekDamping = 40
-    const scale = baseScale + (1 - weekProgress) * earlyWeekDamping
-    const prob = 1 / (1 + Math.exp(-diff / scale))
+    // Probabilidad de ganar, versión precisa: para cada titular, si YA tiene
+    // puntos reales anotados los usamos; si todavía no juega, usamos su
+    // proyección de Sleeper. Sumando eso por equipo obtenemos un "total
+    // esperado al final de la semana" que es preciso desde el jueves (es
+    // básicamente el pronóstico pre-partido) y se va afinando solo conforme
+    // la gente juega — sin necesitar amortiguar artificialmente por la hora.
+    function expectedTeamTotal(matchup) {
+      const starters = matchup.starters || []
+      const actualByPlayer = matchup.players_points || {}
+      let total = 0
+      for (const playerId of starters) {
+        if (!playerId || playerId === "0") continue
+        const actual = actualByPlayer[playerId]
+        const projected = projections[playerId] || 0
+        total += (actual && actual > 0) ? actual : projected
+      }
+      return total
+    }
+
+    const myExpected = expectedTeamTotal(myMatchup)
+    const oppExpected = oppMatchup ? expectedTeamTotal(oppMatchup) : 0
+    const expectedTotal = myExpected + oppExpected
+
+    const prob = expectedTotal > 0 ? myExpected / expectedTotal : 0.5
     const probPctStr = (prob * 100).toFixed(1)
 
     const topRow = widget.addStack()
