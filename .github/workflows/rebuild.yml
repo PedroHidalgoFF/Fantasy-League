@@ -1,0 +1,32 @@
+yaml
+name: Rebuild site
+
+on:
+  schedule:
+    # --- Ritmo normal (todos los días): cada 4 horas = 6x al día ---
+    - cron: "0 */4 * * *"
+
+    # --- Jueves Night Football (~7-11pm hora de San Luis Potosí) ---
+    # Eso cae en la madrugada del viernes en UTC (México es UTC-6 fijo)
+    - cron: "*/15 1-5 * * 5"
+
+    # --- Domingo: juegos de mediodía hasta Sunday Night Football ---
+    # 12pm-11:59pm hora de SLP = 18:00-23:59 UTC del mismo domingo
+    - cron: "*/15 18-23 * * 0"
+    # ...y el cierre de Sunday Night Football, que cae ya en la
+    # madrugada del lunes en UTC
+    - cron: "*/15 0-5 * * 1"
+
+    # --- Monday Night Football (~7-11pm hora de SLP) ---
+    # Cae en la madrugada del martes en UTC
+    - cron: "*/15 1-5 * * 2"
+
+  workflow_dispatch: {} # te permite correrlo manualmente desde GitHub también
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar redeploy en Vercel
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
