@@ -1,0 +1,16 @@
+name: Weekly summary push notification
+
+on:
+  schedule:
+    # Martes 9am hora de San Luis Potosí (UTC-6 fijo) = 15:00 UTC
+    - cron: "0 15 * * 2"
+  workflow_dispatch: {}
+
+jobs:
+  send-weekly-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar notificación de resumen semanal
+        run: |
+          curl -X POST "${{ secrets.SITE_URL }}/api/push/weekly-summary" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
