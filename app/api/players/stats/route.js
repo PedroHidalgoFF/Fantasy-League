@@ -8,14 +8,21 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const ids = (searchParams.get("ids") || "").split(",").filter(Boolean);
   const mode = searchParams.get("mode") === "total" ? "total" : "average";
+  const seasonChoice = searchParams.get("seasonChoice") === "previous" ? "previous" : "current";
 
   if (ids.length === 0) return NextResponse.json({ players: [] });
 
   try {
-    const { season, lastCompletedWeek } = await getRegularSeasonState();
+    const { season: currentSeason, lastCompletedWeek } = await getRegularSeasonState();
+
+    // "Temporada anterior" = la última temporada completa (18 semanas),
+    // útil para ver stats reales antes de que arranque la actual.
+    const season = seasonChoice === "previous" ? String(Number(currentSeason) - 1) : currentSeason;
+    const throughWeek = seasonChoice === "previous" ? 18 : lastCompletedWeek;
+
     const [players, { totals, gamesPlayed }] = await Promise.all([
       getAllPlayers(),
-      getSeasonStatBreakdown(season, lastCompletedWeek),
+      getSeasonStatBreakdown(season, throughWeek),
     ]);
 
     const position = players[ids[0]]?.position;
@@ -76,7 +83,7 @@ export async function GET(request) {
       };
     });
 
-    return NextResponse.json({ players: result, week: lastCompletedWeek, season, mode });
+    return NextResponse.json({ players: result, week: throughWeek, season, mode, seasonChoice });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

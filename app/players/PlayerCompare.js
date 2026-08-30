@@ -195,6 +195,7 @@ export default function PlayerCompare() {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [mode, setMode] = useState("average");
+  const [seasonChoice, setSeasonChoice] = useState("current");
 
   const lockedPosition = selected[0]?.position || null;
 
@@ -205,14 +206,14 @@ export default function PlayerCompare() {
     }
     setLoading(true);
     const ids = selected.map((s) => s.playerId).join(",");
-    fetch(`/api/players/stats?ids=${ids}&mode=${mode}`)
+    fetch(`/api/players/stats?ids=${ids}&mode=${mode}&seasonChoice=${seasonChoice}`)
       .then((r) => r.json())
       .then((data) => {
         const byId = Object.fromEntries((data.players || []).map((p) => [p.playerId, p]));
         setPlayerData(byId);
       })
       .finally(() => setLoading(false));
-  }, [selected, mode]);
+  }, [selected, mode, seasonChoice]);
 
   function handleAdd(player) {
     setSelected((prev) => (prev.length >= 5 ? prev : [...prev, player]));
@@ -267,6 +268,33 @@ export default function PlayerCompare() {
             ))}
           </div>
         )}
+
+        {selected.length > 0 && (
+          <div style={{ display: "inline-flex", background: "var(--sidebar-bg)", borderRadius: "999px", padding: "0.2rem" }}>
+            {[
+              { value: "current", label: "This Season" },
+              { value: "previous", label: "Last Season" },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setSeasonChoice(opt.value)}
+                style={{
+                  padding: "0.35rem 0.8rem",
+                  borderRadius: "999px",
+                  border: "none",
+                  background: seasonChoice === opt.value ? "var(--accent)" : "transparent",
+                  color: seasonChoice === opt.value ? "var(--accent-contrast)" : "var(--sidebar-text)",
+                  fontWeight: 700,
+                  fontSize: "0.78rem",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {selected.length === 0 && (
@@ -281,51 +309,51 @@ export default function PlayerCompare() {
             const data = playerData[p.playerId];
             const posColor = getPositionColor(p.position);
             return (
-              <div key={p.playerId} style={{ minWidth: "260px", flex: "1 1 260px", border: "1px solid var(--border)", borderRadius: "14px", overflow: "hidden", background: "var(--surface)" }}>
+              <div key={p.playerId} style={{ minWidth: "175px", flex: "1 1 175px", border: "1px solid var(--border)", borderRadius: "12px", overflow: "hidden", background: "var(--surface)" }}>
                 <div
                   style={{
                     position: "relative",
-                    height: "150px",
+                    height: "95px",
                     background: `linear-gradient(0deg, rgba(13,13,13,0.85), rgba(13,13,13,0.15)), url(https://sleepercdn.com/content/nfl/players/${p.playerId}.jpg) center/cover no-repeat, var(--sidebar-bg)`,
                   }}
                 >
                   <button
                     onClick={() => handleRemove(p.playerId)}
-                    style={{ position: "absolute", top: 8, right: 8, background: "rgba(255,255,255,0.85)", border: "none", borderRadius: "50%", width: 26, height: 26, cursor: "pointer" }}
+                    style={{ position: "absolute", top: 5, right: 5, background: "rgba(255,255,255,0.85)", border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer" }}
                   >
-                    <X size={14} style={{ margin: "0 auto" }} />
+                    <X size={11} style={{ margin: "0 auto" }} />
                   </button>
-                  <div style={{ position: "absolute", bottom: "0.6rem", left: "0.75rem", right: "0.75rem" }}>
-                    <div style={{ color: "#fff", fontWeight: 800, fontSize: "1.05rem", textTransform: "uppercase", lineHeight: 1.15 }}>{p.name}</div>
-                    <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.3rem" }}>
-                      <span style={{ background: posColor.bg, color: posColor.color, padding: "0.1rem 0.5rem", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 800 }}>
+                  <div style={{ position: "absolute", bottom: "0.4rem", left: "0.5rem", right: "0.5rem" }}>
+                    <div style={{ color: "#fff", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                    <div style={{ display: "flex", gap: "0.25rem", marginTop: "0.2rem" }}>
+                      <span style={{ background: posColor.bg, color: posColor.color, padding: "0.05rem 0.3rem", borderRadius: "5px", fontSize: "0.58rem", fontWeight: 800 }}>
                         {p.position}{data?.overallPositionRank ? ` ${data.overallPositionRank}` : ""}
                       </span>
-                      <span style={{ background: "rgba(255,255,255,0.9)", color: "#111", padding: "0.1rem 0.5rem", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 800 }}>
+                      <span style={{ background: "rgba(255,255,255,0.9)", color: "#111", padding: "0.05rem 0.3rem", borderRadius: "5px", fontSize: "0.58rem", fontWeight: 800 }}>
                         {p.nflTeam}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ padding: "0.75rem 0.9rem" }}>
-                  <div style={{ color: "var(--text-faint)", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.4rem" }}>
-                    Timeframe: Season {data?.season || ""}
+                <div style={{ padding: "0.5rem 0.6rem" }}>
+                  <div style={{ color: "var(--text-faint)", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "0.3rem" }}>
+                    Season {data?.season || ""}
                   </div>
 
                   {loading || !data ? (
-                    <p style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>Loading…</p>
+                    <p style={{ color: "var(--text-faint)", fontSize: "0.75rem" }}>Loading…</p>
                   ) : (
                     data.metrics.map((m) => {
                       const tier = TIER_COLORS[m.tier] || null;
                       return (
-                        <div key={m.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.35rem 0", borderBottom: "1px solid var(--border-soft)" }}>
-                          <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>{m.label}</span>
-                          <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                            <span style={{ background: tier?.bg || "var(--border-soft)", color: tier?.color || "var(--text)", padding: "0.1rem 0.45rem", borderRadius: "6px", fontWeight: 700, fontSize: "0.8rem" }}>
+                        <div key={m.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.22rem 0", borderBottom: "1px solid var(--border-soft)" }}>
+                          <span style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>{m.label}</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                            <span style={{ background: tier?.bg || "var(--border-soft)", color: tier?.color || "var(--text)", padding: "0.05rem 0.35rem", borderRadius: "5px", fontWeight: 700, fontSize: "0.68rem" }}>
                               {m.value}
                             </span>
-                            {m.rank && <span style={{ color: "var(--text-faint)", fontSize: "0.72rem" }}>({m.rank})</span>}
+                            {m.rank && <span style={{ color: "var(--text-faint)", fontSize: "0.6rem" }}>({m.rank})</span>}
                           </span>
                         </div>
                       );
