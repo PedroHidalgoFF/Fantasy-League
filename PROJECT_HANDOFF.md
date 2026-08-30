@@ -23,10 +23,17 @@ GitHub Actions (cron que golpea un Deploy Hook de Vercel).
 
 ## Páginas del sitio
 
-Home, Live Scores (en vivo, 30s), My Team (tabs: Rankings/Roster/Trades),
-Power Rankings, Weekly Report, Trades, Waiver Wins, Bust/Boom, Head-to-Head,
-Teams, Top 300, News. Más: `/setup` (onboarding), `/admin` (editor protegido
-con contraseña).
+Home, Scores (ya no "en vivo" — se actualiza al cargar, sin polling), My Team
+(tabs: Rankings/Roster/Trades), Power Rankings, Weekly Report, Trades, Waiver
+Wins, Bust/Boom, Head-to-Head, Teams, Top 300, **Player Stats** (comparador
+de jugadores con búsqueda + fotos), News. Más: `/setup` (onboarding),
+`/admin` (editor protegido con contraseña).
+
+**Menú lateral agrupado** (`app/components/Sidebar.js`): Home y My Team
+siempre visibles arriba; el resto vive en 3 grupos desplegables — **Feed**
+(News, Scores, Weekly Report), **Rankings** (Power Rankings, Top 300, Player
+Stats, Head-to-Head), **Playbook** (Trades, Waiver Wins, Bust/Boom, Teams).
+El grupo que contiene la página activa se abre solo.
 
 ## Funciones clave (todas en `/lib`)
 
@@ -37,6 +44,39 @@ con contraseña).
 - `weeklyReportStats.js` — Best/Worst Coach + Prime/Shit Players/Wire Targets
 - `powerRankingsV2.js` + `powerRankingsV2Cache.js` — power ranking alterno basado en calidad de roster (ESPN), cacheado en Supabase, se recalcula 2x/día vía cron — **solo para la liga del dueño (`SLEEPER_LEAGUE_ID`), no por visitante**
 - `teamLogo.js` — logos de Defensa (DEF) en vez de foto de jugador rota
+- `playersCache.js` — diccionario completo de jugadores de Sleeper (~5MB) cacheado en Supabase, refrescado 1x/día vía cron (Sleeper pide no pedirlo más seguido)
+- `playerStats.js` + `positionStatFields.js` — desglose completo de stats por jugador (yardas, TDs, etc.), usado en `/players` con ranking calculado contra todos los peers de esa posición
+- `espnScores.js` — marcadores de ESPN, ahora usado directo por `/scores` (ya no hay `/api/scores`, se quitó el polling de 30s)
+
+## Widget de iOS (Scriptable) — proyecto hermano, vive fuera de Next.js
+
+`public/scriptable/sleeper-widget.js` — widget para pantalla de inicio del
+iPhone, hecho en JavaScript para la app Scriptable (no corre en el
+navegador). Colores alineados a los tokens de la web app. Se comparte a los
+usuarios desde un banner en Home (`WidgetBanner.js`) con instrucciones +
+botón de copiar que hace fetch a ese archivo estático.
+
+**Estado actual del widget:** muestra avatar+nombre del equipo, récord en la
+esquina, barra de % de ganar (calculada con proyecciones reales de Sleeper,
+no con amortiguación por hora), y una fila de 4 jugadores (QB1/RB1/WR1/TE1)
+con un anillo de color alrededor de la foto (rojo = por debajo de lo
+proyectado, verde = lo alcanzó, azul = lo superó — color sólido, no un arco
+que se va llenando).
+
+**Pendiente/nota importante:** el usuario pidió que el anillo fuera una
+"barra de carga" real (un arco de progreso que se llena %, no solo un
+color sólido). Eso requiere `DrawContext` + `Path.addArc()` de Scriptable,
+que **no se pudo probar en vivo** (sin entorno iOS para ejecutar Scriptable
+real) — se implementó la versión segura (anillo de color sólido) en su
+lugar. Si se retoma esto, hay que construir la versión con arco de
+progreso real y que el usuario la pruebe en su iPhone y reporte si la
+sintaxis de `Path.addArc()` funcionó.
+
+**Importante:** cualquier usuario que ya tenía el widget configurado ANTES
+de la versión con el anillo de 4 jugadores necesita volver a correr el
+script dentro de la app Scriptable (no como widget) — la versión vieja no
+guardaba la posición (QB/RB/WR/TE) de cada jugador del roster, solo el
+nombre.
 
 ## Cosas configuradas fuera del código (revisar si algo no funciona)
 
@@ -47,13 +87,15 @@ con contraseña).
 
 **GitHub — Secrets:** `SITE_URL`, `CRON_SECRET` (debe ser IDÉNTICO al de Vercel)
 
-**Supabase — tablas (correr los 3 SQL en orden):**
+**Supabase — tablas (correr los 4 SQL en orden):**
 `supabase-setup.sql` (posts), `supabase-push-setup.sql` (suscripciones),
-`supabase-power-rankings-v2-setup.sql` (caché de rankings v2)
+`supabase-power-rankings-v2-setup.sql` (caché de rankings v2),
+`supabase-players-cache-setup.sql` (caché del diccionario de jugadores)
 
 **GitHub Actions workflows:**
 `rebuild.yml` (actualiza el sitio, cada 4h / cada 15min en días de partido),
-`weekly-summary-push.yml` (martes 9am), `power-rankings-v2-refresh.yml` (2x/día)
+`weekly-summary-push.yml` (martes 9am), `power-rankings-v2-refresh.yml` (2x/día),
+`players-cache-refresh.yml` (1x/día, 5am)
 
 ## Limitaciones conocidas / cosas no-oficiales a vigilar
 

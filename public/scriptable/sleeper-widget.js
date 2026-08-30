@@ -25,9 +25,11 @@ const COLOR_MUTED = "#9ca3af"     // --sidebar-text
 const COLOR_TRACK = "#2a2c2a"     // --border-soft (dark mode)
 const COLOR_FAINT = "#4a4f47"     // tono extra-tenue, sin token directo en el sitio
 const COLOR_WHITE = "#f1f1f1"     // --text (dark mode)
-const COLOR_BELOW = "#ef4444"     // --danger — por debajo de lo proyectado
-const COLOR_MET = "#22c55e"       // --success — ya alcanzó lo proyectado
-const COLOR_OVER = "#3b82f6"      // azul — superó lo proyectado (el sitio no tiene un token azul propio)
+const COLOR_TIER_RED = "#ef4444"     // --danger — 0% a 15% de lo proyectado
+const COLOR_TIER_ORANGE = "#f97316"  // 16% a 50%
+const COLOR_TIER_YELLOW = "#facc15"  // 51% a 90%
+const COLOR_TIER_GREEN = "#22c55e"   // --success — 91% a 100%
+const COLOR_TIER_BLUE = "#3b82f6"    // más de 100% — superó lo proyectado
 
 // Posiciones que mostramos en la fila de 4 jugadores, en este orden
 const FEATURED_POSITIONS = ["QB", "RB", "WR", "TE"]
@@ -223,9 +225,8 @@ async function runSetup() {
   await done.present()
 }
 
-// Anillo de color sólido alrededor de una foto circular (más confiable que
-// dibujar un arco de progreso a mano, que no pude probar en vivo desde este
-// entorno). El color indica el estado, no el % exacto de avance.
+// Anillo de color fino alrededor de una foto circular — la foto ocupa casi
+// todo el círculo, dejando solo un marco delgado del color visible.
 function addRingedPhoto(parentStack, photoImg, ringColor, ringSize, photoSize) {
   const ringStack = parentStack.addStack()
   ringStack.size = new Size(ringSize, ringSize)
@@ -240,12 +241,17 @@ function addRingedPhoto(parentStack, photoImg, ringColor, ringSize, photoSize) {
   }
 }
 
+// Escala de 5 colores según el % de puntos esperados (proyección) que ya
+// completó el jugador: 0-15% rojo, 16-50% naranja, 51-90% amarillo,
+// 91-100% verde, más de 100% azul.
 function ringColorFor(actual, projected) {
   if (!projected || projected <= 0) return COLOR_TRACK
-  const ratio = actual / projected
-  if (ratio < 0.999) return COLOR_BELOW   // rojo: todavía por debajo
-  if (ratio <= 1.15) return COLOR_MET     // verde: ya lo alcanzó
-  return COLOR_OVER                        // azul: lo superó
+  const pct = (actual / projected) * 100
+  if (pct <= 15) return COLOR_TIER_RED
+  if (pct <= 50) return COLOR_TIER_ORANGE
+  if (pct <= 90) return COLOR_TIER_YELLOW
+  if (pct <= 100) return COLOR_TIER_GREEN
+  return COLOR_TIER_BLUE
 }
 
 // Encuentra, dentro de los titulares, el primer jugador de la posición dada
@@ -414,7 +420,7 @@ async function buildWidget(config) {
           photoImg = await getImage(`https://sleepercdn.com/content/nfl/players/${playerId}.jpg`)
         } catch (e) { /* si falla, se muestra el anillo vacío */ }
 
-        addRingedPhoto(col, photoImg, ringColor, 50, 42)
+        addRingedPhoto(col, photoImg, ringColor, 50, 46)
 
         col.addSpacer(3)
         const posLabel = col.addText(position)
