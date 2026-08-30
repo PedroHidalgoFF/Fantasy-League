@@ -32,11 +32,11 @@ function PlayerPickCard({ player, onClick }) {
         alt=""
         style={{ width: "100%", aspectRatio: "1", objectFit: "cover", background: "var(--border-soft)" }}
       />
-      <div style={{ padding: "0.5rem", width: "100%" }}>
-        <span style={{ background: posColor.bg, color: posColor.color, padding: "0.05rem 0.4rem", borderRadius: "5px", fontSize: "0.62rem", fontWeight: 700 }}>
+      <div style={{ padding: "0.4rem", width: "100%" }}>
+        <span style={{ background: posColor.bg, color: posColor.color, padding: "0.03rem 0.35rem", borderRadius: "5px", fontSize: "0.58rem", fontWeight: 700 }}>
           {player.position}
         </span>
-        <div style={{ fontSize: "0.78rem", fontWeight: 600, marginTop: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: "0.7rem", fontWeight: 600, marginTop: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {player.name}
         </div>
       </div>
@@ -63,6 +63,7 @@ function SelectPlayersModal({ selected, lockedPosition, onAdd, onRemove, onClose
   }, [query, lockedPosition]);
 
   const selectedIds = new Set(selected.map((s) => s.playerId));
+  const canCompare = selected.length >= 2;
 
   return (
     <div
@@ -77,56 +78,78 @@ function SelectPlayersModal({ selected, lockedPosition, onAdd, onRemove, onClose
           maxWidth: "600px",
           width: "100%",
           maxHeight: "88vh",
-          overflow: "auto",
-          padding: "1.25rem",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
-          <h3 style={{ margin: 0, border: "none", padding: 0 }}>Select Players</h3>
-          <button onClick={onClose} aria-label="Close" style={{ background: "var(--border-soft)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "var(--text-muted)" }}>
-            <X size={18} style={{ margin: "0 auto" }} />
-          </button>
-        </div>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>Selected Players ({selected.length}/5)</p>
-
-        {selected.length > 0 && (
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginBottom: "1rem" }}>
-            {selected.map((p) => (
-              <div key={p.playerId} style={{ position: "relative", width: 72 }}>
-                <img
-                  src={`https://sleepercdn.com/content/nfl/players/${p.playerId}.jpg`}
-                  alt=""
-                  style={{ width: 72, height: 72, borderRadius: "10px", objectFit: "cover", background: "var(--border-soft)", border: "2px solid var(--accent)" }}
-                />
-                <button
-                  onClick={() => onRemove(p.playerId)}
-                  style={{ position: "absolute", top: -6, right: -6, background: "var(--sidebar-bg)", color: "#fff", border: "none", borderRadius: "50%", width: 22, height: 22, cursor: "pointer" }}
-                >
-                  <X size={13} style={{ margin: "0 auto" }} />
-                </button>
-                <div style={{ fontSize: "0.68rem", textAlign: "center", marginTop: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-              </div>
-            ))}
+        <div style={{ padding: "1.25rem 1.25rem 0", overflow: "auto", flex: 1 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
+            <h3 style={{ margin: 0, border: "none", padding: 0 }}>Select Players</h3>
+            <button onClick={onClose} aria-label="Close" style={{ background: "var(--border-soft)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "var(--text-muted)" }}>
+              <X size={18} style={{ margin: "0 auto" }} />
+            </button>
           </div>
-        )}
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>Selected Players ({selected.length}/5)</p>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", border: "1px solid var(--border)", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "1rem" }}>
-          <Search size={16} color="var(--text-faint)" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search..."
-            style={{ flex: 1, border: "none", outline: "none", background: "none", color: "var(--text)", fontSize: "0.9rem" }}
-            autoFocus
-          />
+          {selected.length > 0 && (
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+              {selected.map((p) => (
+                <div key={p.playerId} style={{ position: "relative", width: 72 }}>
+                  <img
+                    src={`https://sleepercdn.com/content/nfl/players/${p.playerId}.jpg`}
+                    alt=""
+                    style={{ width: 72, height: 72, borderRadius: "10px", objectFit: "cover", background: "var(--border-soft)", border: "2px solid var(--accent)" }}
+                  />
+                  <button
+                    onClick={() => onRemove(p.playerId)}
+                    style={{ position: "absolute", top: -6, right: -6, background: "var(--sidebar-bg)", color: "#fff", border: "none", borderRadius: "50%", width: 22, height: 22, cursor: "pointer" }}
+                  >
+                    <X size={13} style={{ margin: "0 auto" }} />
+                  </button>
+                  <div style={{ fontSize: "0.68rem", textAlign: "center", marginTop: "0.2rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", border: "1px solid var(--border)", borderRadius: "10px", padding: "0.6rem 0.85rem", marginBottom: "1rem" }}>
+            <Search size={16} color="var(--text-faint)" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search..."
+              style={{ flex: 1, border: "none", outline: "none", background: "none", color: "var(--text)", fontSize: "16px" }}
+              autoFocus
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(84px, 1fr))", gap: "0.5rem", paddingBottom: "1rem" }}>
+            {results
+              .filter((r) => !selectedIds.has(r.playerId))
+              .map((r) => (
+                <PlayerPickCard key={r.playerId} player={r} onClick={() => onAdd(r)} />
+              ))}
+          </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "0.6rem" }}>
-          {results
-            .filter((r) => !selectedIds.has(r.playerId))
-            .map((r) => (
-              <PlayerPickCard key={r.playerId} player={r} onClick={() => onAdd(r)} />
-            ))}
+        <div style={{ padding: "0.85rem 1.25rem", borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
+          <button
+            onClick={onClose}
+            disabled={!canCompare}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              borderRadius: "10px",
+              border: "none",
+              background: canCompare ? "var(--accent)" : "var(--border-soft)",
+              color: canCompare ? "var(--accent-contrast)" : "var(--text-faint)",
+              fontWeight: 700,
+              fontSize: "0.9rem",
+              cursor: canCompare ? "pointer" : "not-allowed",
+            }}
+          >
+            {canCompare ? `Compare (${selected.length})` : "Select at least 2 players"}
+          </button>
         </div>
       </div>
     </div>

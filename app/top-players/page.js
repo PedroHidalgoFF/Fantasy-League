@@ -122,7 +122,7 @@ export default async function TopPlayersPage({ searchParams }) {
               border: "1px solid var(--border)",
               background: "var(--surface)",
               color: "var(--text)",
-              fontSize: "0.9rem",
+              fontSize: "16px",
             }}
           />
         </form>
