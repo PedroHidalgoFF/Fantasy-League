@@ -1,0 +1,17 @@
+name: Power Rankings v2 refresh
+
+on:
+  schedule:
+    # 2x al día, hora de San Luis Potosí (UTC-6 fijo): 8am y 8pm = 14:00 y 02:00 UTC
+    - cron: "0 14 * * *"
+    - cron: "0 2 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh-power-rankings-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recalcular Power Rankings v2
+        run: |
+          curl -X POST "${{ secrets.SITE_URL }}/api/power-rankings-v2/refresh" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
