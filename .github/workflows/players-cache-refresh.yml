@@ -1,0 +1,16 @@
+name: Players cache refresh
+
+on:
+  schedule:
+    # 1x al día, 5am hora de San Luis Potosí (UTC-6 fijo) = 11:00 UTC
+    - cron: "0 11 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh-players-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refrescar caché de jugadores
+        run: |
+          curl -X POST "${{ secrets.SITE_URL }}/api/players/refresh" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
