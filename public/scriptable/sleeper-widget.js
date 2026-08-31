@@ -225,20 +225,53 @@ async function runSetup() {
   await done.present()
 }
 
-// Anillo de color fino alrededor de una foto circular — la foto ocupa casi
-// todo el círculo, dejando solo un marco delgado del color visible.
-function addRingedPhoto(parentStack, photoImg, ringColor, ringSize, photoSize) {
+// Anillo de color con 3 capas, para que cualquier imperfección de centrado
+// se "esconda" en el fondo negro del widget en vez de verse como el color
+// del anillo asomándose de forma dispareja:
+//   1. Círculo exterior del color de estado (rojo/naranja/amarillo/etc.), SIN foto.
+//   2. Círculo del color de FONDO del widget, un poco más chico — hace de
+//      "colchón" invisible contra el negro.
+//   3. La foto del jugador, centrada encima de ese colchón.
+// applyFillingContentMode() fuerza a que la foto RELLENE el círculo
+// recortando el exceso, en vez de solo "caber" dejando espacios vacíos si
+// la foto original no es perfectamente cuadrada.
+function addRingedPhoto(parentStack, photoImg, ringColor, ringSize, bgCircleSize, photoSize) {
   const ringStack = parentStack.addStack()
   ringStack.size = new Size(ringSize, ringSize)
   ringStack.backgroundColor = new Color(ringColor)
   ringStack.cornerRadius = ringSize / 2
-  ringStack.centerAlignContent()
+  ringStack.layoutHorizontally()
+  ringStack.centerAlignContent() // centra verticalmente (eje cruzado) el contenido de este stack horizontal
+  ringStack.addSpacer()
+
+  const bgCol = ringStack.addStack()
+  bgCol.layoutVertically()
+  bgCol.addSpacer()
+
+  const bgRow = bgCol.addStack()
+  bgRow.size = new Size(bgCircleSize, bgCircleSize)
+  bgRow.backgroundColor = new Color(COLOR_BG)
+  bgRow.cornerRadius = bgCircleSize / 2
+  bgRow.layoutHorizontally()
+  bgRow.centerAlignContent() // mismo motivo: centra verticalmente la foto dentro de este círculo
+  bgRow.addSpacer()
+
+  const photoCol = bgRow.addStack()
+  photoCol.layoutVertically()
+  photoCol.addSpacer()
 
   if (photoImg) {
-    const inner = ringStack.addImage(photoImg)
+    const inner = photoCol.addImage(photoImg)
     inner.imageSize = new Size(photoSize, photoSize)
     inner.cornerRadius = photoSize / 2
+    inner.applyFillingContentMode()
   }
+
+  photoCol.addSpacer()
+  bgRow.addSpacer()
+
+  bgCol.addSpacer()
+  ringStack.addSpacer()
 }
 
 // Escala de 5 colores según el % de puntos esperados (proyección) que ya
@@ -420,7 +453,7 @@ async function buildWidget(config) {
           photoImg = await getImage(`https://sleepercdn.com/content/nfl/players/${playerId}.jpg`)
         } catch (e) { /* si falla, se muestra el anillo vacío */ }
 
-        addRingedPhoto(col, photoImg, ringColor, 52, 42)
+        addRingedPhoto(col, photoImg, ringColor, 54, 48, 48)
 
         col.addSpacer(3)
         const posLabel = col.addText(position)
