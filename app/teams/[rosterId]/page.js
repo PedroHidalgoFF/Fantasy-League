@@ -5,6 +5,7 @@ import { getPlayerImageUrl } from "../../../lib/teamLogo";
 import TeamLogo from "../../components/TeamLogo";
 import { getLeagueId, getMyRosterId } from "../../../lib/session";
 import { Star } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ export default async function TeamProfilePage({ params }) {
     return (
       <main style={{ maxWidth: 800, margin: "0 auto" }}>
         <p>Team not found.</p>
-        <a href="/teams" style={{ color: "var(--accent)" }}>Back to Teams</a>
+        <Link href="/teams" style={{ color: "var(--accent)" }}>Back to Teams</Link>
       </main>
     );
   }
@@ -65,7 +66,7 @@ export default async function TeamProfilePage({ params }) {
 
   return (
     <main style={{ maxWidth: 800, margin: "0 auto" }}>
-      <a href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← All Teams</a>
+      <Link href="/teams" style={{ color: "var(--accent)", fontSize: "0.85rem" }}>← All Teams</Link>
 
       <h1 style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
         <TeamLogo avatar={team.avatar} teamName={team.teamName} size={32} />

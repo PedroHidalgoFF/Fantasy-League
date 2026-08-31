@@ -420,7 +420,7 @@ async function buildWidget(config) {
           photoImg = await getImage(`https://sleepercdn.com/content/nfl/players/${playerId}.jpg`)
         } catch (e) { /* si falla, se muestra el anillo vacío */ }
 
-        addRingedPhoto(col, photoImg, ringColor, 50, 46)
+        addRingedPhoto(col, photoImg, ringColor, 52, 42)
 
         col.addSpacer(3)
         const posLabel = col.addText(position)

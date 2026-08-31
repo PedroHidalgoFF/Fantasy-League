@@ -4,6 +4,7 @@ import TeamLogo from "../components/TeamLogo";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 import CommishPost from "../components/CommishPost";
 import { getPublishedPost } from "../../lib/posts";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ export default async function TeamsPage() {
         {sorted.map((team) => {
           const isMine = myRosterId && String(team.rosterId) === String(myRosterId);
           return (
-            <a
+            <Link
               key={team.rosterId}
               href={`/teams/${team.rosterId}`}
               style={{
@@ -86,7 +87,7 @@ export default async function TeamsPage() {
                   {team.ties ? `-${team.ties}` : ""} · {team.pointsFor.toFixed(1)} pts
                 </div>
               </div>
-            </a>
+            </Link>
           );
         })}
       </div>

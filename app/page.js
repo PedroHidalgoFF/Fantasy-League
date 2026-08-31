@@ -8,6 +8,7 @@ import TeamLogo from "./components/TeamLogo";
 import CommishPost from "./components/CommishPost";
 import WidgetBanner from "./components/WidgetBanner";
 import { getLeagueId } from "../lib/session";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -179,7 +180,7 @@ export default async function HomePage() {
         {SECTIONS.map((s) => {
           const Icon = s.icon;
           return (
-            <a
+            <Link
               key={s.href}
               href={s.href}
               style={{
@@ -207,7 +208,7 @@ export default async function HomePage() {
               <span style={{ fontSize: "0.78rem", fontWeight: 500, textAlign: "center", lineHeight: 1.2 }}>
                 {s.title}
               </span>
-            </a>
+            </Link>
           );
         })}
       </div>
@@ -220,9 +221,9 @@ export default async function HomePage() {
           <NewsList
             entries={restOfNews.map((item) => ({ item, matchedPlayer: findFeaturedPlayerForArticle(item, playerIndex) }))}
           />
-          <a href="/news" style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600 }}>
+          <Link href="/news" style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600 }}>
             See all news →
-          </a>
+          </Link>
         </>
       )}
     </main>

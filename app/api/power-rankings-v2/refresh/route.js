@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { computePowerRankingsV2 } from "../../../../lib/powerRankingsV2";
 import { saveCachedPowerRankingsV2 } from "../../../../lib/powerRankingsV2Cache";
-import { getRegularSeasonState } from "../../../../lib/sleeper";
 
 export async function POST(request) {
   const authHeader = request.headers.get("authorization");
@@ -15,15 +14,13 @@ export async function POST(request) {
   }
 
   try {
-    const { season } = await getRegularSeasonState();
-    const result = await computePowerRankingsV2(leagueId, season);
+    const result = await computePowerRankingsV2(leagueId);
     await saveCachedPowerRankingsV2(leagueId, result);
 
     return NextResponse.json({
       ok: true,
       teamsRanked: result.rankings.length,
       methodUsed: result.methodUsed,
-      unmatchedCount: result.unmatchedPlayers.length,
     });
   } catch (err) {
     console.error("[power-rankings-v2 refresh] Error:", err.message);

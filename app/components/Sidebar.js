@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -69,8 +70,14 @@ const GROUPS = [
 
 const ALL_LINKS = [...TOP_LINKS, ...GROUPS.flatMap((g) => g.links)];
 
-// Los 4 accesos más usados van fijos abajo en móvil; el resto vive en "More"
-const MOBILE_PRIMARY = ["/", "/my-team", "/weekly-report", "/scores"];
+// My Team va al centro de la barra de móvil (posición 3 de 5), es el
+// acceso que más se usa.
+const MOBILE_PRIMARY_ORDERED = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/scores", label: "Scores", icon: Radio },
+  { href: "/my-team", label: "My Team", icon: UserCircle },
+  { href: "/weekly-report", label: "Weekly Report", icon: ClipboardList },
+];
 
 export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
   const pathname = usePathname();
@@ -103,10 +110,10 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
     <>
       {/* Barra fija abajo: solo visible en móvil */}
       <nav className="mobile-bottom-nav">
-        {ALL_LINKS.filter((l) => MOBILE_PRIMARY.includes(l.href)).map(({ href, label, icon: Icon }) => {
+        {MOBILE_PRIMARY_ORDERED.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
-            <a
+            <Link
               key={href}
               href={href}
               className={`bottom-nav-item ${active ? "bottom-nav-item-active" : ""}`}
@@ -115,7 +122,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
                 <Icon size={22} />
               </span>
               <span>{label}</span>
-            </a>
+            </Link>
           );
         })}
         <button className="bottom-nav-item" onClick={() => setOpen(true)}>
@@ -153,7 +160,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
           {TOP_LINKS.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
-              <a
+              <Link
                 key={href}
                 href={href}
                 className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
@@ -161,7 +168,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
               >
                 <Icon size={20} />
                 <span>{label}</span>
-              </a>
+              </Link>
             );
           })}
 
@@ -198,7 +205,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
                     {group.links.map(({ href, label, icon: Icon }) => {
                       const active = pathname === href;
                       return (
-                        <a
+                        <Link
                           key={href}
                           href={href}
                           className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
@@ -207,7 +214,7 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
                         >
                           <Icon size={16} />
                           <span>{label}</span>
-                        </a>
+                        </Link>
                       );
                     })}
                   </div>

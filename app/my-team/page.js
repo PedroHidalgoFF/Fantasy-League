@@ -9,6 +9,7 @@ import TeamTradeBlock from "../components/TeamTradeBlock";
 import { UserCircle, Trophy, ListChecks, Repeat, Sparkles } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 import { getCachedPowerRankingsV2 } from "../../lib/powerRankingsV2Cache";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,8 @@ function formatDate(timestamp) {
 
 function TabLink({ tab, active, icon: Icon, label }) {
   return (
-    <a
-      href={tab === "rankings" ? "/my-team" : `/my-team?tab=${tab}`}
+    <Link
+      href={tab === "roster" ? "/my-team" : `/my-team?tab=${tab}`}
       style={{
         display: "flex",
         alignItems: "center",
@@ -40,14 +41,14 @@ function TabLink({ tab, active, icon: Icon, label }) {
       }}
     >
       <Icon size={16} /> {label}
-    </a>
+    </Link>
   );
 }
 
 export default async function MyTeamPage({ searchParams }) {
   const leagueId = getLeagueId();
   const myRosterId = getMyRosterId();
-  const tab = searchParams?.tab || "rankings";
+  const tab = searchParams?.tab || "roster";
 
   if (!leagueId) {
     return (
