@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Smartphone, X, Copy, Check } from "lucide-react";
+import WidgetPreview from "./WidgetPreview";
 
 const WIDGET_SCRIPT_URL = "/scriptable/sleeper-widget.js";
 
@@ -134,6 +135,15 @@ export default function WidgetBanner() {
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
               Uses a free app called Scriptable — no coding needed on your end, just copy and paste.
             </p>
+
+            <div style={{ margin: "1rem 0" }}>
+              <WidgetPreview />
+              <p style={{ color: "var(--text-muted)", fontSize: "0.78rem", marginTop: "0.6rem", lineHeight: 1.5 }}>
+                The record turns gray with no games played, green when you&rsquo;re on a winning record, and red
+                when you&rsquo;re on a losing one. The points bar and each player&rsquo;s ring shift from red to
+                blue as your team gets closer to (or passes) its projected score for the week.
+              </p>
+            </div>
 
             <ol style={{ paddingLeft: "1.1rem", margin: "1rem 0" }}>
               {STEPS.map((step, i) => (

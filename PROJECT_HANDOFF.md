@@ -56,27 +56,101 @@ navegador). Colores alineados a los tokens de la web app. Se comparte a los
 usuarios desde un banner en Home (`WidgetBanner.js`) con instrucciones +
 botón de copiar que hace fetch a ese archivo estático.
 
-**Estado actual del widget:** muestra avatar+nombre del equipo, récord en la
-esquina, barra de % de ganar (calculada con proyecciones reales de Sleeper,
-no con amortiguación por hora), y una fila de 4 jugadores (QB1/RB1/WR1/TE1)
-con un anillo de color alrededor de la foto (rojo = por debajo de lo
-proyectado, verde = lo alcanzó, azul = lo superó — color sólido, no un arco
-que se va llenando).
+**Estado actual del widget (ya resuelto, no es pendiente):**
+- Avatar + nombre del equipo, récord en la esquina superior derecha
+- Fila de **puntos esperados** (mío vs rival, en números reales — ej.
+  "94.2 [barra] 88.5", ya NO es un % de "WIN") + barra proporcional
+- Fila de 4 jugadores (QB1/RB1/WR1/TE1) con foto circular y un **anillo de
+  color de 5 tonos** alrededor (rojo 0-15%, naranja 16-50%, amarillo
+  51-90%, verde 91-100%, azul más de 100% de los puntos proyectados ya
+  alcanzados) — el anillo es sólido, no un arco que se llena progresivamente
+- El anillo usa una técnica de 3 capas (círculo de color → círculo del
+  color de fondo del widget, un poco más chico → foto encima) con
+  `centerAlignContent()` en los stacks horizontales para que quede
+  perfectamente centrado — esto costó varias iteraciones, si se vuelve a
+  tocar la función `addRingedPhoto()`, cuidado con romper el centrado
 
-**Pendiente/nota importante:** el usuario pidió que el anillo fuera una
-"barra de carga" real (un arco de progreso que se llena %, no solo un
-color sólido). Eso requiere `DrawContext` + `Path.addArc()` de Scriptable,
-que **no se pudo probar en vivo** (sin entorno iOS para ejecutar Scriptable
-real) — se implementó la versión segura (anillo de color sólido) en su
-lugar. Si se retoma esto, hay que construir la versión con arco de
-progreso real y que el usuario la pruebe en su iPhone y reporte si la
-sintaxis de `Path.addArc()` funcionó.
+**Ya NO es pendiente:** la idea original de un arco de progreso real
+(`DrawContext` + `Path.addArc()`) se descartó a favor del anillo de color
+sólido de 3 capas — funciona bien y ya está probado en el iPhone del
+usuario.
 
 **Importante:** cualquier usuario que ya tenía el widget configurado ANTES
 de la versión con el anillo de 4 jugadores necesita volver a correr el
 script dentro de la app Scriptable (no como widget) — la versión vieja no
 guardaba la posición (QB/RB/WR/TE) de cada jugador del roster, solo el
 nombre.
+
+**Pendiente real:** el script actualizado (con la barra de puntos
+esperados) ya se probó y confirmó que funciona bien en Scriptable, pero
+**todavía no se integró** a `public/scriptable/sleeper-widget.js` en el
+repo — hay que copiar el script final (el usuario lo tiene, probado) al
+archivo del sitio para que el botón "Copy widget code" del banner quede
+actualizado para todos los demás usuarios.
+
+## Puntos esperados del matchup (para el widget, vía API)
+
+Nueva función pensada específicamente para que el widget de Scriptable (u
+otro consumidor externo) pueda pedir "puntos esperados: mi equipo vs
+rival" sin tener que recalcular todo desde cero cada vez:
+
+- `lib/sleeper.js` → `getExpectedPointsForMatchup(leagueId, season, week, rosterId)`
+  — encuentra el matchup de ese rosterId por `matchup_id`, suma proyecciones
+  de los `starters` de cada lado, devuelve
+  `{ week, myTeam: {rosterId, pointsExpected}, opponent: {...} | null }`
+- `app/api/expected-points/[leagueId]/[week]/route.js` — Route Handler:
+  `GET /api/expected-points/<leagueId>/<week>?rosterId=<rosterId>`. Usa
+  `unstable_cache` de Next (ISR explícito) con clave
+  `["expected-points", leagueId, week, rosterId]` y `revalidate: 300` (5
+  min) — cachea por liga+semana+equipo específico, sin depender de
+  Supabase/cron (a propósito, porque el sitio es multi-liga y no se sabe
+  de antemano qué ligas lo van a visitar)
+- **Todavía no está conectado a ninguna página de la web ni al widget** —
+  por ahora el widget de Scriptable calcula esto por su cuenta
+  (`expectedTeamTotal()` dentro del script), no llama a este endpoint. Es
+  una pieza construida pero suelta, lista para conectar cuando se decida
+  cómo usarla (¿reemplazar el cálculo del widget por una llamada a este
+  endpoint? ¿mostrarlo en alguna página de la web?)
+
+## Otros cambios recientes de UI/UX
+
+- **Navegación con `next/link`** en vez de `<a>` normal, en todo el sitio
+  (Sidebar, My Team, Teams, perfil de equipo, Home) — quita la recarga
+  completa de página, transiciones más suaves
+- **Menú móvil:** My Team está al centro de la barra inferior (Home,
+  Scores, My Team, Weekly Report, More). Entrar a My Team manda directo a
+  la pestaña **Roster** (ya no Rankings)
+- **My Team → Roster:** Starters y Bench son filas horizontales
+  deslizables (`overflowX: auto`), no un grid vertical que ocupa toda la
+  pantalla
+- **Power Rankings v2 cambió de fuente de datos:** el endpoint de ESPN
+  resultó no funcionar (devolvía 0 jugadores emparejados) — ahora usa
+  `search_rank` de Sleeper (ya cacheado, confiable, sin dependencias
+  externas). Función: `computePowerRankingsV2(leagueId)` en
+  `lib/powerRankingsV2.js` (ya NO recibe `season` como parámetro)
+  - Tanto `/power-rankings` como `/my-team` (tab Rankings) esconden la
+    gráfica de puntos-reales-de-temporada cuando está en puros ceros
+    (pretemporada) y muestran un aviso apuntando a "Roster Quality
+    Rankings" en su lugar
+- **`/players` (Player Stats) rediseñado:** modal "Select Players" con
+  grid de fotos + búsqueda (funciona incluso sin escribir texto, muestra
+  top jugadores de esa posición), tarjetas de comparación más chicas,
+  toggle Average/Total, y toggle **"This Season" / "Last Season"** (usa
+  `seasonChoice=previous` en `/api/players/stats` para traer temporada
+  2025 completa cuando la actual todavía no tiene datos)
+- **`.github/workflows/` — cuidado al armar el zip:** en algún punto el
+  comando de zip usaba `-x "*.git*"` para excluir la carpeta `.git`, pero
+  ese patrón TAMBIÉN excluía `.github` (contiene "git" como substring) —
+  por eso los workflows nunca llegaban al repo. Ya se corrigió (zip ya no
+  excluye nada), pero si en algún momento un GitHub Actions "no aparece",
+  revisar esto primero
+- **Viewport meta tag:** le faltaba `width: "device-width", initialScale: 1`
+  en `app/layout.js` → causaba que la barra inferior se viera cortada al
+  cargar en móvil. Ya está arreglado.
+- Inputs con `fontSize` menor a 16px causan zoom automático no deseado en
+  Safari iOS al enfocarlos — ya se corrigieron los que había (buscador de
+  Top 300, buscador de Player Stats), pero si se agregan inputs nuevos,
+  usar siempre `fontSize: "16px"` como mínimo
 
 ## Cosas configuradas fuera del código (revisar si algo no funciona)
 
