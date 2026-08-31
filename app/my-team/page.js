@@ -1,12 +1,9 @@
 import { getStandings, getAllTrades } from "../../lib/sleeper";
 import { getTeamRosterSplit } from "../../lib/teamRoster";
-import { getPowerRankingsWithBreakdown } from "../../lib/powerRankingsBreakdown";
-import { getPositionSolidColor } from "../../lib/positionBadge";
 import TeamLogo from "../components/TeamLogo";
 import PlayerCard from "../components/PlayerCard";
-import YourTeamBadge from "../components/YourTeamBadge";
 import TeamTradeBlock from "../components/TeamTradeBlock";
-import { UserCircle, Trophy, ListChecks, Repeat, Sparkles } from "lucide-react";
+import { UserCircle, Trophy, ListChecks, Repeat, ArrowRight } from "lucide-react";
 import { getLeagueId, getMyRosterId } from "../../lib/session";
 import { getCachedPowerRankingsV2 } from "../../lib/powerRankingsV2Cache";
 import Link from "next/link";
@@ -15,11 +12,7 @@ export const dynamic = "force-dynamic";
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
-  return new Date(timestamp).toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(timestamp).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function TabLink({ tab, active, icon: Icon, label }) {
@@ -41,6 +34,26 @@ function TabLink({ tab, active, icon: Icon, label }) {
       }}
     >
       <Icon size={16} /> {label}
+    </Link>
+  );
+}
+
+function SeeFullLink({ href, label }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.35rem",
+        fontSize: "0.85rem",
+        fontWeight: 600,
+        color: "var(--accent)",
+        textDecoration: "none",
+        marginTop: "0.5rem",
+      }}
+    >
+      {label} <ArrowRight size={15} />
     </Link>
   );
 }
@@ -72,15 +85,26 @@ export default async function MyTeamPage({ searchParams }) {
   }
 
   const myRoster = await getTeamRosterSplit(leagueId, myRosterId);
-  const rankingsWithBreakdown = tab === "rankings" ? await getPowerRankingsWithBreakdown(leagueId) : null;
+
+  // Rankings tab: solo necesitamos TU posición en cada sistema, no la lista
+  // completa (esa ya vive en /power-rankings — evita mostrar el mismo
+  // contenido dos veces).
   const standings = tab === "rankings" ? await getStandings(leagueId) : null;
   const cachedV2 = tab === "rankings" ? await getCachedPowerRankingsV2(leagueId).catch(() => null) : null;
 
+  // Trades tab: solo las últimas 3, con link a la lista completa.
   let myTrades = null;
+  let myTradesTotal = 0;
   if (tab === "trades") {
     const allTrades = await getAllTrades(leagueId);
-    myTrades = allTrades.filter((t) => t.byTeam.some((team) => String(team.rosterId) === String(myRosterId)));
+    const filtered = allTrades.filter((t) => t.byTeam.some((team) => String(team.rosterId) === String(myRosterId)));
+    myTradesTotal = filtered.length;
+    myTrades = filtered.slice(0, 3);
   }
+
+  const myStandingIndex = standings ? standings.findIndex((t) => String(t.rosterId) === String(myRosterId)) : -1;
+  const myStanding = myStandingIndex >= 0 ? standings[myStandingIndex] : null;
+  const myV2Rank = cachedV2 ? cachedV2.data.rankings.find((t) => String(t.rosterId) === String(myRosterId)) : null;
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
@@ -148,175 +172,53 @@ export default async function MyTeamPage({ searchParams }) {
               </div>
             </div>
           ))}
+          {myTradesTotal > myTrades.length && (
+            <SeeFullLink href="/trades" label={`See all ${myTradesTotal} trades`} />
+          )}
         </div>
       )}
 
       {tab === "rankings" && (
         <div>
-          {cachedV2 ? (
-            <div style={{ marginBottom: "2.5rem" }}>
-              <h2 style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <Sparkles size={18} /> Roster Quality Rankings
-              </h2>
-              <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "-0.5rem", marginBottom: "1rem" }}>
-                Based on ESPN's season-long positional rankings for your starters + bench depth —
-                not wins/losses. Updated{" "}
-                {new Date(cachedV2.computed_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}.
-              </p>
-              {cachedV2.data.rankings.map((team) => {
-                const isMine = String(team.rosterId) === String(myRosterId);
-                return (
-                  <div
-                    key={team.rosterId}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "0.6rem 0.75rem",
-                      borderRadius: "8px",
-                      marginBottom: "0.4rem",
-                      background: isMine ? "var(--surface-active)" : "var(--surface)",
-                      border: isMine ? "1px solid var(--accent)" : "1px solid var(--border)",
-                    }}
-                  >
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 600, fontSize: "0.88rem" }}>
-                      {team.rank}.
-                      <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
-                      {team.teamName}
-                      {isMine && <YourTeamBadge />}
-                    </span>
-                    <span style={{ color: "var(--accent)", fontWeight: 700 }}>{Math.round(team.powerScore * 100)}</span>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0, marginBottom: "1.25rem" }}>
+            Your spot in each ranking system — see the full breakdown on Power Rankings.
+          </p>
+
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "0.5rem" }}>
+            <div style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", flex: "1 1 220px", background: "var(--surface)" }}>
+              <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginBottom: "0.3rem" }}>Standings</div>
+              {myStanding ? (
+                <>
+                  <div style={{ fontWeight: 700, fontSize: "1.3rem" }}>
+                    #{myStandingIndex + 1} <span style={{ fontSize: "0.9rem", fontWeight: 500, color: "var(--text-muted)" }}>of {standings.length}</span>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ border: "1px dashed var(--border)", borderRadius: "10px", padding: "1rem", marginBottom: "2rem" }}>
-              <p style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 700, margin: 0 }}>
-                <Sparkles size={16} /> Roster Quality Rankings not calculated yet
-              </p>
-              <p style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginBottom: 0 }}>
-                This ranking uses ESPN's preseason positional rankings, so it works even before
-                real games start — trigger its first refresh from GitHub → Actions → "Power
-                Rankings v2 refresh" → "Run workflow", or wait for its scheduled run.
-              </p>
-            </div>
-          )}
-
-          {rankingsWithBreakdown.some((t) => t.powerScore > 0) ? (
-            <>
-              <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem", fontSize: "0.8rem" }}>
-                {["QB", "RB", "WR", "TE"].map((pos) => (
-                  <div key={pos} style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                    <span
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        background: getPositionSolidColor(pos),
-                        display: "inline-block",
-                      }}
-                    />
-                    {pos}
+                  <div style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+                    {myStanding.wins}-{myStanding.losses}{myStanding.ties ? `-${myStanding.ties}` : ""} · {myStanding.pointsFor.toFixed(1)} PF
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>Not available yet</div>
+              )}
+            </div>
 
-              <div style={{ marginBottom: "2.5rem" }}>
-                {rankingsWithBreakdown.map((team) => {
-                  const isMine = String(team.rosterId) === String(myRosterId);
-                  return (
-                    <div
-                      key={team.rosterId}
-                      style={{
-                        marginBottom: "0.9rem",
-                        padding: isMine ? "0.6rem 0.75rem" : "0",
-                        borderRadius: "8px",
-                        background: isMine ? "var(--surface-active)" : "transparent",
-                        border: isMine ? "1px solid var(--accent)" : "none",
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.25rem" }}>
-                        <span style={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                          {team.rank}.
-                          <TeamLogo avatar={team.avatar} teamName={team.teamName} size={22} />
-                          {team.teamName}
-                          {isMine && <YourTeamBadge />}
-                        </span>
-                        <span style={{ color: "var(--text-muted)" }}>Power score {team.powerScore}</span>
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          width: "100%",
-                          height: "22px",
-                          borderRadius: "6px",
-                          overflow: "hidden",
-                          background: "var(--border-soft)",
-                        }}
-                      >
-                        {team.segments.map((seg) => (
-                          <div
-                            key={seg.position}
-                            title={`${seg.position}: ${seg.points} pts`}
-                            style={{
-                              width: `${seg.pct}%`,
-                              background: getPositionSolidColor(seg.position),
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "0.65rem",
-                              color: "#fff",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {seg.pct > 8 ? seg.points : ""}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <p style={{ color: "var(--text-faint)", fontSize: "0.85rem", marginBottom: "2.5rem" }}>
-              The points-based power ranking will fill in once real games are played this season —
-              check "Roster Quality Rankings" above for a ranking that works right now.
-            </p>
-          )}
+            <div style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", flex: "1 1 220px", background: "var(--surface)" }}>
+              <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginBottom: "0.3rem" }}>Roster Quality</div>
+              {myV2Rank ? (
+                <>
+                  <div style={{ fontWeight: 700, fontSize: "1.3rem" }}>
+                    #{myV2Rank.rank} <span style={{ fontSize: "0.9rem", fontWeight: 500, color: "var(--text-muted)" }}>of {cachedV2.data.rankings.length}</span>
+                  </div>
+                  <div style={{ color: "var(--accent)", fontSize: "0.85rem", marginTop: "0.25rem", fontWeight: 600 }}>
+                    Score {Math.round(myV2Rank.powerScore * 100)}
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>Not calculated yet</div>
+              )}
+            </div>
+          </div>
 
-          <h2>Standings</h2>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={{ padding: "0.5rem" }}>Team</th>
-                <th style={{ padding: "0.5rem" }}>Record</th>
-                <th style={{ padding: "0.5rem" }}>Points For</th>
-                <th style={{ padding: "0.5rem" }}>Points Against</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((team) => {
-                const isMine = String(team.rosterId) === String(myRosterId);
-                return (
-                  <tr key={team.rosterId} style={isMine ? { background: "var(--surface-active)" } : undefined}>
-                    <td style={{ padding: "0.5rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                      <TeamLogo avatar={team.avatar} teamName={team.teamName} size={26} />
-                      {team.teamName}
-                      {isMine && <YourTeamBadge />}
-                    </td>
-                    <td style={{ padding: "0.5rem" }}>
-                      {team.wins}-{team.losses}
-                      {team.ties ? `-${team.ties}` : ""}
-                    </td>
-                    <td style={{ padding: "0.5rem" }}>{team.pointsFor.toFixed(1)}</td>
-                    <td style={{ padding: "0.5rem" }}>{team.pointsAgainst.toFixed(1)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <SeeFullLink href="/power-rankings" label="See full Power Rankings" />
         </div>
       )}
     </main>

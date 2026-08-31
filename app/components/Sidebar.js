@@ -8,9 +8,6 @@ import {
   Trophy,
   ClipboardList,
   Repeat,
-  Target,
-  Zap,
-  Swords,
   Users,
   Star,
   Newspaper,
@@ -53,7 +50,6 @@ const GROUPS = [
       { href: "/power-rankings", label: "Power Rankings", icon: Trophy },
       { href: "/top-players", label: "Top 300", icon: Star },
       { href: "/players", label: "Player Stats", icon: Rows3 },
-      { href: "/head-to-head", label: "Head-to-Head", icon: Swords },
     ],
   },
   {
@@ -61,8 +57,6 @@ const GROUPS = [
     icon: BookOpen,
     links: [
       { href: "/trades", label: "Trades", icon: Repeat },
-      { href: "/waiver-wins", label: "Waiver Wins", icon: Target },
-      { href: "/bustboom", label: "Bust/Boom", icon: Zap },
       { href: "/teams", label: "Teams", icon: Users },
     ],
   },

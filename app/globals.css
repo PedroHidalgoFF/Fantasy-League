@@ -362,3 +362,17 @@ tbody tr:hover {
   background: var(--danger-bg);
   color: #b91c1c;
 }
+
+/* Estados de carga (loading.js por ruta) — shimmer sutil sobre bloques
+   grises que imitan la forma real del contenido, en vez de un spinner. */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-soft) 25%, var(--surface-active) 50%, var(--border-soft) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
