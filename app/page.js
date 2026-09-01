@@ -7,6 +7,7 @@ import NewsList from "./components/NewsList";
 import TeamLogo from "./components/TeamLogo";
 import CommishPost from "./components/CommishPost";
 import WidgetBanner from "./components/WidgetBanner";
+import InstallAppBanner from "./components/InstallAppBanner";
 import { getLeagueId } from "../lib/session";
 import Link from "next/link";
 
@@ -95,6 +96,7 @@ export default async function HomePage() {
       </div>
 
       <WidgetBanner />
+      <InstallAppBanner />
 
       {/* Banner destacado con la noticia más reciente */}
       {featured && (
