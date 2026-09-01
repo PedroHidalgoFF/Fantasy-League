@@ -41,6 +41,15 @@ const PROGRESS_MARKER_LINE_WIDTH = 1.5
 
 const FAMILY_BAR_WIDTH = { small: 115, medium: 290, large: 290 }
 
+// Logos de plataforma (Sleeper / ESPN) — se descargan del propio sitio
+// (mismo cache local que las fotos de jugadores) para no depender de
+// adivinar URLs de los CDNs de Sleeper/ESPN.
+const SITE_BASE_URL = "https://fantasy-league-bice.vercel.app"
+const PLATFORM_LOGO_URL = {
+  sleeper: `${SITE_BASE_URL}/logos/sleeper.png`,
+  espn: `${SITE_BASE_URL}/logos/espn.png`,
+}
+
 // ESPN: qué lineupSlotId corresponde a qué posición mostrada, y cuáles
 // slots cuentan como "titular" (todo menos banca/IR) para el total.
 const ESPN_SLOT_POSITIONS = { 0: "QB", 2: "RB", 4: "WR", 6: "TE" }
@@ -48,17 +57,17 @@ const ESPN_BENCH_SLOTS = [20, 21]
 
 const PROFILES = {
   1: {
-    ringSize: 54, ringBg: 48, photoSize: 48, avatarSize: 26, playerColWidth: 54,
+    ringSize: 54, ringBg: 48, photoSize: 48, avatarSize: 26, playerColWidth: 54, badgeSize: 16,
     barHeight: 7, font: { name: 15, record: 14, label: 9, pos: 9, pts: 8, updated: 9 },
     spacer: { afterHeader: 8, afterFloating: 1, noFloating: 2, afterBar: 8, beforePlayers: 3, afterPlayers: 8 },
   },
   2: {
-    ringSize: 44, ringBg: 39, photoSize: 39, avatarSize: 22, playerColWidth: 46,
+    ringSize: 44, ringBg: 39, photoSize: 39, avatarSize: 22, playerColWidth: 46, badgeSize: 14,
     barHeight: 6, font: { name: 13, record: 12, label: 8, pos: 8, pts: 7, updated: 9 },
     spacer: { afterHeader: 5, afterFloating: 1, noFloating: 2, afterBar: 6, beforePlayers: 2, afterPlayers: 0 },
   },
   3: {
-    ringSize: 38, ringBg: 34, photoSize: 34, avatarSize: 18, playerColWidth: 40,
+    ringSize: 38, ringBg: 34, photoSize: 34, avatarSize: 18, playerColWidth: 40, badgeSize: 12,
     barHeight: 5, font: { name: 12, record: 11, label: 7, pos: 7, pts: 6.5, updated: 8 },
     spacer: { afterHeader: 3, afterFloating: 1, noFloating: 1, afterBar: 5, beforePlayers: 2, afterPlayers: 0 },
   },
@@ -139,7 +148,7 @@ async function buildSleeperPlayerInfoForIds(ids) {
 async function getEspnLeague(leagueId, season, views, scoringPeriodId) {
   const viewQuery = views.map(v => `view=${v}`).join("&")
   const spQuery = scoringPeriodId ? `&scoringPeriodId=${scoringPeriodId}` : ""
-  const url = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${season}/segments/0/leagues/${leagueId}?${viewQuery}${spQuery}`
+  const url = `https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/${season}/segments/0/leagues/${leagueId}?${viewQuery}${spQuery}`
   return await getJSON(url)
 }
 
@@ -573,7 +582,7 @@ async function fetchNormalizedTeam(team, week, season) {
 }
 
 // ---------- Un bloque de equipo (platform-agnostic) ----------
-async function addTeamBlock(widget, data, barWidth, profile) {
+async function addTeamBlock(widget, data, barWidth, profile, platform) {
   const recordStr = data.ties > 0 ? `${data.wins}-${data.losses}-${data.ties}` : `${data.wins}-${data.losses}`
   const progressColor = ringColorFor(data.actualTotal, data.projectedTotal)
 
@@ -595,6 +604,18 @@ async function addTeamBlock(widget, data, barWidth, profile) {
   nameText.font = Font.heavySystemFont(profile.font.name)
   nameText.textColor = new Color(COLOR_WHITE)
   nameText.lineLimit = 1
+
+  const logoUrl = PLATFORM_LOGO_URL[platform]
+  if (logoUrl) {
+    try {
+      const logoImg = await getImage(logoUrl)
+      topRow.addSpacer(5)
+      const logoElement = topRow.addImage(logoImg)
+      logoElement.imageSize = new Size(profile.badgeSize, profile.badgeSize)
+      logoElement.cornerRadius = profile.badgeSize / 4
+      logoElement.applyFillingContentMode()
+    } catch (e) { /* si falla la descarga, seguimos sin el badge */ }
+  }
 
   topRow.addSpacer(8)
 
@@ -726,7 +747,7 @@ async function buildWidget(config) {
         t.font = Font.systemFont(10)
         t.textColor = new Color(COLOR_FAINT)
       } else {
-        await addTeamBlock(widget, data, barWidth, profile)
+        await addTeamBlock(widget, data, barWidth, profile, team.platform || "sleeper")
       }
 
       if (i < results.length - 1) {
