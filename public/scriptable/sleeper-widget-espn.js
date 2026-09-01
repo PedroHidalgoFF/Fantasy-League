@@ -1,19 +1,22 @@
-// Sleeper Fantasy Football — Widget de puntuación en vivo (1 a 3 equipos)
+// Fantasy Football — Widget de puntuación en vivo (1 a 3 equipos, Sleeper y/o ESPN)
 //
-// ⚠️ CAMBIO IMPORTANTE: esta versión soporta 1, 2 o 3 equipos (mismo
-// usuario de Sleeper, distintas ligas) en un solo widget. Si ya tenías
-// este widget configurado con una versión anterior, necesitas volver a
-// correr el script UNA VEZ dentro de la app Scriptable (no como widget)
-// para configurarlo de nuevo — el formato de configuración cambió.
+// ⚠️ CAMBIO IMPORTANTE: esta versión agrega soporte para ligas de ESPN
+// (además de Sleeper) y sigue soportando 1-3 equipos en un solo widget,
+// mezclando plataformas si quieres. Si ya tenías este widget configurado
+// con una versión anterior, necesitas volver a correr el script UNA VEZ
+// dentro de la app Scriptable (no como widget) para configurarlo de nuevo.
+//
+// ESPN: solo soporta LIGAS PÚBLICAS por ahora (no requiere login/cookies).
+// Para ligas privadas de ESPN se necesitarían las cookies SWID y espn_s2
+// de una sesión iniciada — no está implementado en esta versión.
 //
 // Uso: 1) Corre este script UNA VEZ dentro de la app Scriptable (no como
-//         widget): te pide tu username de Sleeper, cuántos equipos
-//         quieres mostrar (1-3) y esa cantidad de ligas.
+//         widget): elige cuántos equipos (1-3) y, por cada uno, si es de
+//         Sleeper o de ESPN.
 //      2) Agrega el widget a tu pantalla de inicio y selecciona este
 //         script. Tamaño sugerido: "Mediano" para 1 equipo, "Grande"
 //         para 2 o 3.
 //
-// Datos: usa la API pública de Sleeper (no requiere login ni API key).
 // Colores: alineados a los design tokens de la web app (fantasy-partner).
 
 const CONFIG_KEY = "sleeperWidgetConfigV2"
@@ -36,28 +39,28 @@ const FEATURED_POSITIONS = ["QB", "RB", "WR", "TE"]
 const PROGRESS_MARKER_PCT = 0.75
 const PROGRESS_MARKER_LINE_WIDTH = 1.5
 
-// Ancho de barra por tamaño de widget (Scriptable no expone el ancho real
-// del contenido en runtime, así que usamos los tamaños estándar de iOS).
 const FAMILY_BAR_WIDTH = { small: 115, medium: 290, large: 290 }
 
-// Un "perfil" de tamaños por cantidad de equipos — entre más equipos,
-// todo se comprime lo necesario para que quepan completos (con anillos)
-// en el mismo widget.
+// ESPN: qué lineupSlotId corresponde a qué posición mostrada, y cuáles
+// slots cuentan como "titular" (todo menos banca/IR) para el total.
+const ESPN_SLOT_POSITIONS = { 0: "QB", 2: "RB", 4: "WR", 6: "TE" }
+const ESPN_BENCH_SLOTS = [20, 21]
+
 const PROFILES = {
   1: {
     ringSize: 54, ringBg: 48, photoSize: 48, avatarSize: 26, playerColWidth: 54,
     barHeight: 7, font: { name: 15, record: 14, label: 9, pos: 9, pts: 8, updated: 9 },
-    spacer: { afterHeader: 8, beforeBar: 2, afterFloating: 1, noFloating: 2, afterBar: 8, beforePlayers: 3, afterPlayers: 8 },
+    spacer: { afterHeader: 8, afterFloating: 1, noFloating: 2, afterBar: 8, beforePlayers: 3, afterPlayers: 8 },
   },
   2: {
     ringSize: 44, ringBg: 39, photoSize: 39, avatarSize: 22, playerColWidth: 46,
     barHeight: 6, font: { name: 13, record: 12, label: 8, pos: 8, pts: 7, updated: 9 },
-    spacer: { afterHeader: 5, beforeBar: 0, afterFloating: 1, noFloating: 2, afterBar: 6, beforePlayers: 2, afterPlayers: 0 },
+    spacer: { afterHeader: 5, afterFloating: 1, noFloating: 2, afterBar: 6, beforePlayers: 2, afterPlayers: 0 },
   },
   3: {
     ringSize: 38, ringBg: 34, photoSize: 34, avatarSize: 18, playerColWidth: 40,
     barHeight: 5, font: { name: 12, record: 11, label: 7, pos: 7, pts: 6.5, updated: 8 },
-    spacer: { afterHeader: 3, beforeBar: 0, afterFloating: 1, noFloating: 1, afterBar: 5, beforePlayers: 2, afterPlayers: 0 },
+    spacer: { afterHeader: 3, afterFloating: 1, noFloating: 1, afterBar: 5, beforePlayers: 2, afterPlayers: 0 },
   },
 }
 
@@ -75,37 +78,39 @@ function saveConfig(cfg) {
   Keychain.set(CONFIG_KEY, JSON.stringify(cfg))
 }
 
-// ---------- Llamadas a la API de Sleeper ----------
-async function getJSON(url) {
+// ---------- HTTP genérico ----------
+async function getJSON(url, headers) {
   const req = new Request(url)
+  if (headers) req.headers = headers
   return await req.loadJSON()
 }
 
-async function getUser(username) {
+// ---------- Sleeper ----------
+async function getSleeperUser(username) {
   return await getJSON(`https://api.sleeper.app/v1/user/${username}`)
 }
 
-async function getLeagues(userId) {
+async function getSleeperLeagues(userId) {
   return await getJSON(`https://api.sleeper.app/v1/user/${userId}/leagues/nfl/${SEASON}`)
 }
 
-async function getRosters(leagueId) {
+async function getSleeperRosters(leagueId) {
   return await getJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
 }
 
-async function getLeagueUsers(leagueId) {
+async function getSleeperLeagueUsers(leagueId) {
   return await getJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`)
 }
 
-async function getMatchups(leagueId, week) {
+async function getSleeperMatchups(leagueId, week) {
   return await getJSON(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week}`)
 }
 
-async function getState() {
+async function getNflState() {
   return await getJSON(`https://api.sleeper.app/v1/state/nfl`)
 }
 
-async function getProjections(season, week) {
+async function getSleeperProjections(season, week) {
   const positions = ["QB", "RB", "WR", "TE", "K", "DEF"]
   const posQuery = positions.map(p => `position[]=${p}`).join("&")
   const url = `https://api.sleeper.app/projections/nfl/${season}/${week}?season_type=regular&${posQuery}`
@@ -118,6 +123,47 @@ async function getProjections(season, week) {
   return byId
 }
 
+async function buildSleeperPlayerInfoForIds(ids) {
+  const allPlayers = await getJSON("https://api.sleeper.app/v1/players/nfl")
+  const info = {}
+  for (const id of ids) {
+    const p = allPlayers[id]
+    if (!p) { info[id] = { name: id, position: null }; continue }
+    const name = p.position === "DEF" ? `${p.team} DEF` : `${p.first_name} ${p.last_name}`.trim()
+    info[id] = { name, position: p.position || null }
+  }
+  return info
+}
+
+// ---------- ESPN (solo ligas públicas — sin cookies) ----------
+async function getEspnLeague(leagueId, season, views, scoringPeriodId) {
+  const viewQuery = views.map(v => `view=${v}`).join("&")
+  const spQuery = scoringPeriodId ? `&scoringPeriodId=${scoringPeriodId}` : ""
+  const url = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${season}/segments/0/leagues/${leagueId}?${viewQuery}${spQuery}`
+  return await getJSON(url)
+}
+
+async function getEspnTeamsList(leagueId, season) {
+  const data = await getEspnLeague(leagueId, season, ["mTeam"])
+  return (data.teams || []).map(t => ({
+    id: t.id,
+    name: t.name || `${t.location || ""} ${t.nickname || ""}`.trim() || `Team ${t.id}`,
+    logo: t.logo || null
+  }))
+}
+
+function espnPlayerProjectedActual(playerStats, week) {
+  let projected = 0
+  let actual = 0
+  for (const s of (playerStats || [])) {
+    if (s.scoringPeriodId !== week) continue
+    if (s.statSourceId === 1) projected = s.appliedTotal || 0
+    if (s.statSourceId === 0) actual = s.appliedTotal || 0
+  }
+  return { projected, actual }
+}
+
+// ---------- Imagen con cache local ----------
 async function getImage(url) {
   const fm = FileManager.local()
   const fileName = "sleeper_img_" + Data.fromString(url).toBase64String().replace(/[\/+=]/g, "") + ".img"
@@ -130,18 +176,6 @@ async function getImage(url) {
   const img = await req.loadImage()
   try { fm.writeImage(path, img) } catch (e) { /* si falla el cache, no pasa nada */ }
   return img
-}
-
-async function buildPlayerInfoForIds(ids) {
-  const allPlayers = await getJSON("https://api.sleeper.app/v1/players/nfl")
-  const info = {}
-  for (const id of ids) {
-    const p = allPlayers[id]
-    if (!p) { info[id] = { name: id, position: null }; continue }
-    const name = p.position === "DEF" ? `${p.team} DEF` : `${p.first_name} ${p.last_name}`.trim()
-    info[id] = { name, position: p.position || null }
-  }
-  return info
 }
 
 function formatUpdated(date) {
@@ -163,11 +197,11 @@ function formatUpdated(date) {
   return `${dd}/${mm} ${timeStr}`
 }
 
-// ---------- Configuración: 1 usuario, 1-3 ligas ----------
+// ---------- Configuración: 1-3 equipos, Sleeper y/o ESPN ----------
 async function pickTeamCount() {
   const a = new Alert()
   a.title = "¿Cuántos equipos?"
-  a.message = "Puedes mostrar hasta 3 equipos (misma cuenta de Sleeper, distintas ligas) en un solo widget."
+  a.message = "Puedes mezclar equipos de Sleeper y de ESPN en el mismo widget."
   a.addAction("1 equipo")
   a.addAction("2 equipos")
   a.addAction("3 equipos")
@@ -177,7 +211,19 @@ async function pickTeamCount() {
   return idx + 1
 }
 
-async function pickLeague(leagues, alreadyPickedIds, title) {
+async function pickPlatform(slotLabel) {
+  const a = new Alert()
+  a.title = `¿De qué plataforma es tu ${slotLabel}?`
+  a.addAction("Sleeper")
+  a.addAction("ESPN (liga pública)")
+  a.addCancelAction("Cancelar")
+  const idx = await a.presentSheet()
+  if (idx === 0) return "sleeper"
+  if (idx === 1) return "espn"
+  return null
+}
+
+async function pickSleeperLeague(leagues, alreadyPickedIds, title) {
   const table = new Alert()
   table.title = title
   const options = leagues.filter(l => !alreadyPickedIds.includes(l.league_id))
@@ -188,12 +234,12 @@ async function pickLeague(leagues, alreadyPickedIds, title) {
   return options[idx]
 }
 
-async function setupTeamForLeague(league, user) {
-  const rosters = await getRosters(league.league_id)
+async function setupSleeperTeamForLeague(league, user) {
+  const rosters = await getSleeperRosters(league.league_id)
   const myRoster = rosters.find(r => r.owner_id === user.user_id)
   if (!myRoster) return null
 
-  const leagueUsers = await getLeagueUsers(league.league_id)
+  const leagueUsers = await getSleeperLeagueUsers(league.league_id)
   const myUserInfo = leagueUsers.find(u => u.user_id === user.user_id)
   const teamName = (myUserInfo && myUserInfo.metadata && myUserInfo.metadata.team_name)
     ? myUserInfo.metadata.team_name
@@ -206,9 +252,10 @@ async function setupTeamForLeague(league, user) {
     avatarUrl = `https://sleepercdn.com/avatars/thumbs/${myUserInfo.avatar}`
   }
 
-  const playerInfoMap = await buildPlayerInfoForIds(myRoster.players || [])
+  const playerInfoMap = await buildSleeperPlayerInfoForIds(myRoster.players || [])
 
   return {
+    platform: "sleeper",
     leagueId: league.league_id,
     leagueName: league.name,
     rosterId: myRoster.roster_id,
@@ -218,64 +265,121 @@ async function setupTeamForLeague(league, user) {
   }
 }
 
+async function setupEspnTeam() {
+  const idAlert = new Alert()
+  idAlert.title = "ESPN — ID de tu liga"
+  idAlert.message = "Lo encuentras en la URL al abrir tu liga en fantasy.espn.com (…leagueId=XXXXXXX). Debe ser una liga PÚBLICA."
+  idAlert.addTextField("ej. 123456789")
+  idAlert.addAction("Continuar")
+  idAlert.addCancelAction("Cancelar")
+  const btn = await idAlert.present()
+  if (btn === -1) return null
+  const leagueId = idAlert.textFieldValue(0).trim()
+  if (!leagueId) return null
+
+  let teams
+  try {
+    teams = await getEspnTeamsList(leagueId, SEASON)
+  } catch (e) {
+    const err = new Alert()
+    err.title = "No se pudo leer esa liga"
+    err.message = "Confirma que el ID es correcto y que la liga es pública (sin login)."
+    await err.present()
+    return null
+  }
+  if (!teams || teams.length === 0) {
+    const err = new Alert()
+    err.title = "Sin equipos"
+    err.message = "No se encontraron equipos en esa liga."
+    await err.present()
+    return null
+  }
+
+  const table = new Alert()
+  table.title = "Elige tu equipo"
+  teams.forEach(t => table.addAction(t.name))
+  table.addCancelAction("Cancelar")
+  const idx = await table.presentSheet()
+  if (idx < 0 || idx >= teams.length) return null
+  const chosen = teams[idx]
+
+  return {
+    platform: "espn",
+    leagueId,
+    leagueName: `ESPN #${leagueId}`,
+    season: SEASON,
+    teamId: chosen.id,
+    teamName: chosen.name,
+    avatarUrl: chosen.logo
+  }
+}
+
 async function runSetup() {
-  const usernameAlert = new Alert()
-  usernameAlert.title = "Sleeper — Tu usuario"
-  usernameAlert.message = "Escribe tu username de Sleeper"
-  usernameAlert.addTextField("username")
-  usernameAlert.addAction("Continuar")
-  await usernameAlert.present()
-  const username = usernameAlert.textFieldValue(0).trim()
-
-  const user = await getUser(username)
-  if (!user || !user.user_id) {
-    const err = new Alert()
-    err.title = "No encontrado"
-    err.message = "No se encontró ese username en Sleeper."
-    await err.present()
-    return
-  }
-  user.username = username
-
-  const leagues = await getLeagues(user.user_id)
-  if (!leagues || leagues.length === 0) {
-    const err = new Alert()
-    err.title = "Sin ligas"
-    err.message = `No se encontraron ligas para la temporada ${SEASON}.`
-    await err.present()
-    return
-  }
-
-  const maxCount = Math.min(3, leagues.length)
-  let count = 1
-  if (leagues.length > 1) {
-    count = await pickTeamCount()
-    if (!count) return
-    count = Math.min(count, maxCount)
-  }
+  const count = await pickTeamCount()
+  if (!count) return
 
   const teams = []
-  const pickedIds = []
-  const labels = ["Elige tu primera liga", "Elige tu segunda liga", "Elige tu tercera liga"]
-  for (let i = 0; i < count; i++) {
-    const league = count === 1 && leagues.length === 1
-      ? leagues[0]
-      : await pickLeague(leagues, pickedIds, labels[i])
-    if (!league) return
-    pickedIds.push(league.league_id)
+  let sleeperUser = null
+  let sleeperLeagues = null
+  const pickedSleeperLeagueIds = []
+  const slotLabels = ["primer equipo", "segundo equipo", "tercer equipo"]
 
-    const team = await setupTeamForLeague(league, user)
-    if (!team) {
-      const err = new Alert()
-      err.title = "Error"
-      err.message = `No se encontró tu equipo en "${league.name}".`
-      await err.present()
-      return
+  for (let i = 0; i < count; i++) {
+    const platform = await pickPlatform(slotLabels[i])
+    if (!platform) return
+
+    if (platform === "sleeper") {
+      if (!sleeperUser) {
+        const usernameAlert = new Alert()
+        usernameAlert.title = "Sleeper — Tu usuario"
+        usernameAlert.message = "Escribe tu username de Sleeper"
+        usernameAlert.addTextField("username")
+        usernameAlert.addAction("Continuar")
+        await usernameAlert.present()
+        const username = usernameAlert.textFieldValue(0).trim()
+
+        const user = await getSleeperUser(username)
+        if (!user || !user.user_id) {
+          const err = new Alert()
+          err.title = "No encontrado"
+          err.message = "No se encontró ese username en Sleeper."
+          await err.present()
+          return
+        }
+        user.username = username
+        sleeperUser = user
+
+        sleeperLeagues = await getSleeperLeagues(user.user_id)
+        if (!sleeperLeagues || sleeperLeagues.length === 0) {
+          const err = new Alert()
+          err.title = "Sin ligas"
+          err.message = `No se encontraron ligas de Sleeper para la temporada ${SEASON}.`
+          await err.present()
+          return
+        }
+      }
+
+      const league = await pickSleeperLeague(sleeperLeagues, pickedSleeperLeagueIds, `Elige la liga de Sleeper (${slotLabels[i]})`)
+      if (!league) return
+      pickedSleeperLeagueIds.push(league.league_id)
+
+      const team = await setupSleeperTeamForLeague(league, sleeperUser)
+      if (!team) {
+        const err = new Alert()
+        err.title = "Error"
+        err.message = `No se encontró tu equipo en "${league.name}".`
+        await err.present()
+        return
+      }
+      teams.push(team)
+    } else {
+      const team = await setupEspnTeam()
+      if (!team) return
+      teams.push(team)
     }
-    teams.push(team)
   }
 
-  saveConfig({ username, userId: user.user_id, teams })
+  saveConfig({ teams })
 
   const done = new Alert()
   done.title = "Listo ✅"
@@ -341,33 +445,8 @@ function recordColorFor(wins, losses) {
   return COLOR_MUTED
 }
 
-function findStarterByPosition(starterIds, playerInfoMap, position) {
-  return starterIds.find(id => playerInfoMap && playerInfoMap[id] && playerInfoMap[id].position === position) || null
-}
-
-function sumProjectedTotal(matchup, projections) {
-  const starters = matchup.starters || []
-  let total = 0
-  for (const playerId of starters) {
-    if (!playerId || playerId === "0") continue
-    total += projections[playerId] || 0
-  }
-  return total
-}
-
-function sumActualTotal(matchup) {
-  const starters = matchup.starters || []
-  const actualByPlayer = matchup.players_points || {}
-  let total = 0
-  for (const playerId of starters) {
-    if (!playerId || playerId === "0") continue
-    total += actualByPlayer[playerId] || 0
-  }
-  return total
-}
-
-function buildProgressSegments(barWidth, markerPct, fillPx, fillColor) {
-  const markerPx = barWidth * markerPct
+function buildProgressSegments(barWidth, fillPx, fillColor) {
+  const markerPx = barWidth * PROGRESS_MARKER_PCT
   const half = PROGRESS_MARKER_LINE_WIDTH / 2
   const fillClamped = Math.max(0, Math.min(fillPx, barWidth))
 
@@ -404,24 +483,107 @@ function addCenteredLabel(parentStack, text, width) {
   return t
 }
 
-// ---------- Un bloque de equipo, con tamaños según el perfil ----------
-async function addTeamBlock(widget, team, matchup, projections, barWidth, profile) {
-  const wins = team.wins || 0
-  const losses = team.losses || 0
-  const ties = team.ties || 0
-  const recordStr = ties > 0 ? `${wins}-${losses}-${ties}` : `${wins}-${losses}`
+// ---------- Normalización de datos por plataforma ----------
+// Ambas plataformas terminan en la MISMA forma, para que el render no le
+// importe de dónde vino el dato:
+// { teamName, avatarUrl, wins, losses, ties, projectedTotal, actualTotal,
+//   players: { QB, RB, WR, TE } } con cada jugador { name, actual, projected, photoUrl }
 
-  const projectedTotal = sumProjectedTotal(matchup, projections)
-  const actualTotal = sumActualTotal(matchup)
-  const progressColor = ringColorFor(actualTotal, projectedTotal)
+async function fetchSleeperNormalized(team, week, season) {
+  const [matchups, rosters, projections] = await Promise.all([
+    getSleeperMatchups(team.leagueId, week),
+    getSleeperRosters(team.leagueId),
+    getSleeperProjections(season, week).catch(() => ({}))
+  ])
+  const myRoster = rosters.find(r => r.roster_id === team.rosterId)
+  const myMatchup = matchups.find(m => m.roster_id === team.rosterId)
+  if (!myMatchup) return null
+
+  const wins = (myRoster && myRoster.settings && myRoster.settings.wins) || 0
+  const losses = (myRoster && myRoster.settings && myRoster.settings.losses) || 0
+  const ties = (myRoster && myRoster.settings && myRoster.settings.ties) || 0
+
+  const starters = myMatchup.starters || []
+  const actualByPlayer = myMatchup.players_points || {}
+  const players = { QB: null, RB: null, WR: null, TE: null }
+  let projectedTotal = 0
+  let actualTotal = 0
+
+  for (const playerId of starters) {
+    if (!playerId || playerId === "0") continue
+    const projected = projections[playerId] || 0
+    const actual = actualByPlayer[playerId] || 0
+    projectedTotal += projected
+    actualTotal += actual
+
+    const info = team.playerInfoMap && team.playerInfoMap[playerId]
+    const pos = info && info.position
+    if (pos && FEATURED_POSITIONS.includes(pos) && !players[pos]) {
+      players[pos] = { name: info.name, actual, projected, photoUrl: `https://sleepercdn.com/content/nfl/players/${playerId}.jpg` }
+    }
+  }
+
+  return { teamName: team.teamName, avatarUrl: team.avatarUrl, wins, losses, ties, projectedTotal, actualTotal, players }
+}
+
+async function fetchEspnNormalized(team, week) {
+  const data = await getEspnLeague(team.leagueId, team.season || SEASON, ["mTeam", "mRoster", "mMatchup", "mMatchupScore"], week)
+  const teamData = (data.teams || []).find(t => String(t.id) === String(team.teamId))
+  if (!teamData) return null
+
+  const record = teamData.record && teamData.record.overall
+  const wins = (record && record.wins) || 0
+  const losses = (record && record.losses) || 0
+  const ties = (record && record.ties) || 0
+
+  const entries = (teamData.roster && teamData.roster.entries) || []
+  const players = { QB: null, RB: null, WR: null, TE: null }
+  let projectedTotal = 0
+  let actualTotal = 0
+
+  for (const entry of entries) {
+    const isBench = ESPN_BENCH_SLOTS.includes(entry.lineupSlotId)
+    const playerObj = entry.playerPoolEntry && entry.playerPoolEntry.player
+    if (!playerObj) continue
+
+    const { projected, actual } = espnPlayerProjectedActual(playerObj.stats, week)
+
+    if (!isBench) {
+      projectedTotal += projected
+      actualTotal += actual
+    }
+
+    const posLabel = ESPN_SLOT_POSITIONS[entry.lineupSlotId]
+    if (posLabel && !players[posLabel]) {
+      players[posLabel] = {
+        name: playerObj.fullName || "—",
+        actual,
+        projected,
+        photoUrl: `https://a.espncdn.com/i/headshots/nfl/players/full/${playerObj.id}.png`
+      }
+    }
+  }
+
+  return { teamName: team.teamName, avatarUrl: team.avatarUrl, wins, losses, ties, projectedTotal, actualTotal, players }
+}
+
+async function fetchNormalizedTeam(team, week, season) {
+  if (team.platform === "espn") return await fetchEspnNormalized(team, week)
+  return await fetchSleeperNormalized(team, week, season)
+}
+
+// ---------- Un bloque de equipo (platform-agnostic) ----------
+async function addTeamBlock(widget, data, barWidth, profile) {
+  const recordStr = data.ties > 0 ? `${data.wins}-${data.losses}-${data.ties}` : `${data.wins}-${data.losses}`
+  const progressColor = ringColorFor(data.actualTotal, data.projectedTotal)
 
   const topRow = widget.addStack()
   topRow.layoutHorizontally()
   topRow.centerAlignContent()
 
-  if (team.avatarUrl) {
+  if (data.avatarUrl) {
     try {
-      const avatarImg = await getImage(team.avatarUrl)
+      const avatarImg = await getImage(data.avatarUrl)
       const avatarElement = topRow.addImage(avatarImg)
       avatarElement.imageSize = new Size(profile.avatarSize, profile.avatarSize)
       avatarElement.cornerRadius = profile.avatarSize / 2
@@ -429,7 +591,7 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
     } catch (e) { /* seguimos sin avatar */ }
   }
 
-  const nameText = topRow.addText(team.teamName)
+  const nameText = topRow.addText(data.teamName)
   nameText.font = Font.heavySystemFont(profile.font.name)
   nameText.textColor = new Color(COLOR_WHITE)
   nameText.lineLimit = 1
@@ -438,7 +600,7 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
 
   const recordText = topRow.addText(recordStr)
   recordText.font = Font.boldSystemFont(profile.font.record)
-  recordText.textColor = new Color(recordColorFor(wins, losses))
+  recordText.textColor = new Color(recordColorFor(data.wins, data.losses))
 
   widget.addSpacer(profile.spacer.afterHeader)
 
@@ -448,20 +610,20 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
   zeroLabel.font = Font.systemFont(profile.font.label)
   zeroLabel.textColor = new Color(COLOR_FAINT)
   labelsRow.addSpacer(Math.round(barWidth * PROGRESS_MARKER_PCT) - 30)
-  const projectedLabel = labelsRow.addText(projectedTotal.toFixed(2))
+  const projectedLabel = labelsRow.addText(data.projectedTotal.toFixed(2))
   projectedLabel.font = Font.systemFont(profile.font.label)
   projectedLabel.textColor = new Color(COLOR_MUTED)
 
   const markerPx = barWidth * PROGRESS_MARKER_PCT
-  const scale = projectedTotal > 0 ? (markerPx / projectedTotal) : 0
-  const fillPxRaw = actualTotal * scale
+  const scale = data.projectedTotal > 0 ? (markerPx / data.projectedTotal) : 0
+  const fillPxRaw = data.actualTotal * scale
   const fillPx = Math.max(0, Math.min(fillPxRaw, barWidth))
 
-  if (actualTotal > 0.05) {
+  if (data.actualTotal > 0.05) {
     const floatingRow = widget.addStack()
     floatingRow.layoutHorizontally()
     floatingRow.addSpacer(Math.max(0, Math.round(fillPx) - 11))
-    const actualLabel = floatingRow.addText(actualTotal.toFixed(1))
+    const actualLabel = floatingRow.addText(data.actualTotal.toFixed(1))
     actualLabel.font = Font.boldSystemFont(profile.font.label)
     actualLabel.textColor = new Color(progressColor)
     widget.addSpacer(profile.spacer.afterFloating)
@@ -475,7 +637,7 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
   barStack.size = new Size(barWidth, profile.barHeight)
   barStack.layoutHorizontally()
   barStack.cornerRadius = 3
-  const segments = buildProgressSegments(barWidth, PROGRESS_MARKER_PCT, fillPx, progressColor)
+  const segments = buildProgressSegments(barWidth, fillPx, progressColor)
   for (const seg of segments) {
     const segStack = barStack.addStack()
     segStack.size = new Size(seg.width, profile.barHeight)
@@ -484,20 +646,18 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
 
   widget.addSpacer(profile.spacer.afterBar)
 
-  const starters = matchup.starters || []
-  const actualByPlayer = matchup.players_points || {}
   const playersRow = widget.addStack()
   playersRow.layoutHorizontally()
 
   for (let i = 0; i < FEATURED_POSITIONS.length; i++) {
     const position = FEATURED_POSITIONS[i]
-    const playerId = findStarterByPosition(starters, team.playerInfoMap, position)
+    const p = data.players[position]
 
     const col = playersRow.addStack()
     col.layoutVertically()
     col.centerAlignContent()
 
-    if (!playerId) {
+    if (!p) {
       const placeholder = col.addStack()
       placeholder.size = new Size(profile.ringSize, profile.ringSize)
       placeholder.backgroundColor = new Color(COLOR_TRACK)
@@ -506,13 +666,11 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
       posLabel.font = Font.systemFont(profile.font.pos - 1)
       posLabel.textColor = new Color(COLOR_FAINT)
     } else {
-      const actual = actualByPlayer[playerId] || 0
-      const projected = projections[playerId] || 0
-      const ringColor = ringColorFor(actual, projected)
+      const ringColor = ringColorFor(p.actual, p.projected)
 
       let photoImg = null
       try {
-        photoImg = await getImage(`https://sleepercdn.com/content/nfl/players/${playerId}.jpg`)
+        photoImg = await getImage(p.photoUrl)
       } catch (e) { /* anillo vacío si falla */ }
 
       addRingedPhoto(col, photoImg, ringColor, profile.ringSize, profile.ringBg, profile.photoSize)
@@ -522,7 +680,7 @@ async function addTeamBlock(widget, team, matchup, projections, barWidth, profil
       posLabel.font = Font.boldSystemFont(profile.font.pos)
       posLabel.textColor = new Color(COLOR_MUTED)
 
-      const ptsLabel = addCenteredLabel(col, `${actual.toFixed(1)}/${projected.toFixed(1)}`, profile.playerColWidth)
+      const ptsLabel = addCenteredLabel(col, `${p.actual.toFixed(1)}/${p.projected.toFixed(1)}`, profile.playerColWidth)
       ptsLabel.font = Font.systemFont(profile.font.pts)
       ptsLabel.textColor = new Color(COLOR_FAINT)
     }
@@ -550,39 +708,25 @@ async function buildWidget(config) {
   const barWidth = FAMILY_BAR_WIDTH[config.widgetFamily] || FAMILY_BAR_WIDTH.medium
 
   try {
-    const state = await getState()
+    // La semana de la NFL se toma siempre de Sleeper (endpoint público, no
+    // requiere cuenta) y se reusa para los equipos de ESPN también — es el
+    // mismo calendario de temporada regular en ambas plataformas.
+    const state = await getNflState()
     const week = Math.max(1, state.week || 1)
     const season = state.season || SEASON
 
     const results = await Promise.all(
-      config.teams.map(async (team) => {
-        const [matchups, rosters, projections] = await Promise.all([
-          getMatchups(team.leagueId, week),
-          getRosters(team.leagueId),
-          getProjections(season, week).catch(() => ({}))
-        ])
-        const myRoster = rosters.find(r => r.roster_id === team.rosterId)
-        const myMatchup = matchups.find(m => m.roster_id === team.rosterId)
-        return {
-          team: {
-            ...team,
-            wins: (myRoster && myRoster.settings && myRoster.settings.wins) || 0,
-            losses: (myRoster && myRoster.settings && myRoster.settings.losses) || 0,
-            ties: (myRoster && myRoster.settings && myRoster.settings.ties) || 0
-          },
-          matchup: myMatchup,
-          projections
-        }
-      })
+      config.teams.map(team => fetchNormalizedTeam(team, week, season).catch(() => null))
     )
 
     for (const [i, data] of results.entries()) {
-      if (!data.matchup) {
-        const t = widget.addText(`${data.team.teamName}: sin datos de matchup esta semana`)
+      const team = config.teams[i]
+      if (!data) {
+        const t = widget.addText(`${team.teamName}: sin datos esta semana`)
         t.font = Font.systemFont(10)
         t.textColor = new Color(COLOR_FAINT)
       } else {
-        await addTeamBlock(widget, data.team, data.matchup, data.projections, barWidth, profile)
+        await addTeamBlock(widget, data, barWidth, profile)
       }
 
       if (i < results.length - 1) {
@@ -595,23 +739,13 @@ async function buildWidget(config) {
       }
     }
 
-    if (teamCount > 1) {
-      widget.addSpacer(6)
-      const updatedRow = widget.addStack()
-      updatedRow.layoutHorizontally()
-      updatedRow.addSpacer()
-      const updatedText = updatedRow.addText(formatUpdated(new Date()))
-      updatedText.font = Font.systemFont(profile.font.updated)
-      updatedText.textColor = new Color(COLOR_FAINT)
-    } else {
-      widget.addSpacer(8)
-      const updatedRow = widget.addStack()
-      updatedRow.layoutHorizontally()
-      updatedRow.addSpacer()
-      const updatedText = updatedRow.addText(formatUpdated(new Date()))
-      updatedText.font = Font.systemFont(profile.font.updated)
-      updatedText.textColor = new Color(COLOR_FAINT)
-    }
+    widget.addSpacer(teamCount > 1 ? 6 : 8)
+    const updatedRow = widget.addStack()
+    updatedRow.layoutHorizontally()
+    updatedRow.addSpacer()
+    const updatedText = updatedRow.addText(formatUpdated(new Date()))
+    updatedText.font = Font.systemFont(profile.font.updated)
+    updatedText.textColor = new Color(COLOR_FAINT)
 
   } catch (e) {
     const errText = widget.addText("Error: " + e.message)
@@ -651,8 +785,8 @@ async function main() {
     if (savedConfig && savedConfig.teams) {
       const choice = new Alert()
       choice.title = "Ya está configurado"
-      choice.message = `Equipos actuales: ${savedConfig.teams.map(t => t.teamName).join(" / ")}`
-      choice.addAction("Reconfigurar (elegir otra cantidad / otras ligas)")
+      choice.message = `Equipos actuales: ${savedConfig.teams.map(t => `${t.teamName} (${t.platform || "sleeper"})`).join(" / ")}`
+      choice.addAction("Reconfigurar (elegir otra cantidad / otros equipos)")
       choice.addCancelAction("Cancelar")
       const idx = await choice.presentSheet()
       if (idx === 0) await runSetup()
