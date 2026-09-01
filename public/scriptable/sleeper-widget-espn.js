@@ -63,12 +63,12 @@ const PROFILES = {
   },
   2: {
     ringSize: 44, ringBg: 39, photoSize: 39, avatarSize: 22, playerColWidth: 46, badgeSize: 14,
-    barHeight: 6, font: { name: 13, record: 12, label: 8, pos: 8, pts: 7, updated: 9 },
+    barHeight: 6, font: { name: 13, record: 12, label: 8, pos: 8, pts: 6.5, updated: 9 },
     spacer: { afterHeader: 5, afterFloating: 1, noFloating: 2, afterBar: 6, beforePlayers: 2, afterPlayers: 0 },
   },
   3: {
     ringSize: 38, ringBg: 34, photoSize: 34, avatarSize: 18, playerColWidth: 40, badgeSize: 12,
-    barHeight: 5, font: { name: 12, record: 11, label: 7, pos: 7, pts: 6.5, updated: 8 },
+    barHeight: 5, font: { name: 12, record: 11, label: 7, pos: 7, pts: 5.5, updated: 8 },
     spacer: { afterHeader: 3, afterFloating: 1, noFloating: 1, afterBar: 5, beforePlayers: 2, afterPlayers: 0 },
   },
 }
