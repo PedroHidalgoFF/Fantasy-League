@@ -179,10 +179,15 @@ async function getImage(url) {
   const path = fm.joinPath(fm.documentsDirectory(), fileName)
 
   if (fm.fileExists(path)) {
-    return fm.readImage(path)
+    try {
+      const cached = fm.readImage(path)
+      if (cached && cached.size && cached.size.width > 0) return cached
+    } catch (e) { /* caché corrupto — lo tiramos y lo volvemos a descargar abajo */ }
+    try { fm.remove(path) } catch (e) { /* no pasa nada si no se pudo borrar */ }
   }
   const req = new Request(url)
-  const img = await req.loadImage()
+  const data = await req.load()
+  const img = Image.fromData(data)
   try { fm.writeImage(path, img) } catch (e) { /* si falla el cache, no pasa nada */ }
   return img
 }
@@ -614,7 +619,15 @@ async function addTeamBlock(widget, data, barWidth, profile, platform) {
       logoElement.imageSize = new Size(profile.badgeSize, profile.badgeSize)
       logoElement.cornerRadius = profile.badgeSize / 4
       logoElement.applyFillingContentMode()
-    } catch (e) { /* si falla la descarga, seguimos sin el badge */ }
+    } catch (e) {
+      // Diagnóstico temporal: si la descarga del logo falla, en vez de
+      // desaparecer en silencio mostramos un "!" rojo — así se puede ver
+      // a simple vista si el problema es la descarga o algo más.
+      topRow.addSpacer(5)
+      const errBadge = topRow.addText("!")
+      errBadge.font = Font.boldSystemFont(profile.font.label)
+      errBadge.textColor = new Color(COLOR_TIER_RED)
+    }
   }
 
   topRow.addSpacer(8)
@@ -777,6 +790,30 @@ async function buildWidget(config) {
   return widget
 }
 
+// Diagnóstico: intenta bajar cada logo y muestra el mensaje de error EXACTO
+// si falla, en vez de solo el "!" genérico del widget.
+async function debugLogoDownloads() {
+  const lines = []
+  for (const [platform, url] of Object.entries(PLATFORM_LOGO_URL)) {
+    try {
+      const req = new Request(url)
+      const data = await req.load()
+      lines.push(`${platform.toUpperCase()}: OK — ${data.length} bytes descargados`)
+      try {
+        const img = Image.fromData(data)
+        lines.push(`  Image.fromData: OK — ${img.size.width}x${img.size.height}`)
+      } catch (e2) {
+        lines.push(`  Image.fromData FALLÓ: ${e2.message}`)
+      }
+    } catch (e) {
+      lines.push(`${platform.toUpperCase()}: FALLÓ — ${e.message}`)
+    }
+    lines.push(`  URL: ${url}`)
+    lines.push("")
+  }
+  await QuickLook.present(lines.join("\n"))
+}
+
 async function main() {
   if (config.runsInWidget) {
     try {
@@ -808,9 +845,11 @@ async function main() {
       choice.title = "Ya está configurado"
       choice.message = `Equipos actuales: ${savedConfig.teams.map(t => `${t.teamName} (${t.platform || "sleeper"})`).join(" / ")}`
       choice.addAction("Reconfigurar (elegir otra cantidad / otros equipos)")
+      choice.addAction("Diagnóstico: probar descarga de logos")
       choice.addCancelAction("Cancelar")
       const idx = await choice.presentSheet()
       if (idx === 0) await runSetup()
+      if (idx === 1) await debugLogoDownloads()
     } else {
       await runSetup()
     }
