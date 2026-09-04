@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBets, updateBet } from "../../../../lib/bets";
+import { getBets, getBetById, updateBet } from "../../../../lib/bets";
 import { getLeagueId } from "../../../../lib/session";
 import { sendPushToAll } from "../../../../lib/push";
 
@@ -28,11 +28,14 @@ export async function POST(request) {
 
     if (status === "approved") {
       try {
-        await sendPushToAll({
-          title: "Nueva apuesta aprobada 🤝",
-          body: updates.wager || "Revisa los detalles en Apuestas",
-          url: "/bets",
-        });
+        const bet = await getBetById(id);
+        if (bet) {
+          await sendPushToAll({
+            title: "We have a new bet MFs!! 😤",
+            body: `${bet.team_a_name} vs ${bet.team_b_name} — entra para saber qué apostaron`,
+            url: "/bets",
+          });
+        }
       } catch (e) {
         console.error("Error mandando push de apuesta:", e.message);
       }
