@@ -3,6 +3,8 @@ import { getLeagueId } from "../../lib/session";
 import AdminDashboard from "./AdminDashboard";
 import BetsAdmin from "./BetsAdmin";
 import AdminNotifications from "./AdminNotifications";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,22 @@ export default async function AdminPage() {
 
   return (
     <>
+      <Link
+        href="/"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          fontSize: "0.85rem",
+          fontWeight: 600,
+          color: "var(--text-muted)",
+          textDecoration: "none",
+          marginBottom: "1.25rem",
+        }}
+      >
+        <ArrowLeft size={16} /> Back to Home
+      </Link>
+
       <AdminDashboard currentWeek={currentWeek} />
       <BetsAdmin />
       <AdminNotifications />
