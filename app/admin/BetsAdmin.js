@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Handshake, Check, X, RefreshCw } from "lucide-react";
 
-function BetRow({ bet, onUpdate }) {
+function BetRow({ bet, onUpdate, onDelete }) {
   const [wager, setWager] = useState(bet.wager);
   const [week, setWeek] = useState(bet.week);
   const [busy, setBusy] = useState(false);
@@ -11,6 +11,13 @@ function BetRow({ bet, onUpdate }) {
   async function act(status) {
     setBusy(true);
     await onUpdate(bet.id, { status, wager, week });
+    setBusy(false);
+  }
+
+  async function remove() {
+    if (!window.confirm(`¿Borrar "${bet.team_a_name} vs ${bet.team_b_name}"? No se puede deshacer.`)) return;
+    setBusy(true);
+    await onDelete(bet.id);
     setBusy(false);
   }
 
@@ -77,6 +84,9 @@ function BetRow({ bet, onUpdate }) {
             Guardar cambios
           </button>
         )}
+        <button disabled={busy} onClick={remove} style={btn("transparent", "var(--text-faint)", "1px solid var(--border)")}>
+          Eliminar
+        </button>
       </div>
     </div>
   );
@@ -130,6 +140,20 @@ export default function BetsAdmin() {
     }
   }
 
+  async function handleDelete(id) {
+    try {
+      const res = await fetch("/api/admin/bets", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Error");
+      await load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   const pending = (bets || []).filter((b) => b.status === "pending");
   const others = (bets || []).filter((b) => b.status !== "pending");
 
@@ -152,14 +176,14 @@ export default function BetsAdmin() {
           </h3>
           {pending.length === 0 && <p style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>Nada pendiente.</p>}
           {pending.map((bet) => (
-            <BetRow key={bet.id} bet={bet} onUpdate={handleUpdate} />
+            <BetRow key={bet.id} bet={bet} onUpdate={handleUpdate} onDelete={handleDelete} />
           ))}
 
           {others.length > 0 && (
             <>
               <h3 style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginTop: "1.5rem" }}>Historial</h3>
               {others.map((bet) => (
-                <BetRow key={bet.id} bet={bet} onUpdate={handleUpdate} />
+                <BetRow key={bet.id} bet={bet} onUpdate={handleUpdate} onDelete={handleDelete} />
               ))}
             </>
           )}

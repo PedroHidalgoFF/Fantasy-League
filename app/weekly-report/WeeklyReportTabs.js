@@ -14,7 +14,7 @@ import {
   Handshake,
 } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
-import CommishPost from "../components/CommishPost";
+import AdminEditablePost from "../components/AdminEditablePost";
 import { getPositionColor } from "../../lib/positionBadge";
 import { getPlayerImageUrl } from "../../lib/teamLogo";
 
@@ -264,6 +264,7 @@ export default function WeeklyReportTabs({
   headToHead,
   headToHeadPost,
   bets,
+  isAdmin,
 }) {
   const [tab, setTab] = useState(TABS.some((t) => t.key === initialTab) ? initialTab : "overview");
 
@@ -341,7 +342,7 @@ export default function WeeklyReportTabs({
 
       {tab === "bustboom" && (
         <div>
-          <CommishPost post={bustboomPost} />
+          <AdminEditablePost page="bustboom" initialPost={bustboomPost} isAdmin={isAdmin} />
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
             Compares actual vs. projected points for your starters. PPR format.
           </p>
@@ -363,7 +364,7 @@ export default function WeeklyReportTabs({
 
       {tab === "waiver-wins" && (
         <div>
-          <CommishPost post={waiverWinsPost} />
+          <AdminEditablePost page="waiver-wins" initialPost={waiverWinsPost} isAdmin={isAdmin} />
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
             Players added via waiver or free agent, ranked by total points accumulated since they were added.
           </p>
@@ -387,7 +388,7 @@ export default function WeeklyReportTabs({
 
       {tab === "head-to-head" && (
         <div>
-          <CommishPost post={headToHeadPost} />
+          <AdminEditablePost page="head-to-head" initialPost={headToHeadPost} isAdmin={isAdmin} />
           <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
             Matchup history between every pair of teams this season. Since it's early in the year, most will show
             just 1 game — this grows as rematches happen.

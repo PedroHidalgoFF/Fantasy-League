@@ -9,7 +9,9 @@ import { getHeadToHeadRecords } from "../../lib/headToHead";
 import { getBets, resolveBetOutcome } from "../../lib/bets";
 import { ClipboardList } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
-import CommishPost from "../components/CommishPost";
+import { isValidSession, ADMIN_COOKIE_NAME } from "../../lib/auth";
+import { cookies } from "next/headers";
+import AdminEditablePost from "../components/AdminEditablePost";
 import WeeklyReportTabs from "./WeeklyReportTabs";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function WeeklyReportPage({ searchParams }) {
   const leagueId = getLeagueId();
   const initialTab = searchParams?.tab || "overview";
+  const isAdmin = await isValidSession(cookies().get(ADMIN_COOKIE_NAME)?.value);
 
   const { matchups, players, rosterTeamNames, week, season } = await getWeeklyMatchupData(leagueId);
   const report = buildWeeklyReport(matchups, rosterTeamNames);
@@ -68,7 +71,7 @@ export default async function WeeklyReportPage({ searchParams }) {
         {new Date().toLocaleDateString("en-US", { day: "2-digit", month: "2-digit", year: "numeric" })}
       </p>
 
-      <CommishPost post={weekPost} />
+      <AdminEditablePost page="weekly-report" week={week} initialPost={weekPost} isAdmin={isAdmin} />
 
       <WeeklyReportTabs
         initialTab={initialTab}
@@ -82,6 +85,7 @@ export default async function WeeklyReportPage({ searchParams }) {
         headToHead={headToHead}
         headToHeadPost={headToHeadPost}
         bets={bets}
+        isAdmin={isAdmin}
       />
     </main>
   );

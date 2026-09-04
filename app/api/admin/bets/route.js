@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBets, getBetById, updateBet } from "../../../../lib/bets";
+import { getBets, getBetById, updateBet, deleteBet } from "../../../../lib/bets";
 import { getLeagueId } from "../../../../lib/session";
 import { sendPushToAll } from "../../../../lib/push";
 
@@ -41,6 +41,18 @@ export async function POST(request) {
       }
     }
 
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  const { id } = await request.json();
+  if (!id) return NextResponse.json({ error: "Falta id" }, { status: 400 });
+
+  try {
+    await deleteBet(id);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
