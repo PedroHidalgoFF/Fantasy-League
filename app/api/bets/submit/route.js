@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { submitBet } from "../../../../lib/bets";
 import { getLeagueId } from "../../../../lib/session";
+import { sendPushToAdmin } from "../../../../lib/push";
 
 export async function POST(request) {
   const leagueId = getLeagueId();
@@ -29,6 +30,17 @@ export async function POST(request) {
       wager,
       submittedBy,
     });
+
+    try {
+      await sendPushToAdmin({
+        title: "You've got a bet to review 🤝",
+        body: `${teamAName} vs ${teamBName} — approve it in /admin`,
+        url: "/admin",
+      });
+    } catch (e) {
+      console.error("Error mandando push al admin:", e.message);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });

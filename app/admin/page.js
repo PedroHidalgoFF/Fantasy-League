@@ -2,6 +2,7 @@ import { getWeeklyMatchupData } from "../../lib/sleeper";
 import { getLeagueId } from "../../lib/session";
 import AdminDashboard from "./AdminDashboard";
 import BetsAdmin from "./BetsAdmin";
+import AdminNotifications from "./AdminNotifications";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function AdminPage() {
     <>
       <AdminDashboard currentWeek={currentWeek} />
       <BetsAdmin />
+      <AdminNotifications />
     </>
   );
 }

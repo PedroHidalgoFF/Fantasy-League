@@ -22,6 +22,7 @@ import {
   Rss,
   BarChart3,
   BookOpen,
+  ShieldCheck,
   ChevronDown,
 } from "lucide-react";
 import NotificationsToggle from "./NotificationsToggle";
@@ -240,6 +241,11 @@ export default function Sidebar({ logoUrl = "/logo-mark.png" }) {
           <RefreshCw size={20} />
           <span>Change League</span>
         </button>
+
+        <Link href="/admin" className="sidebar-link" style={{ opacity: 0.6 }}>
+          <ShieldCheck size={20} />
+          <span>Admin</span>
+        </Link>
       </aside>
     </>
   );

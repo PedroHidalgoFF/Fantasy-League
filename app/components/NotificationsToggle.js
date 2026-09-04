@@ -10,7 +10,7 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
 
-export default function NotificationsToggle() {
+export default function NotificationsToggle({ isAdmin = false }) {
   const [status, setStatus] = useState("unsupported"); // unsupported | default | granted | denied | loading
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function NotificationsToggle() {
       await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription }),
+        body: JSON.stringify({ subscription, isAdmin }),
       });
 
       setStatus("granted");
