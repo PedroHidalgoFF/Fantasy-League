@@ -792,6 +792,77 @@ async function buildWidget(config) {
 
 // Diagnóstico: intenta bajar cada logo y muestra el mensaje de error EXACTO
 // si falla, en vez de solo el "!" genérico del widget.
+// Prueba: usa tus equipos, jugadores y proyecciones REALES, pero simula
+// puntos reales al azar (entre 0% y 130% de lo proyectado) para cada
+// jugador — así se puede ver el sistema de colores (anillos, barra,
+// récord) funcionando en distintos estados sin esperar a un partido real.
+// No toca el widget de tu pantalla de inicio, solo muestra un preview
+// aquí dentro de la app.
+function simulateActuals(data) {
+  const players = {}
+  let actualTotal = 0
+  for (const pos of FEATURED_POSITIONS) {
+    const p = data.players[pos]
+    if (!p) { players[pos] = null; continue }
+    const pct = Math.random() * 1.3 // 0% a 130% de lo proyectado
+    const actual = Math.round(p.projected * pct * 10) / 10
+    actualTotal += actual
+    players[pos] = { ...p, actual }
+  }
+  return { ...data, players, actualTotal }
+}
+
+async function runLiveColorTest() {
+  const savedConfig = loadConfig()
+  if (!savedConfig || !savedConfig.teams) {
+    const a = new Alert()
+    a.title = "Falta configurar"
+    a.message = "Configura el widget primero (elige tus equipos)."
+    await a.present()
+    return
+  }
+
+  try {
+    const state = await getNflState()
+    const week = Math.max(1, state.week || 1)
+    const season = state.season || SEASON
+    const profile = PROFILES[savedConfig.teams.length] || PROFILES[3]
+    const barWidth = FAMILY_BAR_WIDTH.large
+
+    const widget = new ListWidget()
+    widget.backgroundColor = new Color(COLOR_BG)
+
+    const results = await Promise.all(
+      savedConfig.teams.map((team) => fetchNormalizedTeam(team, week, season).catch(() => null))
+    )
+
+    for (const [i, data] of results.entries()) {
+      if (!data) continue
+      const simulated = simulateActuals(data)
+      await addTeamBlock(widget, simulated, barWidth, profile, savedConfig.teams[i].platform || "sleeper")
+
+      if (i < results.length - 1) {
+        widget.addSpacer(8)
+        const divider = widget.addStack()
+        divider.size = new Size(0, 1)
+        divider.backgroundColor = new Color(COLOR_TRACK)
+        widget.addSpacer(8)
+      }
+    }
+
+    if (savedConfig.teams.length === 1) {
+      await widget.presentMedium()
+    } else {
+      await widget.presentLarge()
+    }
+  } catch (e) {
+    const a = new Alert()
+    a.title = "Error"
+    a.message = e.message
+    await a.present()
+  }
+}
+
 async function debugLogoDownloads() {
   const lines = []
   for (const [platform, url] of Object.entries(PLATFORM_LOGO_URL)) {
@@ -845,11 +916,13 @@ async function main() {
       choice.title = "Ya está configurado"
       choice.message = `Equipos actuales: ${savedConfig.teams.map(t => `${t.teamName} (${t.platform || "sleeper"})`).join(" / ")}`
       choice.addAction("Reconfigurar (elegir otra cantidad / otros equipos)")
+      choice.addAction("Probar colores con puntos simulados")
       choice.addAction("Diagnóstico: probar descarga de logos")
       choice.addCancelAction("Cancelar")
       const idx = await choice.presentSheet()
       if (idx === 0) await runSetup()
-      if (idx === 1) await debugLogoDownloads()
+      if (idx === 1) await runLiveColorTest()
+      if (idx === 2) await debugLogoDownloads()
     } else {
       await runSetup()
     }
