@@ -6,6 +6,7 @@ import { getWeeklyReportExtras } from "../../lib/weeklyReportStats";
 import { getBustBoom } from "../../lib/bustboom";
 import { getWaiverWireWins } from "../../lib/waiverWins";
 import { getHeadToHeadRecords } from "../../lib/headToHead";
+import { getBets, resolveBetOutcome } from "../../lib/bets";
 import { ClipboardList } from "lucide-react";
 import { getLeagueId } from "../../lib/session";
 import CommishPost from "../components/CommishPost";
@@ -48,6 +49,13 @@ export default async function WeeklyReportPage({ searchParams }) {
     getHeadToHeadRecords(leagueId).catch(() => []),
   ]);
 
+  const weekBets = await getBets(leagueId, { status: "approved" }).catch(() => []);
+  const bets = await Promise.all(
+    weekBets
+      .filter((b) => b.week === week)
+      .map(async (bet) => ({ ...bet, outcome: await resolveBetOutcome(leagueId, bet) }))
+  );
+
   return (
     <main style={{ maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -73,6 +81,7 @@ export default async function WeeklyReportPage({ searchParams }) {
         waiverWinsPost={waiverWinsPost}
         headToHead={headToHead}
         headToHeadPost={headToHeadPost}
+        bets={bets}
       />
     </main>
   );

@@ -8,6 +8,7 @@ import {
   Trophy,
   ClipboardList,
   Repeat,
+  Handshake,
   Users,
   Star,
   Newspaper,
@@ -57,6 +58,7 @@ const GROUPS = [
     icon: BookOpen,
     links: [
       { href: "/trades", label: "Trades", icon: Repeat },
+      { href: "/bets", label: "Bets", icon: Handshake },
       { href: "/teams", label: "Teams", icon: Users },
     ],
   },

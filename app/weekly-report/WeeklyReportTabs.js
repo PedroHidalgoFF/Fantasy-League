@@ -11,6 +11,7 @@ import {
   Swords,
   Plus,
   Minus,
+  Handshake,
 } from "lucide-react";
 import TeamLogo from "../components/TeamLogo";
 import CommishPost from "../components/CommishPost";
@@ -26,6 +27,7 @@ const TABS = [
   { key: "bustboom", label: "Bust/Boom", icon: Zap },
   { key: "waiver-wins", label: "Waiver Wins", icon: Target },
   { key: "head-to-head", label: "Head-to-Head", icon: Swords },
+  { key: "bets", label: "Bets", icon: Handshake },
 ];
 
 function TabButton({ tab, active, onClick }) {
@@ -261,6 +263,7 @@ export default function WeeklyReportTabs({
   waiverWinsPost,
   headToHead,
   headToHeadPost,
+  bets,
 }) {
   const [tab, setTab] = useState(TABS.some((t) => t.key === initialTab) ? initialTab : "overview");
 
@@ -401,6 +404,44 @@ export default function WeeklyReportTabs({
                   <div key={j}>Week {g.week}: {g.aScore.toFixed(1)} - {g.bScore.toFixed(1)}</div>
                 ))}
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === "bets" && (
+        <div>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: 0 }}>
+            Friendly bets between teams for this week. Propose one from the{" "}
+            <a href="/bets" style={{ color: "var(--accent)" }}>Bets page</a> — the admin approves it before it shows
+            up here.
+          </p>
+          {(!bets || bets.length === 0) && (
+            <p style={{ marginTop: "1.5rem" }}>No bets riding on this week — yet.</p>
+          )}
+          {bets && bets.map((bet) => (
+            <div
+              key={bet.id}
+              style={{ border: "1px solid var(--border)", borderRadius: "10px", padding: "1rem", marginBottom: "0.85rem", background: "var(--surface)" }}
+            >
+              <div style={{ fontWeight: 700, fontSize: "0.9rem", marginBottom: "0.4rem" }}>
+                {bet.team_a_name} <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>vs</span> {bet.team_b_name}
+              </div>
+              <div style={{ color: "var(--text-soft)", fontSize: "0.85rem", marginBottom: "0.6rem" }}>{bet.wager}</div>
+              {!bet.outcome && (
+                <div style={{ color: "var(--text-faint)", fontSize: "0.8rem", fontWeight: 600 }}>Still to be played</div>
+              )}
+              {bet.outcome && bet.outcome.tie && (
+                <div style={{ color: "#d97706", fontWeight: 700, fontSize: "0.85rem" }}>
+                  Tied — {bet.outcome.pointsA.toFixed(1)} to {bet.outcome.pointsB.toFixed(1)}
+                </div>
+              )}
+              {bet.outcome && !bet.outcome.tie && (
+                <div style={{ color: "var(--success)", fontWeight: 700, fontSize: "0.85rem" }}>
+                  🏆 {bet.outcome.winnerName} won ({bet.outcome.pointsA.toFixed(1)}-{bet.outcome.pointsB.toFixed(1)}) —{" "}
+                  {bet.outcome.loserName} owes: {bet.wager}
+                </div>
+              )}
             </div>
           ))}
         </div>
